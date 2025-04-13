@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Plugins\Tesla\ORBIT9000.Plugins.Tesla.csproj" />
+    <ProjectReference Include="..\..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
+  </ItemGroup>
+
+</Project>
