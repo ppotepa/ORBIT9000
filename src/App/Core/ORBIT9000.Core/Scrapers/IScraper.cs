@@ -3,9 +3,9 @@
 namespace ORBIT9000.Core.Scrapers
 {
     public interface IScraper { }
-
-    public interface IScraper<out TResult> : IScraper where TResult : IScrapeResult, new()
+    public interface IScraper<out TResult> : IScraper
+        where TResult : IScrapeResult, new()
     {
-        TResult Execute();
+        TResult Scrape();
     }
 }

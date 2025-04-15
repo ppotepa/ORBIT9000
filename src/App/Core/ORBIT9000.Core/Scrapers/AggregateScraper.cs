@@ -10,15 +10,15 @@ namespace ORBIT9000.Core.Scrapers
     //    public AggregateScraperBase()
     //        => this.Scrapers ??= this.GetType()?.BaseType?.GetGenericArguments().Where(t => t.GetInterfaces().Contains(typeof(IScraper))).ToArray() ?? [];
 
-    //    public TResult[] Execute()
+    //    public TResult[] Scrape()
     //    {
     //        return [.. this.Scrapers.Select(type => {
     //            dynamic instance = Activator.CreateInstance(type);
-    //            return instance.Execute();
+    //            return instance.Scrape();
     //        })];
     //    }
 
-    //    TResult IScraper<TResult>.Execute()
+    //    TResult IScraper<TResult>.Scrape()
     //    {
     //        throw new NotImplementedException();
     //    }

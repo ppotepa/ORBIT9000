@@ -1,16 +1,29 @@
-﻿using ORBIT9000.Core.Scrapers;
+﻿using Microsoft.Extensions.Configuration;
 using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.Configuration.Raw;
 
 namespace ORBIT9000.Engine
 {
     public class OrbitEngine
     {
-        private readonly OrbitEngineConfig config;
+        private readonly OrbitEngineConfig? _configuration;
 
-        public OrbitEngine(OrbitEngineConfig config)
+        public OrbitEngine(OrbitEngineConfig configuration)
         {
-            this.config = config ?? throw new ArgumentNullException(nameof(config));
-            //config.Plugins = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetTypes().Any(x => x.GetInterfaces().Contains(typeof(IOrbitPlugin)))).ToArray();   
+            throw new NotImplementedException();
+        }
+
+        public OrbitEngine(IConfiguration configuration)
+        {
+            if (configuration is null || configuration.AsEnumerable().Any() is false)
+                throw new InvalidOperationException("Configuration was NULL or EMPTY.");
+
+            RawOrbitEngineConfig? raw = configuration.Get<RawOrbitEngineConfig>();
+
+            if(raw is not null)
+            {
+                this._configuration = OrbitEngineConfig.FromRaw(raw);
+            }
         }
 
         public bool IsInitialized { get; private set; }
@@ -25,19 +38,7 @@ namespace ORBIT9000.Engine
 
         private void Initialize()
         {
-            Console.WriteLine("Scanning for Scrapers");
-            foreach(var assembly in this.config.Plugins)
-            {
-                var scrapers = assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Contains(typeof(IScraper)));
-                if (scrapers.Any())
-                {
-                   foreach(var scraper in scrapers)
-                   {
-                        dynamic instance = Activator.CreateInstance(scraper);
-                        instance.Execute();
-                   }
-                }
-            }
+
         }
     }
 }
