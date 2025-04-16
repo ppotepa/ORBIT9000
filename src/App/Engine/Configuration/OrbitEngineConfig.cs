@@ -1,32 +1,39 @@
-﻿using ORBIT9000.Engine.Configuration.Raw;
-using System.Reflection;
+﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.Loaders.Plugin;
+using ORBIT9000.Engine.Loaders.Plugin.Results;
+using ORBIT9000.Engine.Loaders.Plugin.Strategies.ORBIT9000.Engine.Loaders.Plugin.Strategies;
 
 namespace ORBIT9000.Engine.Configuration
 {
+    /// <summary>
+    /// Represents the configuration for the Orbit Engine, including plugin information and default folder settings.
+    /// </summary>
     public class OrbitEngineConfig
     {
-        public required Assembly[] Plugins { get; set; }
+        public required PluginLoadResult[] Plugins { get; set; }
         public required DirectoryInfo DefaultFolder { get; set; }
 
-        public bool UseDefaultFolder => this.Plugins.Length == 0;
-
-        internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig rawConfig)
+        internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig rawConfig, ILogger? logger = default)
         {
+            logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
+
             try
             {
-                if (rawConfig.OrbitEngine.Plugins.SkipMissing)
-                {
-
-                }
+                string[] plugins = rawConfig.OrbitEngine.Plugins.ActivePlugins;
+                DirectoryInfo defaultFolder = new DirectoryInfo("./plugins");
 
                 return new OrbitEngineConfig
                 {
-                    DefaultFolder = new DirectoryInfo(rawConfig.OrbitEngine.Plugins.DefaultFolder),
-                    Plugins = rawConfig.OrbitEngine.Plugins
-                        .ActivePlugins
-                        .Select(Assembly.LoadFile)
-                        .ToArray()
+                    DefaultFolder = defaultFolder,
+                    Plugins = PluginLoader.Load(rawConfig, logger).ToArray()                        
                 };
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "An error occurred while creating the OrbitEngineConfig from raw configuration.");
+                throw;
+            }
         }
     }
 }

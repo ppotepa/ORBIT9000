@@ -1,7 +1,8 @@
 ﻿namespace ORBIT9000.Engine.Configuration.Raw
 {
-    public class RawOrbitEngine
+    internal class RawOrbitEngine
     {
         public required RawPlugins Plugins { get; set; }
+        public bool UseDefaultFolder => this.Plugins.ActivePlugins.Length == 0;
     }
 }

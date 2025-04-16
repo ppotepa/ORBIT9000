@@ -1,6 +1,6 @@
 ﻿namespace ORBIT9000.Engine.Configuration.Raw
 {
-    public class RawOrbitEngineConfig
+    internal class RawOrbitEngineConfig
     {
         public required RawOrbitEngine OrbitEngine { get; set; }
     }

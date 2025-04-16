@@ -1,9 +1,9 @@
 ﻿namespace ORBIT9000.Engine.Configuration.Raw
 {
-    public class RawPlugins
+    internal class RawPlugins
     {
-        public required string[] ActivePlugins { get; set; }
-        public required string DefaultFolder { get; set; }
-        public required bool SkipMissing { get; set; }
+        public required string[] ActivePlugins { get; set; } = Array.Empty<string>();        
+        public required bool AbortOnError { get; set; }
+
     }
 }
