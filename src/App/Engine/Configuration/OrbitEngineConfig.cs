@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Configuration.Raw;
-using ORBIT9000.Engine.Loaders.Plugin;
+using ORBIT9000.Engine.Factories;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
-using ORBIT9000.Engine.Loaders.Plugin.Strategies.ORBIT9000.Engine.Loaders.Plugin.Strategies;
+using ORBIT9000.Engine.Loaders.Plugin.Implementations;
 
 namespace ORBIT9000.Engine.Configuration
 {
@@ -26,7 +26,7 @@ namespace ORBIT9000.Engine.Configuration
                 return new OrbitEngineConfig
                 {
                     DefaultFolder = defaultFolder,
-                    Plugins = PluginLoader.Load(rawConfig, logger).ToArray()                        
+                    Plugins = PluginLoaderFActory.Load(rawConfig.OrbitEngine.Plugins, logger).ToArray()                        
                 };
             }
             catch (Exception ex)

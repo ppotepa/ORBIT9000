@@ -1,8 +1,34 @@
-﻿using ORBIT9000.Core.Plugin;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Data;
+using ORBIT9000.Core.Abstractions.Plugin;
+using ORBIT9000.Plugins.Tesla.Scrapers.Twitter;
 
 namespace ORBIT9000.Plugins.Tesla
-{    
+{
     public class TeslaPlugin : IOrbitPlugin
     {
+        private ILogger _logger;
+        private IServiceProvider _provider;
+
+        public TeslaPlugin(IServiceProvider provider, ILogger logger)
+        {
+            this._provider = provider;
+            this._logger = logger;
+        }
+
+        public TeslaPlugin()
+        {
+        }
+
+        public Type[] GetDataProviders()
+        {
+            return [typeof(TeslaTwitterDataProvider)];
+        }
+
+        public void Register(IServiceCollection services)
+        {
+            services.AddTransient<IDataProvider<TeslaTwitterResult>, TeslaTwitterDataProvider>();
+        }
     }
 }

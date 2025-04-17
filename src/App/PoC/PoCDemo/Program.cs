@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine;
 using Serilog;
-using Serilog.Extensions.Logging;
 
 namespace ORBIT9000.PoCDemo
 {
@@ -13,6 +13,13 @@ namespace ORBIT9000.PoCDemo
 
         private static void Main(string[] args)
         {
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .Build();
+
+            IServiceCollection services = new ServiceCollection();
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo
@@ -20,24 +27,18 @@ namespace ORBIT9000.PoCDemo
                 .CreateLogger()                
                 .ForContext<Program>();
 
-            var loggerFactory = new LoggerFactory(new[] {
-                new SerilogLoggerProvider(Log.Logger)
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();                
+                loggingBuilder.AddSerilog(Log.Logger);
             });
 
-            Log.Logger.Information("Logger created.");
+            services.AddSingleton<IConfiguration>(config);  
 
-            IConfigurationRoot config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-                .Build();
+            services.AddSingleton<OrbitEngine>();
 
-            Log.Logger.Information("Loaded configuration");
-
-            //var engine = new Engine.OrbitEngine(config, loggerFactory.CreateLogger<OrbitEngine>());
-            OrbitEngine engine = new OrbitEngine(config!, loggerFactory.CreateLogger<OrbitEngine>());
-
-            Log.Logger.Information($"Orbit engine create with configuration : {config}");
-            Log.Logger.Information($"Starting engine.");
+            ServiceProvider provider = services.BuildServiceProvider();
+            OrbitEngine engine = provider.GetRequiredService<OrbitEngine>();
 
             engine.Start();
        }
