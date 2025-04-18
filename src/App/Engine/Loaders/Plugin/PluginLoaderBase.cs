@@ -7,46 +7,31 @@ using System.Reflection;
 
 namespace ORBIT9000.Engine.Loaders.Plugin
 {
-    /// <summary>
-    /// Base abstract class for plugin loading strategies.
-    /// </summary>
-    /// <typeparam name="TSource">The source type from which plugins are loaded.</typeparam>
     internal abstract class PluginLoaderBase<TSource>
     {
-        /// <summary>
-        /// Logger instance for recording plugin loading operations.
-        /// </summary>
+   
         protected readonly ILogger? _logger;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PluginLoaderBase{TSource}"/> class.
-        /// </summary>
-        /// <param name="logger">Optional logger for recording plugin loading operations.</param>
+        protected bool _abortOnError = false;
+
         protected PluginLoaderBase(ILogger? logger = default)
         {
             _logger = logger;
         }
 
-        /// <summary>
-        /// Loads plugins from the specified source.
-        /// </summary>
-        /// <param name="source">The source from which to load plugins.</param>
-        /// <returns>A collection of plugin load results.</returns>
+        public PluginLoaderBase<TSource> AbortOnError(bool abortOnError = false)
+        {
+            _abortOnError = abortOnError;
+            return this;
+        }
         public abstract IEnumerable<PluginLoadResult> LoadPlugins(TSource source);
-
-        /// <summary>
-        /// Loads a single plugin from the specified path.
-        /// </summary>
-        /// <param name="path">Path to the plugin file.</param>
-        /// <param name="abortOnError">Whether to throw exceptions on error.</param>
-        /// <returns>A result containing information about the loaded plugin.</returns>
-        protected PluginLoadResult LoadSingle(string path, bool abortOnError)
+        protected PluginLoadResult LoadSingle(string path)
         {
             using (_logger?.BeginScope($"{new FileInfo(path).Name}"))
             {
                 _logger?.LogInformation($"Loading plugin from {path}");
 
-                PluginLoadDetails details = TryLoadSingleFile(path, abortOnError);
+                PluginLoadDetails details = TryLoadSingleFile(path);
 
                 return new PluginLoadResult(
                     path,
@@ -54,23 +39,18 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                     details.IsDll,
                     details.ContainsPlugins,
                     [details.Error],
-                    details.LoadedAssembly
+                    details.LoadedAssembly, 
+                    details.Plugins
                 );
             }
         }
-
-        /// <summary>
-        /// Formats a list of exceptions into a single error message.
-        /// </summary>
+      
         private string FormatErrorMessages(List<Exception> exceptions)
             => string.Join('\n', exceptions.Select(ex => ex.Message));
 
-        /// <summary>
-        /// Handles errors based on the abortOnError flag.
-        /// </summary>
-        private void HandleErrors(bool abortOnError, List<Exception> exceptions)
+        private void HandleErrors(List<Exception> exceptions)
         {
-            if (abortOnError)
+            if (_abortOnError)
             {
                 _logger?.LogCritical("Aborting due to errors:");
 
@@ -88,20 +68,19 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                 }
             }
         }
-
-        /// <summary>
-        /// Attempts to load an assembly and check if it contains plugins.
-        /// </summary>
-        private (Assembly? Assembly, bool ContainsPlugins) TryLoadAssembly(string path, List<Exception> exceptions)
+       
+        private (Assembly? Assembly, bool ContainsPlugins, Type[] plugins) TryLoadAssembly(string path, List<Exception> exceptions)
         {
             Assembly? assembly = null;
             bool containsPlugins = false;
+            Type[] pluginTypes = Array.Empty<Type>();
 
             try
             {
                 assembly = Assembly.LoadFile(path);
-                IEnumerable<Type> pluginTypes = assembly.GetTypes()
-                    .Where(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type));
+                pluginTypes = assembly.GetTypes()
+                    .Where(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type))
+                    .ToArray();
 
                 containsPlugins = pluginTypes.Any();
 
@@ -116,18 +95,16 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                 exceptions.Add(ex);
             }
            
-            return (assembly, containsPlugins);
+            return (assembly, containsPlugins, pluginTypes);
         }
 
-        /// <summary>
-        /// Attempts to load a plugin file and returns details about the operation.
-        /// </summary>
-        private PluginLoadDetails TryLoadSingleFile(string path, bool abortOnError = false)
+        private PluginLoadDetails TryLoadSingleFile(string path)
         {
             List<Exception> exceptions = new List<Exception>();
+            Type[] plugins = Array.Empty<Type>();
             var validator = new PluginFileValidator(path, _logger);
 
-            // Validate the file path and type
+            // Validate the file Path and type
             validator.Validate(exceptions);
 
             Assembly? loadedAssembly = null;
@@ -136,16 +113,16 @@ namespace ORBIT9000.Engine.Loaders.Plugin
             // Only attempt to load if basic validation passes
             if (validator.IsValid)
             {
-                (loadedAssembly, containsPlugins) = TryLoadAssembly(path, exceptions);
+                (loadedAssembly, containsPlugins, plugins) = TryLoadAssembly(path, exceptions);
             }
 
-            // Handle errors if any occurred
+            // Handle Error if any occurred
             if (exceptions.Count != 0)
             {
                 loadedAssembly = null;
                 containsPlugins = false;
 
-                HandleErrors(abortOnError, exceptions);
+                HandleErrors(exceptions);
             }
 
             return new PluginLoadDetails(
@@ -153,7 +130,8 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                 IsDll: validator.IsDll,
                 ContainsPlugins: containsPlugins,
                 Error: FormatErrorMessages(exceptions),
-                LoadedAssembly: loadedAssembly
+                LoadedAssembly: loadedAssembly, 
+                Plugins: plugins
             );
         }
     }

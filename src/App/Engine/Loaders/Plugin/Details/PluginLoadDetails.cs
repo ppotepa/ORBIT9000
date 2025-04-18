@@ -11,24 +11,27 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Details
         bool IsDll,
         bool ContainsPlugins,
         string Error,
-        Assembly? LoadedAssembly)
+        Assembly? LoadedAssembly,
+        Type[] Plugins)
     {
         // Implicit conversion operators (if legacy code requires converting to/from tuple).
-        public static implicit operator (bool FileExists, bool IsDll, bool ContainsPlugins, string? Error, Assembly? LoadedAssembly)(PluginLoadDetails value) 
+        public static implicit operator (bool FileExists, bool IsDll, bool ContainsPlugins, string? Error, Assembly? LoadedAssembly, Type[] plugins)(PluginLoadDetails value) 
             => (
             value.FileExists, value.IsDll, 
             value.ContainsPlugins,
             value.Error, 
-            value.LoadedAssembly
+            value.LoadedAssembly,
+            value.Plugins
         );
 
-        public static implicit operator PluginLoadDetails((bool FileExists, bool IsDll, bool ContainsPlugins, string Error, Assembly? LoadedAssembly) value) 
+        public static implicit operator PluginLoadDetails((bool FileExists, bool IsDll, bool ContainsPlugins, string Error, Assembly? LoadedAssembly, Type[] Plugins) value) 
             => new PluginLoadDetails(
                 value.FileExists, 
                 value.IsDll, 
                 value.ContainsPlugins, 
                 value.Error, 
-                value.LoadedAssembly
+                value.LoadedAssembly,
+                value.Plugins
             );
     }
 }

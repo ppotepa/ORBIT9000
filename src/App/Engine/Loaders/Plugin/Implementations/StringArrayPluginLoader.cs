@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
@@ -14,7 +13,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
         {
             foreach (var plugin in source)
             {
-                yield return LoadSingle(plugin, true);
+                yield return LoadSingle(plugin);
             }
         }
     }

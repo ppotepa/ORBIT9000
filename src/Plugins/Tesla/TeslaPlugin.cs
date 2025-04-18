@@ -26,8 +26,9 @@ namespace ORBIT9000.Plugins.Tesla
             return [typeof(TeslaTwitterDataProvider)];
         }
 
-        public void Register(IServiceCollection services)
+        public void RegisterServices(IServiceCollection services)
         {
+            _logger.LogInformation("Registering Tesla plugin services.");
             services.AddTransient<IDataProvider<TeslaTwitterResult>, TeslaTwitterDataProvider>();
         }
     }

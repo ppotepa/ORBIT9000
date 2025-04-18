@@ -20,7 +20,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Validation
         public bool IsValid => FileExists && IsDll;
 
         /// <summary>
-        /// Validates the plugin file path and type.
+        /// Validates the plugin file Path and type.
         /// </summary>
         public void Validate(List<Exception> exceptions)
         {

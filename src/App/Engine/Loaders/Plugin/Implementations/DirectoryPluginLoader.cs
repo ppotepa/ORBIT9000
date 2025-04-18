@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
@@ -24,9 +23,9 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
             }
             else
             {
-                foreach (var file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
+                foreach (FileInfo file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
                 {                    
-                    yield return LoadSingle(file.FullName, true);
+                    yield return LoadSingle(file.FullName);
                 }
             }
         }

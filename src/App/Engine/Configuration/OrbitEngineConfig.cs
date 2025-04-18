@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Factories;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
-using ORBIT9000.Engine.Loaders.Plugin.Implementations;
 
 namespace ORBIT9000.Engine.Configuration
 {
@@ -11,10 +11,9 @@ namespace ORBIT9000.Engine.Configuration
     /// </summary>
     public class OrbitEngineConfig
     {
-        public required PluginLoadResult[] Plugins { get; set; }
         public required DirectoryInfo DefaultFolder { get; set; }
-
-        internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig rawConfig, ILogger? logger = default)
+        public required PluginLoadResult[] PluginInfo { get; set; }
+        internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig rawConfig, ILogger? logger = default, IServiceCollection services = null)
         {
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
@@ -26,11 +25,13 @@ namespace ORBIT9000.Engine.Configuration
                 return new OrbitEngineConfig
                 {
                     DefaultFolder = defaultFolder,
-                    Plugins = PluginLoaderFActory.Load(rawConfig.OrbitEngine.Plugins, logger).ToArray()                        
+                    PluginInfo = PluginLoaderFactory.Load(rawConfig.OrbitEngine.Plugins, logger)
+                                                 .Where(result => result.ContainsPlugins)
+                                                 .ToArray()                        
                 };
             }
             catch (Exception ex)
-            {
+            {       
                 logger?.LogError(ex, "An error occurred while creating the OrbitEngineConfig from raw configuration.");
                 throw;
             }
