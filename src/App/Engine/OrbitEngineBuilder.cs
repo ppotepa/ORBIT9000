@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using ORBIT9000.Core.Abstractions.Plugin;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using Serilog;
+using System;
 
 namespace ORBIT9000.Engine
 {
@@ -15,12 +17,15 @@ namespace ORBIT9000.Engine
 
         private readonly ILogger<OrbitEngine> _logger;
         private readonly ILoggerFactory _loggerFactory;
+
         private readonly IConfiguration _rawConfiguration;
-        
+
         private readonly IServiceCollection _servicesCollection;
-        private List<Type> _plugins = new();
+
+        private Dictionary<string, PluginActivationInfo> _plugins = new();
+
         private IServiceProvider _serviceProvider;
-        public OrbitEngine() 
+        public OrbitEngine()
         {
             _servicesCollection = new ServiceCollection();
 
@@ -33,28 +38,24 @@ namespace ORBIT9000.Engine
                 .Enrich.FromLogContext()
                 .WriteTo
                 .Console(outputTemplate: OutputTemplate)
-                .CreateLogger()
-                .ForContext<OrbitEngine>();
-         
+                .CreateLogger();
+
             _loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.ClearProviders();
                 builder.AddSerilog(Log.Logger);
             });
 
+            this._servicesCollection.AddSingleton(this._loggerFactory);
+
+            _servicesCollection.AddLogging();
+
             _logger = _loggerFactory.CreateLogger<OrbitEngine>();
-
-            _servicesCollection.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddSerilog(Log.Logger);
-            });
-
             _servicesCollection.AddSingleton(_rawConfiguration);
         }
-        
+
         public OrbitEngineConfig? ConfigurationInfo { get; private set; }
-        
+
         public bool IsInitialized { get; private set; }
 
         public void Start()
@@ -81,17 +82,34 @@ namespace ORBIT9000.Engine
 
                 this.ConfigurationInfo = OrbitEngineConfig.FromRaw(raw, _logger);
 
-                foreach (var info in this.ConfigurationInfo.PluginInfo)
+                foreach (Loaders.Plugin.Results.PluginLoadResult info in this.ConfigurationInfo?.PluginInfo)
                 {
-                    foreach (var item in info.Plugins)
+                    foreach (Type item in info.Plugins)
                     {
+                        _plugins.Add(item.Name, new PluginActivationInfo(false, item));
                         _servicesCollection.AddScoped(item);
                     }
                 }
             }
 
+            /// temporary service provider that will be replaced later on
+            /// used only for Initialization purposes            
+            _serviceProvider = _servicesCollection.BuildServiceProvider();
+
+            foreach (KeyValuePair<string, PluginActivationInfo> plugin in _plugins)
+            {
+                if (plugin.Value.Registered is false)
+                {
+                    var scoped = _serviceProvider.CreateScope();
+
+                    IOrbitPlugin? instance = _serviceProvider
+                        .GetService(plugin.Value.Item) as IOrbitPlugin;
+
+                    instance.RegisterServices(_servicesCollection);
+                }
+            }
+
             _serviceProvider = _servicesCollection.BuildServiceProvider();
         }
-
     }
 }

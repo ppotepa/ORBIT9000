@@ -8,18 +8,16 @@ namespace ORBIT9000.Plugins.Tesla
 {
     public class TeslaPlugin : IOrbitPlugin
     {
-        private ILogger _logger;
+        private ILogger<TeslaPlugin> _logger;
         private IServiceProvider _provider;
 
-        public TeslaPlugin(IServiceProvider provider, ILogger logger)
+        public TeslaPlugin(IServiceProvider provider, ILogger<TeslaPlugin> logger)
         {
             this._provider = provider;
             this._logger = logger;
         }
 
-        public TeslaPlugin()
-        {
-        }
+        public TeslaPlugin() { }
 
         public Type[] GetDataProviders()
         {
