@@ -12,8 +12,6 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Results
         public Assembly? LoadedAssembly;
         public Type[] Plugins;
 
-        public PluginLoadResult() { }
-
         public PluginLoadResult(string path, bool fileExists, bool isDll, 
             bool containsPlugins, string[] errors, Assembly? loadedAssembly, Type[] plugins)
         {

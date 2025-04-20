@@ -17,7 +17,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
@@ -31,5 +31,7 @@
   <ItemGroup>
     <Folder Include="Plugins\" />
   </ItemGroup>
+
+  <Import Project="Rebuild.Plugins.targets" />  
 
 </Project>

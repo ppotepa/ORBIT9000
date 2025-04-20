@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Plugin;
-using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Plugins.Tesla.DataProviders.Twitter;
 
 namespace ORBIT9000.Plugins.Tesla
@@ -17,16 +15,15 @@ namespace ORBIT9000.Plugins.Tesla
             this._logger = logger;
         }
 
-        public TeslaPlugin() { }
-
-        public Type[] GetDataProviders()
-        {
-            return [typeof(TeslaTwitterDataProvider)];
-        }
-
         public void Run()
         {
-            _logger.LogInformation("Running Tesla plugin.");                
+            var sum = 1;
+            for(var i = 0; i < 100; i++)
+            {
+                sum += (i * 10);
+                _logger.LogInformation($"xxxx {Thread.CurrentThread.ManagedThreadId}_{sum}ms");
+                Thread.Sleep(sum);
+            }
         }
     }
 }

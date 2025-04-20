@@ -3,13 +3,14 @@ namespace ORBIT9000.Engine
 {
     internal class PluginActivationInfo
     {
-        public PluginActivationInfo(bool registered, Type item)
+        public PluginActivationInfo(bool registered)
         {
-            this.Registered = registered;
-            this.Item = item;
+            this.Registered = registered;            
         }
 
         public bool Registered { get; set; }
-        public Type Item { get; private set; }
+        public List<Task> Instances { get; set; } = new List<Task>(); 
+
+
     }
 }

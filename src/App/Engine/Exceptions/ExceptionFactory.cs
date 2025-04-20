@@ -13,7 +13,7 @@ namespace ORBIT9000.Engine.Exceptions
             _abortOnError = abortOnError;
         }
 
-        public void ThrowIfNecessary(Exception exception, string message = null)
+        public void ThrowIfNecessary(Exception exception, string? message = null)
         {
             if (message != null)
             {

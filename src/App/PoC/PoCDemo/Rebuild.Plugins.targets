@@ -1,0 +1,25 @@
+<Project>
+  <ItemGroup>    
+    <PluginProjects Include="**\Plugins\**\*.csproj" />
+  </ItemGroup>
+
+  <Target Name="RebuildPlugins">
+    
+    <Message Text="-----------------------------------" Importance="high" />
+    <Message Text="🚀 PLUGIN REBUILD TARGET TRIGGERED!" Importance="high" />
+    <Message Text="-----------------------------------" Importance="high" />
+
+    <MSBuild
+      Projects="@(PluginProjects)"
+      Targets="Rebuild"
+      Properties="Configuration=$(Configuration)"
+      BuildInParallel="true" />
+  </Target>
+
+  
+  <Target Name="BeforeBuild">
+    <Exec Command="cmd.exe /k &quot;$(ProjectDir)ShowMessage.cmd&quot;" />
+    <CallTarget Targets="RebuildPlugins" />
+  </Target>
+  
+</Project>

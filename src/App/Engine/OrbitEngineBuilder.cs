@@ -5,64 +5,186 @@ using ORBIT9000.Core.Abstractions.Plugin;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.Exceptions;
+using ORBIT9000.Engine.Loaders.Plugin.Results;
+using ORBIT9000.Engine.State;
 using Serilog;
 using System.Reflection;
 
 namespace ORBIT9000.Engine
 {
-
-    class EngineState
-    {
-        public OrbitEngine Engine { get; internal set; }
-    }
-
     public class OrbitEngine
     {
         private const string OutputTemplate
            = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] [{SourceContext}]{Scope} {Message:lj}{NewLine}{Exception}";
 
-        private readonly Thread MainThread = new Thread(MainEngineThread);
+        private ExceptionFactory? _exceptionFactory;
+        private ILogger<OrbitEngine>? _logger;
+        private ILoggerFactory? _loggerFactory;
+        private Thread? _mainThread;
+        private Dictionary<Type, PluginActivationInfo> _plugins = new();
+        private IConfiguration? _rawConfiguration;
+        private IServiceProvider? _serviceProvider;
+        private IServiceCollection? _servicesCollection;
 
-        private static void MainEngineThread(object? obj)
-        {
-            EngineState? state = obj as EngineState;
-
-            if (state is null)
-            {
-                ArgumentNullException.ThrowIfNull(state, nameof(state));
-            }
-            while (state.Engine.IsRunning)
-            {
-                state.Engine._logger.LogInformation("Engine is running.");
-                
-                List<IOrbitPlugin?> instances = [.. state.Engine._plugins.Select(
-                 (                 
-                     plugin => state.Engine._serviceProvider.GetService(plugin.Value.Item) as IOrbitPlugin
-                 ))];
-
-                instances.ForEach(p => p.Run());
-
-                Thread.Sleep(100);
-            }
-        }
-
-        private readonly ILogger<OrbitEngine> _logger;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IConfiguration _rawConfiguration;
-        private readonly IServiceCollection _servicesCollection;
-
-        private Dictionary<string, PluginActivationInfo> _plugins = new();
-
-        private IServiceProvider _serviceProvider;
         public OrbitEngine()
         {
             _servicesCollection = new ServiceCollection();
+        }
 
+        public OrbitEngineConfig? ConfigurationInfo { get; private set; }
+        public bool IsInitialized { get; private set; }
+        public bool IsRunning { get; private set; }
+
+        public void Initialize()
+        {
+            if (IsInitialized)
+            {
+                _logger?.LogWarning("Engine is already initialized.");
+                return;
+            }
+
+            SetupConfiguration();
+            SetupLogging();
+            RegisterCoreServices();
+
+            ValidateConfiguration();
+            var rawConfig = _rawConfiguration?.Get<RawOrbitEngineConfig>();
+            RegisterPlugins(rawConfig);
+            
+            _serviceProvider = _servicesCollection?.BuildServiceProvider();
+            _mainThread = new Thread(MainEngineThread);
+
+            IsInitialized = true;
+        }
+
+        public void Start()
+        {            
+            if (!IsInitialized)
+            {
+                Initialize();
+            }
+            else if (IsRunning)
+            {
+                _logger?.LogWarning("Engine is already running.");
+                return;
+            }
+
+            IsRunning = true;
+            _mainThread?.Start(new EngineState { Engine = this });
+        }
+
+        private static void ProcessPlugins(OrbitEngine engine)
+        {
+            if (engine._serviceProvider == null)
+                return;
+
+            foreach (var pluginKey in engine._plugins)
+            {
+                Type pluginDescriptor = pluginKey.Key;
+
+                engine._logger.LogInformation($"Plugin: {pluginKey} - {pluginDescriptor.Name}");
+
+                using var scope = engine._serviceProvider.CreateAsyncScope();
+
+                engine._logger.LogInformation($"Creating scope for {pluginKey} - {pluginDescriptor.Name}");
+
+                if (scope.ServiceProvider.GetService(pluginDescriptor) is not IOrbitPlugin instance)
+                {
+                    engine._logger.LogWarning($"Plugin {pluginKey} - {pluginDescriptor.Name} could not be created.");
+                    continue;
+                }
+
+                if (engine._plugins[pluginDescriptor].Instances.Any())
+                {
+                    engine._logger.LogWarning($"Plugin {pluginKey} - {pluginDescriptor.Name} is already running.");
+                }
+                else engine._plugins[pluginDescriptor].Instances.Add(Task.Run(() => instance.Run()));
+            }
+        }
+
+        private void MainEngineThread(object? state)
+        {
+            if (state is not EngineState engineState || engineState.Engine is null)
+            {
+                throw new ArgumentNullException(nameof(state), "State was null or invalid.");
+            }
+
+            var engine = engineState.Engine;
+            var logger = engine._logger;
+
+            logger?.LogInformation("Engine is running.");
+
+            while (engine.IsRunning)
+            {
+                ProcessPlugins(engine);
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+            }
+        }
+
+        private void RegisterCoreServices()
+        {
+            if (_servicesCollection == null || _loggerFactory == null || _rawConfiguration == null)
+                return;
+
+            _servicesCollection.AddSingleton(_loggerFactory);
+            _servicesCollection.AddLogging();
+            _servicesCollection.AddSingleton(_rawConfiguration);
+        }
+
+        private void RegisterPlugins(RawOrbitEngineConfig? raw)
+        {
+            if (raw == null || _servicesCollection == null || _logger == null)
+                return;
+
+            _logger.LogInformation("Loading raw configuration.");
+
+            ConfigurationInfo = OrbitEngineConfig.FromRaw(raw, _logger);
+
+            if (ConfigurationInfo != null)
+            {
+                foreach (PluginLoadResult info in ConfigurationInfo.PluginInfo)
+                {
+                    foreach (Type item in info.Plugins)
+                    {
+                        _plugins.Add(item, new PluginActivationInfo(false));
+                        _servicesCollection.AddScoped(item);
+                    }
+                }
+            }
+
+            foreach (var plugin in _plugins)
+            {
+                Type implementation = plugin.Key;
+
+                if (!plugin.Value.Registered)
+                {
+                    var services = implementation.Assembly.GetTypes()
+                        .Where(type => type.GetCustomAttribute<ServiceAttribute>() != null);
+
+                    var dataProviders = implementation.Assembly.GetTypes()
+                        .Where(type => type.GetCustomAttribute<DataProviderAttribute>() != null);
+
+                    foreach (Type type in (Type[])[.. services, .. dataProviders])
+                    {
+                        _servicesCollection.AddScoped(type);
+                    }
+                }
+
+                plugin.Value.Registered = true;
+            }
+        }
+
+        private void SetupConfiguration()
+        {
             _rawConfiguration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                 .Build();
+        }
 
+        private void SetupLogging()
+        {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo
@@ -75,85 +197,16 @@ namespace ORBIT9000.Engine
                 builder.AddSerilog(Log.Logger);
             });
 
-            _servicesCollection.AddSingleton(this._loggerFactory);
-            _servicesCollection.AddLogging();
-            _servicesCollection.AddSingleton(_rawConfiguration);
-
             _logger = _loggerFactory.CreateLogger<OrbitEngine>();
+            _exceptionFactory = new ExceptionFactory(_logger, true);
         }
 
-        public OrbitEngineConfig? ConfigurationInfo { get; private set; }
-
-        public bool IsInitialized { get; private set; }
-        public bool IsRunning { get; private set; }
-
-        public void Start()
+        private void ValidateConfiguration()
         {
-            if (IsInitialized is false)
+            if (_rawConfiguration == null || !_rawConfiguration.AsEnumerable().Any())
             {
-                Initialize();
-                MainThread.Start(new EngineState() { Engine = this });
-            }
-            else _logger.LogWarning("Engine is already initialized.");
-        }
-
-        internal void Initialize()
-        {
-            if (_rawConfiguration is null || _rawConfiguration.AsEnumerable().Any() is false)
-            {
-                _logger.LogError("Configuration was NULL or EMPTY.");
+                _logger?.LogError("Configuration was NULL or EMPTY.");
                 throw new InvalidOperationException("Configuration was NULL or EMPTY.");
-            }
-
-            RawOrbitEngineConfig? raw = _rawConfiguration.Get<RawOrbitEngineConfig>();
-
-            this.RegisterPlugins(raw);
-
-            _serviceProvider = _servicesCollection.BuildServiceProvider();
-
-            IsInitialized = true;
-            IsRunning = true;
-        }
-
-        private void RegisterPlugins(RawOrbitEngineConfig? raw)
-        {
-            if (raw is not null)
-            {
-                _logger.LogInformation("Loading raw configuration.");
-
-                this.ConfigurationInfo = OrbitEngineConfig.FromRaw(raw, _logger);
-
-                foreach (Loaders.Plugin.Results.PluginLoadResult info in this.ConfigurationInfo?.PluginInfo)
-                {
-                    foreach (Type item in info.Plugins)
-                    {
-                        _plugins.Add(item.Name, new PluginActivationInfo(false, item));
-                        _servicesCollection.AddScoped(item);
-                    }
-                }
-            }
-
-            /// temporary service provider that will be replaced later on
-            /// used only for Initialization purposes            
-            _serviceProvider = _servicesCollection.BuildServiceProvider();
-
-            foreach (KeyValuePair<string, PluginActivationInfo> plugin in _plugins)
-            {
-                Type implementation = plugin.Value.Item;
-
-                if (plugin.Value.Registered is false)
-                {
-                    IEnumerable<Type> services = implementation.Assembly.GetTypes().Where(type => type.GetCustomAttribute<ServiceAttribute>() != null);
-                    IEnumerable<Type> dataProvider = implementation.Assembly.GetTypes().Where(type => type.GetCustomAttribute<DataProviderAttribute>() != null);
-
-                    foreach (Type type in (Type[])[.. services, .. dataProvider])
-                    {
-                        _servicesCollection.AddScoped(type);
-                    }
-                }
-
-                plugin.Value.Registered = true;
-
             }
         }
     }

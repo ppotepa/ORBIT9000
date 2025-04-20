@@ -39,7 +39,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                 else
                 {
 
-                    DirectoryInfo directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+                    DirectoryInfo? directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
                     while (directory != null)
                     {
