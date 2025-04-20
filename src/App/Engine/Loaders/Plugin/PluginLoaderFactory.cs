@@ -26,7 +26,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
         /// <param name="logger">Optional logger for recording plugin loading operations.</param>
         /// <returns>An instance of <see cref="PluginLoadingStrategy"/> appropriate for the configuration.</returns>
         ///         
-        public static IEnumerable<PluginLoadResult> Load(RawPlugins rawPlugins, ILogger? logger = default)
+        public static IEnumerable<PluginLoadResult> Load(RawPluginInfo rawPlugins, ILogger? logger = default)
         {
             if (AppEnvironment.IsDebug)
             {
@@ -38,7 +38,6 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                 }
                 else
                 {
-
                     DirectoryInfo? directory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 
                     while (directory != null)
@@ -71,7 +70,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                         .AbortOnError(rawPlugins.AbortOnError)
                         .LoadPlugins(new DirectoryInfo("./Plugins"));
                 }
-            }            
+            }
         }
     }
 }

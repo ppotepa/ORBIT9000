@@ -15,6 +15,7 @@ namespace ORBIT9000.Engine.Configuration
         public required PluginLoadResult[] PluginInfo { get; set; }
         internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig rawConfig, ILogger? logger = default, IServiceCollection? services = null)
         {
+
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
@@ -26,12 +27,12 @@ namespace ORBIT9000.Engine.Configuration
                 {
                     DefaultFolder = defaultFolder,
                     PluginInfo = PluginLoaderFactory.Load(rawConfig.OrbitEngine.Plugins, logger)
-                                                 .Where(result => result.ContainsPlugins)
-                                                 .ToArray()                        
+                                .Where(result => result.ContainsPlugins)
+                                .ToArray()
                 };
             }
             catch (Exception ex)
-            {       
+            {
                 logger?.LogError(ex, "An error occurred while creating the OrbitEngineConfig from raw configuration.");
                 throw;
             }

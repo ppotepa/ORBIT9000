@@ -9,9 +9,9 @@ namespace ORBIT9000.Engine.Extensions
         public static void AddOrbitEngine(this IServiceCollection services
             , IConfiguration config, ILogger logger)
         {
-            OrbitEngine orbitEngine = new OrbitEngine();
-            orbitEngine.Initialize();
-            services.AddSingleton(orbitEngine);
+            //OrbitEngine orbitEngine = new OrbitEngine();
+            //orbitEngine.Initialize();
+            //services.AddSingleton(orbitEngine);
         }   
     }
 }

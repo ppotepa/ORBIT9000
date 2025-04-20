@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Plugins\Twitter\ORBIT9000.Plugins.Twitter.csproj" />
     <ProjectReference Include="..\..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
@@ -27,11 +28,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Plugins\" />
-  </ItemGroup>
-
-  <Import Project="Rebuild.Plugins.targets" />  
-
+  
 </Project>

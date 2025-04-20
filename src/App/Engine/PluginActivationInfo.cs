@@ -5,12 +5,11 @@ namespace ORBIT9000.Engine
     {
         public PluginActivationInfo(bool registered)
         {
-            this.Registered = registered;            
+            this.Registered = registered;
         }
 
         public bool Registered { get; set; }
-        public List<Task> Instances { get; set; } = new List<Task>(); 
-
-
+        public List<Task> Instances { get; set; } = new List<Task>();
+        public bool AllowMultiple { get; internal set; } = true;
     }
 }
