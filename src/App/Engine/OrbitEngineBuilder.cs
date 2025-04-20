@@ -19,7 +19,6 @@ namespace ORBIT9000.Engine
         private readonly IServiceCollection _services = new ServiceCollection();
         private IConfiguration? _configuration;
         private ILoggerFactory? _loggerFactory;
-        private RawOrbitEngineConfig? _rawPluginConfig;
 
         public OrbitEngine Build()
         {
@@ -42,23 +41,20 @@ namespace ORBIT9000.Engine
 
         public OrbitEngineBuilder RegisterPluginDependencies()
         {
-            foreach (KeyValuePair<Type, PluginActivationInfo> plugin in _plugins)
+            foreach (KeyValuePair<Type, PluginActivationInfo> plugin in _plugins.Where(plugin => !plugin.Value.Registered))
             {
-                if (plugin.Value.Registered is false)
-                {
-                    Assembly assembly = plugin.Key.Assembly;
+                Assembly assembly = plugin.Key.Assembly;
 
-                    IEnumerable<Type> serviceTypes = assembly.GetTypes()
-                        .Where(t => t.GetCustomAttribute<ServiceAttribute>() != null);
+                IEnumerable<Type> serviceTypes = assembly.GetTypes()
+                    .Where(type => type.GetCustomAttribute<ServiceAttribute>() != null);
 
-                    IEnumerable<Type> providerTypes = assembly.GetTypes()
-                        .Where(t => t.GetCustomAttribute<DataProviderAttribute>() != null);
+                IEnumerable<Type> providerTypes = assembly.GetTypes()
+                    .Where(type => type.GetCustomAttribute<DataProviderAttribute>() != null);
 
-                    foreach (Type? type in serviceTypes.Concat(providerTypes))
-                        _services.AddScoped(type);
+                foreach (Type? type in serviceTypes.Concat(providerTypes))
+                    _services.AddScoped(type);
 
-                    plugin.Value.Registered = true;
-                }
+                plugin.Value.Registered = true;
             }
 
             return this;
@@ -67,21 +63,21 @@ namespace ORBIT9000.Engine
         public OrbitEngineBuilder RegisterPlugins(Type[]? pluginTypes = null)
         {
             if (_configuration == null || _loggerFactory == null)
-                throw new InvalidOperationException("Configuration and logging must be configured before registering plugins.");
+                throw new InvalidOperationException("Configuration and Logging must be configured before registering plugins.");
 
             // Load raw plugin configuration
-            _rawPluginConfig = _configuration.Get<RawOrbitEngineConfig>();
+            RawOrbitEngineConfig? rawPluginConfig = _configuration.Get<RawOrbitEngineConfig>();
             ILogger<OrbitEngineBuilder> logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
 
             if (pluginTypes is null || pluginTypes.Length == 0)
             {
-                if (_rawPluginConfig == null)
+                if (rawPluginConfig == null)
                 {
                     logger.LogError("Raw plugin configuration is missing.");
                     throw new InvalidOperationException("Raw plugin configuration is required to register plugins.");
                 }
 
-                var engineConfig = OrbitEngineConfig.FromRaw(_rawPluginConfig, logger);
+                var engineConfig = OrbitEngineConfig.FromRaw(rawPluginConfig, logger);
 
                 if (engineConfig?.PluginInfo != null)
                 {
@@ -101,7 +97,7 @@ namespace ORBIT9000.Engine
                 // Check if the type implements IOrbitPlugin
                 if (!typeof(IOrbitPlugin).IsAssignableFrom(pluginType))
                 {
-                    logger.LogWarning($"Type {pluginType.FullName} does not implement IOrbitPlugin and will be skipped.");
+                    logger.LogWarning("Type {FullName} does not implement IOrbitPlugin and will be skipped.", pluginType.FullName);
                     continue;
                 }
 
@@ -109,12 +105,9 @@ namespace ORBIT9000.Engine
                 {
                     _plugins.Add(pluginType, new PluginActivationInfo(false));
                     _services.AddScoped(pluginType);
-                    logger.LogInformation($"Registered plugin: {pluginType.FullName}");
+                    logger.LogInformation("Registered plugin: {FullName}", pluginType.FullName);
                 }
-                else
-                {
-                    logger.LogWarning($"Plugin {pluginType.FullName} is already registered.");
-                }
+                else logger.LogWarning("Plugin {FullName} is already registered.", pluginType.FullName);
             }
 
             return this;
@@ -128,6 +121,15 @@ namespace ORBIT9000.Engine
                 .Build();
 
             _services.AddSingleton(_configuration);
+            return this;
+        }
+
+        public OrbitEngineBuilder UseConfiguration(IConfiguration configuration)
+        {
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            _services.AddSingleton(configuration);
             return this;
         }
 
