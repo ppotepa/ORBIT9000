@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Configuration.Raw;
-using ORBIT9000.Engine.Factories;
+using ORBIT9000.Engine.Loaders.Plugin;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Configuration

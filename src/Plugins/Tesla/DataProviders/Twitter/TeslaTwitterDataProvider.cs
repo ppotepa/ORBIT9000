@@ -24,7 +24,7 @@ namespace ORBIT9000.Plugins.Tesla.Scrapers.Twitter
             throw new NotImplementedException();
         }
 
-        public TeslaTwitterResult GetData()
+        public IEnumerable<TeslaTwitterResult> GetData()
         {
             throw new NotImplementedException();
         }

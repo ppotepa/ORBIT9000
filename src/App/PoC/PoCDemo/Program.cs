@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using ORBIT9000.Engine;
-using ORBIT9000.Engine.Extensions;
-using Serilog;
+﻿using ORBIT9000.Engine;
 
 namespace ORBIT9000.PoCDemo
 {

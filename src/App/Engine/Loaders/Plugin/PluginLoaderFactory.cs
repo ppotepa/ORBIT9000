@@ -4,7 +4,7 @@ using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Implementations;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
-namespace ORBIT9000.Engine.Factories
+namespace ORBIT9000.Engine.Loaders.Plugin
 {
     /// <summary>
     /// Factory class for plugin loading strategies.

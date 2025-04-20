@@ -1,25 +1,44 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using ORBIT9000.Core.Abstractions.Plugin;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using Serilog;
-using System;
 
 namespace ORBIT9000.Engine
 {
+
+    class EngineState
+    {        
+        public OrbitEngine Engine { get; internal set; }
+    }
+
     public class OrbitEngine
     {
         private const string OutputTemplate
            = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] [{SourceContext}]{Scope} {Message:lj}{NewLine}{Exception}";
 
+        private readonly Thread MainThread = new Thread(Main);        
+
+        private static void Main(object? obj)
+        {
+           
+            EngineState? state = obj as EngineState;          
+            if(state is null)
+            {
+                ArgumentNullException.ThrowIfNull(state, nameof(state));
+            }   
+            while (state.Engine.IsRunning)
+            {
+                state.Engine._logger.LogInformation("Engine is running.");
+                Thread.Sleep(100);
+            }
+        }
+
         private readonly ILogger<OrbitEngine> _logger;
         private readonly ILoggerFactory _loggerFactory;
-
         private readonly IConfiguration _rawConfiguration;
-
         private readonly IServiceCollection _servicesCollection;
 
         private Dictionary<string, PluginActivationInfo> _plugins = new();
@@ -46,24 +65,26 @@ namespace ORBIT9000.Engine
                 builder.AddSerilog(Log.Logger);
             });
 
-            this._servicesCollection.AddSingleton(this._loggerFactory);
-
+            _servicesCollection.AddSingleton(this._loggerFactory);
             _servicesCollection.AddLogging();
+            _servicesCollection.AddSingleton(_rawConfiguration);
 
             _logger = _loggerFactory.CreateLogger<OrbitEngine>();
-            _servicesCollection.AddSingleton(_rawConfiguration);
         }
 
         public OrbitEngineConfig? ConfigurationInfo { get; private set; }
 
         public bool IsInitialized { get; private set; }
+        public bool IsRunning { get; private set; }
 
         public void Start()
         {
             if (IsInitialized is false)
             {
                 Initialize();
+                MainThread.Start(new EngineState() { Engine = this });  
             }
+            else _logger.LogWarning("Engine is already initialized.");
         }
 
         internal void Initialize()
@@ -110,6 +131,9 @@ namespace ORBIT9000.Engine
             }
 
             _serviceProvider = _servicesCollection.BuildServiceProvider();
+
+            IsInitialized = true;
+            IsRunning = true;
         }
     }
 }

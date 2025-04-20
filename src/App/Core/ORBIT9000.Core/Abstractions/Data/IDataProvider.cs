@@ -6,6 +6,6 @@ namespace ORBIT9000.Core.Abstractions.Data
     public interface IDataProvider<out TResult> : IDataProvider
         where TResult : IResult, new()
     {
-        TResult GetData();
+        IEnumerable<TResult> GetData();
     }
 }
