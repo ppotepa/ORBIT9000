@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
-using ORBIT9000.Core.Abstractions.Data;
+using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
+using ORBIT9000.Core.Attributes.Engine;
 
-namespace ORBIT9000.Plugins.Tesla.Scrapers.Twitter
+namespace ORBIT9000.Plugins.Tesla.DataProviders.Twitter
 {
+    [DataProvider]
     [DefaultProject("Tesla")]
     internal class TeslaTwitterDataProvider : IDataProvider<TeslaTwitterResult>, IAuthenticate
     {
-        private ILogger _logger;
+        private ILogger<TeslaTwitterDataProvider> _logger;
 
-        public TeslaTwitterDataProvider(ILogger logger)
+        public TeslaTwitterDataProvider(ILogger<TeslaTwitterDataProvider> logger)
         {
             this._logger = logger;
         }

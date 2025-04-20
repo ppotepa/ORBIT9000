@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Data;
 using ORBIT9000.Core.Abstractions.Plugin;
-using ORBIT9000.Plugins.Tesla.Scrapers.Twitter;
+using ORBIT9000.Core.Abstractions.Providers.Data;
+using ORBIT9000.Plugins.Tesla.DataProviders.Twitter;
 
 namespace ORBIT9000.Plugins.Tesla
 {
@@ -24,10 +24,9 @@ namespace ORBIT9000.Plugins.Tesla
             return [typeof(TeslaTwitterDataProvider)];
         }
 
-        public void RegisterServices(IServiceCollection services)
+        public void Run()
         {
-            _logger.LogInformation("Registering Tesla plugin services.");
-            services.AddTransient<IDataProvider<TeslaTwitterResult>, TeslaTwitterDataProvider>();
+            _logger.LogInformation("Running Tesla plugin.");                
         }
     }
 }

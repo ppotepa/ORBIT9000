@@ -3,10 +3,7 @@
 namespace ORBIT9000.Core.Abstractions.Plugin
 {
     public interface IOrbitPlugin
-    {
-        Type[] GetDataProviders();
-
-        void RegisterServices(IServiceCollection services);
-       
+    {        
+        void Run();
     }
 }

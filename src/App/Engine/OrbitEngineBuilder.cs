@@ -2,15 +2,17 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Plugin;
+using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using Serilog;
+using System.Reflection;
 
 namespace ORBIT9000.Engine
 {
 
     class EngineState
-    {        
+    {
         public OrbitEngine Engine { get; internal set; }
     }
 
@@ -19,19 +21,27 @@ namespace ORBIT9000.Engine
         private const string OutputTemplate
            = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] [{SourceContext}]{Scope} {Message:lj}{NewLine}{Exception}";
 
-        private readonly Thread MainThread = new Thread(Main);        
+        private readonly Thread MainThread = new Thread(MainEngineThread);
 
-        private static void Main(object? obj)
+        private static void MainEngineThread(object? obj)
         {
-           
-            EngineState? state = obj as EngineState;          
-            if(state is null)
+            EngineState? state = obj as EngineState;
+
+            if (state is null)
             {
                 ArgumentNullException.ThrowIfNull(state, nameof(state));
-            }   
+            }
             while (state.Engine.IsRunning)
             {
                 state.Engine._logger.LogInformation("Engine is running.");
+                
+                List<IOrbitPlugin?> instances = [.. state.Engine._plugins.Select(
+                 (                 
+                     plugin => state.Engine._serviceProvider.GetService(plugin.Value.Item) as IOrbitPlugin
+                 ))];
+
+                instances.ForEach(p => p.Run());
+
                 Thread.Sleep(100);
             }
         }
@@ -82,7 +92,7 @@ namespace ORBIT9000.Engine
             if (IsInitialized is false)
             {
                 Initialize();
-                MainThread.Start(new EngineState() { Engine = this });  
+                MainThread.Start(new EngineState() { Engine = this });
             }
             else _logger.LogWarning("Engine is already initialized.");
         }
@@ -97,6 +107,16 @@ namespace ORBIT9000.Engine
 
             RawOrbitEngineConfig? raw = _rawConfiguration.Get<RawOrbitEngineConfig>();
 
+            this.RegisterPlugins(raw);
+
+            _serviceProvider = _servicesCollection.BuildServiceProvider();
+
+            IsInitialized = true;
+            IsRunning = true;
+        }
+
+        private void RegisterPlugins(RawOrbitEngineConfig? raw)
+        {
             if (raw is not null)
             {
                 _logger.LogInformation("Loading raw configuration.");
@@ -119,21 +139,22 @@ namespace ORBIT9000.Engine
 
             foreach (KeyValuePair<string, PluginActivationInfo> plugin in _plugins)
             {
+                Type implementation = plugin.Value.Item;
+
                 if (plugin.Value.Registered is false)
                 {
-                    var scoped = _serviceProvider.CreateScope();
+                    IEnumerable<Type> services = implementation.Assembly.GetTypes().Where(type => type.GetCustomAttribute<ServiceAttribute>() != null);
+                    IEnumerable<Type> dataProvider = implementation.Assembly.GetTypes().Where(type => type.GetCustomAttribute<DataProviderAttribute>() != null);
 
-                    IOrbitPlugin? instance = _serviceProvider
-                        .GetService(plugin.Value.Item) as IOrbitPlugin;
-
-                    instance.RegisterServices(_servicesCollection);
+                    foreach (Type type in (Type[])[.. services, .. dataProvider])
+                    {
+                        _servicesCollection.AddScoped(type);
+                    }
                 }
+
+                plugin.Value.Registered = true;
+
             }
-
-            _serviceProvider = _servicesCollection.BuildServiceProvider();
-
-            IsInitialized = true;
-            IsRunning = true;
         }
     }
 }

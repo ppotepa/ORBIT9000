@@ -1,6 +1,6 @@
 ﻿using ORBIT9000.Core.Abstractions.Result;
 
-namespace ORBIT9000.Core.Abstractions.Data
+namespace ORBIT9000.Core.Abstractions.Providers.Data
 {
     public interface IDataProvider { }
     public interface IDataProvider<out TResult> : IDataProvider
