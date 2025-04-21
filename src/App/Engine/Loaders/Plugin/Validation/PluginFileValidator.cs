@@ -8,45 +8,44 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Validation
     internal class PluginFileValidator
     {
         private readonly ILogger? _logger;
-        private readonly string _path;
-        public PluginFileValidator(string path, ILogger? logger)
+        private readonly FileInfo _info;
+
+        public PluginFileValidator(FileInfo info, ILogger? logger)
         {
-            _path = path;
+            _info = info ?? throw new ArgumentNullException(nameof(info));
             _logger = logger;
         }
 
-        public bool FileExists { get; private set; }
-        public bool IsDll { get; private set; }
+        public bool FileExists => _info.Exists;
+        public bool IsDll => string.Equals(_info.Extension, ".dll", StringComparison.OrdinalIgnoreCase);
         public bool IsValid => FileExists && IsDll;
+        public List<Exception> Exceptions = new List<Exception>();  
 
         /// <summary>
         /// Validates the plugin file Path and type.
         /// </summary>
-        public void Validate(List<Exception> exceptions)
+        /// <returns>A list of exceptions encountered during validation.</returns>
+        public PluginFileValidator Validate()
         {
-            if (string.IsNullOrWhiteSpace(_path))
+            if (_info == null)
             {
-                this._logger?.LogWarning($"Path is empty or null: {_path}");
-                exceptions.Add(new ArgumentException($"Path is empty or null: {_path}"));
-                return;
+                _logger?.LogWarning("FileInfo object is null.");
+                Exceptions.Add(new ArgumentNullException(nameof(_info), "FileInfo object is null."));                
             }
-
-            FileExists = File.Exists(_path);
 
             if (!FileExists)
             {
-                this._logger?.LogWarning($"File does not exist: {_path}");
-                exceptions.Add(new FileNotFoundException($"File does not exist: {_path}"));
-                return;
+                _logger?.LogWarning("File does not exist: {FilePath}", _info.FullName);
+                Exceptions.Add(new FileNotFoundException($"File does not exist: {_info.FullName}"));
             }
-
-            IsDll = string.Equals(Path.GetExtension(_path), ".dll", StringComparison.OrdinalIgnoreCase);
 
             if (!IsDll)
             {
-                this._logger?.LogWarning($"File is not a DLL: {_path}");
-                exceptions.Add(new ArgumentException($"File is not a DLL: {_path}"));
+                _logger?.LogWarning("File is not a DLL: {FilePath}", _info.FullName);
+                Exceptions.Add(new ArgumentException($"File is not a DLL: {_info.FullName}"));
             }
+
+            return this;
         }
     }
 }

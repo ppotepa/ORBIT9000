@@ -3,14 +3,12 @@ using ORBIT9000.Engine.Loaders.Assembly;
 using ORBIT9000.Engine.Loaders.Plugin.Details;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 using ORBIT9000.Engine.Loaders.Plugin.Validation;
-using SystemAssembly = System.Reflection.Assembly;
 
 
 namespace ORBIT9000.Engine.Loaders.Plugin
 {
     internal abstract class PluginLoaderBase<TSource>
     {
-
         protected readonly ILogger? _logger;
         protected bool _abortOnError = false;
 
@@ -24,14 +22,17 @@ namespace ORBIT9000.Engine.Loaders.Plugin
             _abortOnError = abortOnError;
             return this;
         }
+
         public abstract IEnumerable<PluginLoadResult> LoadPlugins(TSource source);
         protected PluginLoadResult LoadSingle(string path)
         {
-            using (_logger?.BeginScope($"{new FileInfo(path).Name}"))
-            {
-                _logger?.LogInformation("Loading plugin from {Path}", path);
+            FileInfo fileInfo = new FileInfo(path);
 
-                PluginLoadDetails details = TryLoadSingleFile(path);
+            using (_logger?.BeginScope($"{fileInfo.Name}"))
+            {
+                _logger?.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
+
+                PluginLoadDetails details = TryLoadSingleFile(fileInfo);
 
                 return new PluginLoadResult(
                     path,
@@ -48,7 +49,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
         private static string FormatErrorMessages(List<Exception> exceptions)
             => string.Join('\n', exceptions.Select(ex => ex.Message));
 
-        private void HandleErrors(List<Exception> exceptions)
+        private void HandleErrors(params Exception[] exceptions)
         {
             if (_abortOnError)
             {
@@ -59,9 +60,9 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                     _logger?.LogCritical(ex, ex.Message);
                 }
 
-                switch (exceptions.Count)
+                switch (exceptions.Length)
                 {
-                    case 1:
+                    case 0:
                         throw exceptions[0];
                     default:
                         throw new AggregateException("Multiple exceptions occurred", exceptions);
@@ -69,37 +70,30 @@ namespace ORBIT9000.Engine.Loaders.Plugin
             }
         }
 
-        private PluginLoadDetails TryLoadSingleFile(string path)
-        {
-            List<Exception> exceptions = new List<Exception>();
-            Type[] plugins = Array.Empty<Type>();
-            var validator = new PluginFileValidator(path, _logger);
-            
-            validator.Validate(exceptions);
+        private PluginLoadDetails TryLoadSingleFile(FileInfo info)
+        {            
+            PluginFileValidator fileValidator = new PluginFileValidator(info, _logger).Validate();
+            AssemblyLoadResult? assemblyLoadResult = default;
 
-            SystemAssembly? loadedAssembly = null;
-            bool containsPlugins = false;
-            
-            if (validator.IsValid)
+            if (fileValidator.IsValid)
             {
-                (loadedAssembly, containsPlugins, plugins) = AssemblyLoader.TryLoadAssembly(path, exceptions);
+                assemblyLoadResult = AssemblyLoader.TryLoadAssembly(info);
             }
-            
-            if (exceptions.Count != 0)
-            {
-                loadedAssembly = null;
-                containsPlugins = false;
 
-                HandleErrors(exceptions);
+            List<Exception> allExceptions = [.. fileValidator.Exceptions, .. assemblyLoadResult.Exceptions];
+
+            if (allExceptions.Count != 0)
+            {
+                HandleErrors([..fileValidator.Exceptions, ..assemblyLoadResult.Exceptions]);
             }
 
             return new PluginLoadDetails(
-                FileExists: validator.FileExists,
-                IsDll: validator.IsDll,
-                ContainsPlugins: containsPlugins,
-                Error: FormatErrorMessages(exceptions),
-                LoadedAssembly: loadedAssembly,
-                Plugins: plugins
+                FileExists: fileValidator.FileExists,
+                IsDll: fileValidator.IsDll,
+                ContainsPlugins: assemblyLoadResult?.ContainsPlugins ?? false,
+                Error: FormatErrorMessages(allExceptions),
+                LoadedAssembly: assemblyLoadResult?.LoadedAssembly,
+                Plugins: assemblyLoadResult?.Plugins ?? Array.Empty<Type>()
             );
         }
     }

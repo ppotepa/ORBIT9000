@@ -4,9 +4,8 @@ namespace ORBIT9000.Engine.Exceptions
 {
     public class ExceptionFactory
     {
-        private readonly ILogger _logger;
         private readonly bool _abortOnError;
-
+        private readonly ILogger _logger;
         public ExceptionFactory(ILogger logger, bool abortOnError)
         {
             _logger = logger;
