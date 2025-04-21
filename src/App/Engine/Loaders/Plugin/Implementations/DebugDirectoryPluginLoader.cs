@@ -16,21 +16,21 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
         {
             if (!source.Exists)
             {
-                this._logger?.LogWarning($"Source directory {source.FullName} does not exist.");
+                this._logger?.LogWarning("Source directory {Name} does not exist.", source.FullName);
                 yield break;
             }
 
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
-                this._logger?.LogWarning($"Source directory {source.FullName} contains subdirectories. " +
-                    $"Only the top-level directory will be used.");
+                this._logger?.LogWarning("Source directory {Name} contains subdirectories. " +
+                    $"Only the top-level directory will be used.", source.FullName);
 
                 DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));
                 FileInfo[] files = [.. newSource.GetFilesExcept("*.dll", SKIP_FOLDERS)];
                   
                 if (files.Length == 0)
                 {
-                    this._logger?.LogWarning($"No plugins found in {newSource.FullName}");
+                    this._logger?.LogWarning("No plugins found in {Name}", newSource.FullName);
                 }
                 else
                 {
