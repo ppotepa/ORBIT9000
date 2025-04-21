@@ -1,19 +1,19 @@
-﻿using System.Reflection;
+﻿using SystemAssembly = System.Reflection.Assembly;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Results
 {
     public class PluginLoadResult
     {
-        private string Path;
-        public bool FileExists;
-        public bool IsDLL;
         public bool ContainsPlugins;
         public string[] Error;
-        public Assembly? LoadedAssembly;
+        public bool FileExists;
+        public bool IsDLL;
+        public SystemAssembly? LoadedAssembly;
         public Type[] Plugins;
+        private string Path;
 
         public PluginLoadResult(string path, bool fileExists, bool isDll, 
-            bool containsPlugins, string[] errors, Assembly? loadedAssembly, Type[] plugins)
+            bool containsPlugins, string[] errors, SystemAssembly? loadedAssembly, Type[] plugins)
         {
             this.Path = path;
             this.FileExists = fileExists;

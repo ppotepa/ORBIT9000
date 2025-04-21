@@ -6,7 +6,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
 {
     internal class DebugDirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        private static readonly string[] SKIP_FOLDERS = { "obj", "ref" };
+        private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
         public DebugDirectoryPluginLoader(ILogger? logger) : base(logger)
         {

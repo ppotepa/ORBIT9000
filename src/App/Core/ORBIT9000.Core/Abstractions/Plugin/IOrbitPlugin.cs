@@ -2,6 +2,7 @@
 {
     public interface IOrbitPlugin
     {        
-        Task Run();
+        Task OnLoad();
+        Task OnUnload();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Plugin;
-using ORBIT9000.Plugins.Tesla.DataProviders.Twitter;
+using ORBIT9000.Plugins.Twitter.DataProviders;
 
 namespace ORBIT9000.Plugins.Twitter
 {
@@ -15,14 +15,20 @@ namespace ORBIT9000.Plugins.Twitter
             this._logger = logger;
         }
 
-        public Task Run()
+        public Task OnLoad()
         {
-            var logger = _provider.GetService(typeof(ILogger<TwitterDataProvider>)) as ILogger<TwitterDataProvider>;
-           
-            var provider = new TwitterDataProvider(logger);
+            ILogger<TwitterDataProvider>? logger = _provider.GetService(typeof(ILogger<TwitterDataProvider>))
+                as ILogger<TwitterDataProvider>;
+
+            TwitterDataProvider provider = new TwitterDataProvider(logger);
             provider.GetData();
 
-           
+            return Task.CompletedTask;
+        }
+
+        public Task OnUnload()
+        {
+            _logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
         }
     }

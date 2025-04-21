@@ -3,11 +3,9 @@ using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.Twitter.DataProviders;
-using System.Net.Http;
 using System.Text.Json;
 
-namespace ORBIT9000.Plugins.Tesla.DataProviders.Twitter
+namespace ORBIT9000.Plugins.Twitter.DataProviders
 {
     [DataProvider]
     [DefaultProject("Tesla")]
@@ -34,11 +32,11 @@ namespace ORBIT9000.Plugins.Tesla.DataProviders.Twitter
         public Task<IEnumerable<TwitterResult>> GetData()
         {
             string city = "London";
-            string url = $"https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true";
+            const string URL = $"https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&current_weather=true";
 
             try
             {
-                var response = _httpClient.GetAsync(url).GetAwaiter().GetResult();
+                var response = _httpClient.GetAsync(URL).GetAwaiter().GetResult();
                 response.EnsureSuccessStatusCode();
 
                 var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();

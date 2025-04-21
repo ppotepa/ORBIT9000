@@ -26,13 +26,13 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             foreach ((Type type, PluginActivationInfo pluginInfo) in engine.Plugins)
             {
-                engine.LogInformation("Processing Plugin: {Name}", type.Name);
-
                 if (pluginInfo.Instances.Any() && !pluginInfo.AllowMultiple)
                 {
                     engine.LogError("Plugin is already running. {Name}", type.Name);
                     continue;
                 }
+
+                engine.LogInformation("Processing Plugin: {Name}", type.Name);
 
                 using var scope = engine.ServiceProvider.CreateAsyncScope();
                 Task task = Task.Run(async () =>
@@ -45,7 +45,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                         return;
                     }
 
-                    await instance.Run();
+                    await instance.OnLoad();
                 });
 
                 pluginInfo.Instances.Add(task);
