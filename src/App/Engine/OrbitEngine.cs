@@ -9,56 +9,35 @@ using ORBIT9000.Engine.State;
 
 namespace ORBIT9000.Engine
 {
-    public class OrbitEngine
+    public partial class OrbitEngine
     {
-        internal readonly OrbitEngineConfig _configuration;
-        internal readonly ExceptionFactory _exceptionFactory;
-        internal readonly ILogger<OrbitEngine> _logger;
-        internal readonly Thread _mainThread;
-        internal readonly IReadOnlyDictionary<Type, PluginActivationInfo> _plugins;
-        internal readonly IServiceProvider _serviceProvider;
-
-        internal OrbitEngine(
-            IConfiguration rawConfiguration,
-            ILoggerFactory loggerFactory,
-            IServiceProvider serviceProvider,
-            IReadOnlyDictionary<Type, PluginActivationInfo> plugins)
+        public void LogCritical(string message, params object[] args)
         {
-            ArgumentNullException.ThrowIfNull(rawConfiguration);
-            ArgumentNullException.ThrowIfNull(loggerFactory);
-            ArgumentNullException.ThrowIfNull(serviceProvider);
-            ArgumentNullException.ThrowIfNull(plugins);
-
-            RawOrbitEngineConfig? boundConfig = rawConfiguration.Get<RawOrbitEngineConfig>();
-
-            _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
-            _configuration = OrbitEngineConfig.FromRaw(boundConfig, _logger)
-                ?? throw new InvalidOperationException("Configuration could not be created.");
-
-            _exceptionFactory = new ExceptionFactory(_logger, true);
-            _mainThread = new Thread(Strategies.Running.Default.DefaultEngineStrategy);
-            _plugins = new Dictionary<Type, PluginActivationInfo>(plugins);
-            _serviceProvider = serviceProvider;
-            IsInitialized = true;
+            _logger.LogCritical(message, args);
         }
 
-        public bool IsInitialized { get; }
-        public bool IsRunning { get; private set; }
-
-        public void Start()
+        public void LogDebug(string message, params object[] args)
         {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Engine has not been initialized.");
+            _logger.LogDebug(message, args);
+        }
 
-            if (IsRunning)
-            {
-                _logger?.LogWarning("Engine is already running.");
-                return;
-            }
+        public void LogError(string message, params object[] args)
+        {
+            _logger.LogError(message, args);
+        }
 
-            IsRunning = true;
+        public void LogInformation(string message, params object[] args)
+        {
+            _logger.LogInformation(message, args);
+        }
+        public void LogTrace(string message, params object[] args)
+        {
+            _logger.LogTrace(message, args);
+        }
 
-            _mainThread.Start(new EngineState { Engine = this });
+        public void LogWarning(string message, params object[] args)
+        {
+            _logger.LogWarning(message, args);
         }
     }
 }

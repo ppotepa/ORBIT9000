@@ -14,10 +14,11 @@ namespace ORBIT9000.Plugins.Tesla.DataProviders.Twitter
     internal class TwitterDataProvider : IDataProvider<TwitterResult>, IAuthenticate
     {
         private readonly HttpClient _httpClient = new HttpClient();
-        private ILogger<TwitterDataProvider> _logger;
+        private readonly ILogger<TwitterDataProvider> _logger;
 
         public TwitterDataProvider(ILogger<TwitterDataProvider> logger)
         {
+            ArgumentNullException.ThrowIfNull(logger);
             this._logger = logger;
         }
 
@@ -47,14 +48,14 @@ namespace ORBIT9000.Plugins.Tesla.DataProviders.Twitter
                 var temperature = root.GetProperty("current_weather").GetProperty("temperature").GetDouble();
                 var windSpeed = root.GetProperty("current_weather").GetProperty("windspeed").GetDouble();
 
-                _logger.LogInformation($"Weather in {city}: {temperature}°C, Wind Speed: {windSpeed} km/h");
+                _logger.LogInformation("Weather in {City}: {Temperature}°C, Wind Speed: {WindSpeed} km/h", city, temperature, windSpeed);
                 IEnumerable<TwitterResult> result = [new TwitterResult { Temperature = temperature, WindSpeed = windSpeed }];
 
                 return Task.FromResult(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error fetching weather data: " + ex.Message);
+                _logger.LogError(ex, "Error fetching weather data: {Exception}", ex.Data);
                 return Task.FromResult<IEnumerable<TwitterResult>>([]);
             }
         }

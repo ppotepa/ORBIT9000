@@ -6,8 +6,8 @@ namespace ORBIT9000.Plugins.Twitter
 {
     public class TwitterPlugin : IOrbitPlugin
     {
-        private ILogger<TwitterPlugin> _logger;
-        private IServiceProvider _provider;
+        private readonly ILogger<TwitterPlugin> _logger;
+        private readonly IServiceProvider _provider;
 
         public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger)
         {
@@ -15,14 +15,11 @@ namespace ORBIT9000.Plugins.Twitter
             this._logger = logger;
         }
 
-        public ValueTask DisposeAsync()
-        {
-            return new ValueTask();
-        }
-
         public Task Run()
         {
-            var provider = new TwitterDataProvider(_provider.GetService(typeof(ILogger<TwitterDataProvider>)) as ILogger<TwitterDataProvider>);
+            var logger = _provider.GetService(typeof(ILogger<TwitterDataProvider>)) as ILogger<TwitterDataProvider>;
+           
+            var provider = new TwitterDataProvider(logger);
             provider.GetData();
 
            
