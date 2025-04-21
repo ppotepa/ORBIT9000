@@ -15,7 +15,7 @@ namespace ORBIT9000.Engine.Configuration
         public required PluginLoadResult[] PluginInfo { get; set; }
         internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig? rawConfig, ILogger? logger = default, IServiceCollection? services = null)
         {
-            ArgumentNullException.ThrowIfNull(rawConfig, nameof(rawConfig));
+            ArgumentNullException.ThrowIfNull(rawConfig);
 
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 

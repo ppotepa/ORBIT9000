@@ -7,12 +7,12 @@ namespace ORBIT9000.Engine.Loaders.Assembly
             LoadedAssembly = loadedAssembly;
             ContainsPlugins = containsPlugins;
             Plugins = plugins;
-            Exceptions = exceptions;
+            Exceptions = exceptions ?? new List<Exception>();
         }
 
         public bool ContainsPlugins { get; }
         public System.Reflection.Assembly? LoadedAssembly { get; }
         public Type[] Plugins { get; }
-        public List<Exception> Exceptions { get; } = [];
+        public List<Exception> Exceptions { get; }
     }
 }

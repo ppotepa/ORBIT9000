@@ -26,11 +26,9 @@ namespace ORBIT9000.Engine
             {
                 throw new InvalidOperationException("Engine requires configuration and logging.");
             }
-
-            // Final service provider
+            
             ServiceProvider serviceProvider = _services.BuildServiceProvider();
 
-            // Create the engine with all readonly deps
             return new OrbitEngine(
                 _configuration,
                 _loggerFactory,
@@ -77,13 +75,11 @@ namespace ORBIT9000.Engine
                     throw new InvalidOperationException("Raw plugin configuration is required to register plugins.");
                 }
 
-                var engineConfig = OrbitEngineConfig.FromRaw(rawPluginConfig, logger);
+                OrbitEngineConfig? engineConfig = OrbitEngineConfig.FromRaw(rawPluginConfig, logger);
 
                 if (engineConfig?.PluginInfo != null)
                 {
-                    pluginTypes = engineConfig.PluginInfo
-                        .SelectMany(pluginLoadResult => pluginLoadResult.Plugins)
-                        .ToArray();
+                    pluginTypes = [.. engineConfig.PluginInfo.SelectMany(pluginLoadResult => pluginLoadResult.Plugins)];
                 }
                 else
                 {
@@ -105,6 +101,7 @@ namespace ORBIT9000.Engine
                 {
                     _plugins.Add(pluginType, new PluginActivationInfo(false));
                     _services.AddScoped(pluginType);
+
                     logger.LogInformation("Registered plugin: {FullName}", pluginType.FullName);
                 }
                 else logger.LogWarning("Plugin {FullName} is already registered.", pluginType.FullName);

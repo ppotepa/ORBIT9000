@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
-namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
+namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
