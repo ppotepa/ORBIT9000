@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="OrbitEngine.Logging.cs" />
     <None Include="Strategies\Running\DefaultEngineStrategy.cs" />
   </ItemGroup>
 

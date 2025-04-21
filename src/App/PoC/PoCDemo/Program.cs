@@ -1,4 +1,5 @@
 ﻿using ORBIT9000.Engine;
+using ORBIT9000.Engine.Builders;
 using ORBIT9000.Plugins.Twitter;
 
 namespace ORBIT9000.PoCDemo
@@ -10,7 +11,7 @@ namespace ORBIT9000.PoCDemo
             OrbitEngine engine = new OrbitEngineBuilder()
                 .UseConfiguration()
                 .UseSerilogLogging()
-                .RegisterPlugins()
+                .RegisterPlugins(typeof(TwitterPlugin))
                 .Build();
             
             engine.Start();

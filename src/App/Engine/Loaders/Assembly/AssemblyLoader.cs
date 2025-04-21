@@ -15,6 +15,7 @@ namespace ORBIT9000.Engine.Loaders.Assembly
         public static AssemblyLoadResult TryLoadAssembly(FileInfo info, bool loadAsBinary = false)
         {
             bool containsPlugins = false;
+
             SystemAssembly? assembly = null;
             List<Exception> exceptions = new List<Exception>();
             Type[] pluginTypes = Array.Empty<Type>();

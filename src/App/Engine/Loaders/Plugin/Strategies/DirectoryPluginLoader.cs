@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        public DirectoryPluginLoader(ILogger? logger) : base(logger)
+        public DirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
         {
         }
 
@@ -19,7 +20,6 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
             if (files.Length == 0)
             {
                 this._logger?.LogWarning($"No plugins found in {source.FullName}");
-                yield break;
             }
             else
             {

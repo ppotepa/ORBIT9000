@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Assembly;
 using ORBIT9000.Engine.Loaders.Plugin.Details;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
@@ -10,20 +11,15 @@ namespace ORBIT9000.Engine.Loaders.Plugin
     {
         protected readonly ILogger? _logger;
         protected bool _abortOnError = false;
+        private readonly OrbitEngineConfiguration _config;
 
-        protected PluginLoaderBase(ILogger? logger = default)
+        protected PluginLoaderBase(ILogger? logger, OrbitEngineConfiguration config)
         {
             _logger = logger;
+            _config = config;
         }
-
-        public PluginLoaderBase<TSource> AbortOnError(bool abortOnError = false)
-        {
-            _abortOnError = abortOnError;
-            return this;
-        }
-
+  
         public abstract IEnumerable<PluginLoadResult> LoadPlugins(TSource source);
-
         protected PluginLoadResult LoadSingle(string path)
         {
             FileInfo fileInfo = new FileInfo(path);

@@ -6,23 +6,20 @@ namespace ORBIT9000.Plugins.Twitter
 {
     public class TwitterPlugin : IOrbitPlugin
     {
+        private readonly TwitterDataProvider _dataProvider;
         private readonly ILogger<TwitterPlugin> _logger;
         private readonly IServiceProvider _provider;
 
-        public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger)
+        public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger, TwitterDataProvider dataProvider)
         {
             this._provider = provider;
             this._logger = logger;
+            this._dataProvider = dataProvider;
         }
 
         public Task OnLoad()
         {
-            ILogger<TwitterDataProvider>? logger = _provider.GetService(typeof(ILogger<TwitterDataProvider>))
-                as ILogger<TwitterDataProvider>;
-
-            TwitterDataProvider provider = new TwitterDataProvider(logger);
-            provider.GetData();
-
+            var data = _dataProvider.GetData();
             return Task.CompletedTask;
         }
 
