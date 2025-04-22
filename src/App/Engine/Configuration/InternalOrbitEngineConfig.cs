@@ -16,23 +16,16 @@ namespace ORBIT9000.Engine.Configuration
         internal static InternalOrbitEngineConfig? FromRaw(OrbitEngineConfiguration? config, ILogger? logger = default, IServiceCollection? services = null)
         {
             ArgumentNullException.ThrowIfNull(config);
-
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
-            {
-                string[] plugins = config.OrbitEngine.Plugins.ActivePlugins;
+            {                
                 DirectoryInfo defaultFolder = new DirectoryInfo("./plugins");
-
-                PluginLoadResult[] loader = PluginLoaderFactory.Create(config, logger)
-                    .Where(result => result.ContainsPlugins)
-                    .ToArray(); 
 
                 return new InternalOrbitEngineConfig
                 {
                     DefaultFolder = defaultFolder,
-                    PluginInfo = PluginLoaderFactory.Create(config, logger)
-                                .Where(result => result.ContainsPlugins)
+                    PluginInfo = PluginLoaderFactory.Create(config, logger).Where(result => result.ContainsPlugins)
                                 .ToArray()
                 };
             }

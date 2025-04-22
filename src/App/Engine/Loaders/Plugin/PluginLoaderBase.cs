@@ -35,7 +35,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                     details.FileExists,
                     details.IsDll,
                     details.ContainsPlugins,
-                    new[] { details.Error },
+                    [details.Error],
                     details.LoadedAssembly,
                     details.Plugins
                 );

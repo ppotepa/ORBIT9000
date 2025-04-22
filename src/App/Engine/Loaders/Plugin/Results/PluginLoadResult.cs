@@ -4,24 +4,30 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Results
 {
     public class PluginLoadResult
     {
-        public bool ContainsPlugins;
-        public string[] Error;
-        public bool FileExists;
-        public bool IsDLL;
-        public SystemAssembly? LoadedAssembly;
-        public Type[] Plugins;
-        private string Path;
-
-        public PluginLoadResult(string path, bool fileExists, bool isDll, 
-            bool containsPlugins, string[] errors, SystemAssembly? loadedAssembly, Type[] plugins)
+        public PluginLoadResult(
+            string path,
+            bool fileExists,
+            bool isDll,
+            bool containsPlugins,
+            string[] errors,
+            SystemAssembly? loadedAssembly,
+            Type[] plugins)
         {
-            this.Path = path;
-            this.FileExists = fileExists;
-            this.IsDLL = isDll;
-            this.ContainsPlugins = containsPlugins;
-            this.Error = errors;
-            this.LoadedAssembly = loadedAssembly;          
-            this.Plugins = plugins;
+            ContainsPlugins = containsPlugins;
+            Error = errors;
+            FileExists = fileExists;
+            IsDLL = isDll;
+            LoadedAssembly = loadedAssembly;
+            Path = path;
+            Plugins = plugins;
         }
+
+        public bool ContainsPlugins { get; }
+        public string[] Error { get; }
+        public bool FileExists { get; }
+        public bool IsDLL { get; }
+        public SystemAssembly? LoadedAssembly { get; }
+        public string Path { get; }
+        public Type[] Plugins { get; }
     }
 }

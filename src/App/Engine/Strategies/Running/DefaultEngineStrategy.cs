@@ -39,13 +39,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                 Task task = Task.Run(async () =>
                 {
                     await using var scope = engine.ServiceProvider.CreateAsyncScope();
-
-                    if (scope.ServiceProvider.GetService(type) is not IOrbitPlugin instance)
-                    {
-                        engine.LogError("Failed to resolve plugin instance for {Name}.", type.Name);
-                        return;
-                    }
-
+                    IOrbitPlugin? instance = scope.ServiceProvider.GetService(type) as IOrbitPlugin;
                     await instance.OnLoad();
                 });
 

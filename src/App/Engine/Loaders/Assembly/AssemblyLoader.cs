@@ -1,5 +1,6 @@
-﻿using ORBIT9000.Core.Abstractions.Plugin;
-using Serilog;
+﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Plugin;
+using ORBIT9000.Engine.Loaders.Assembly.Context;
 
 using SystemAssembly = System.Reflection.Assembly;
 
@@ -7,8 +8,15 @@ namespace ORBIT9000.Engine.Loaders.Assembly
 {
     internal sealed class AssemblyLoader
     {
-        private static readonly Serilog.ILogger _logger
-            = Log.Logger.ForContext<AssemblyLoader>();
+        // Collection to track load contexts so they're not garbage collected
+        private static readonly Dictionary<string, PluginLoadContext> _loadContexts
+            = new Dictionary<string, PluginLoadContext>();
+
+        private static readonly ILogger _logger = LoggerFactory.Create(builder =>
+        {            
+            builder.SetMinimumLevel(LogLevel.Debug);
+        })
+        .CreateLogger<AssemblyLoader>();
 
         private AssemblyLoader() { }
 
@@ -22,16 +30,20 @@ namespace ORBIT9000.Engine.Loaders.Assembly
 
             try
             {
+                // Create custom load context for isolation
+                var loadContext = new PluginLoadContext(info.FullName);
+                _loadContexts[info.FullName] = loadContext;
+
                 if (loadAsBinary)
                 {
                     byte[] bytes = File.ReadAllBytes(info.FullName);
-                    assembly = SystemAssembly.Load(bytes);
+                    assembly = loadContext.LoadFromAssemblyBytes(bytes);
                 }
                 else
                 {
-                    assembly = SystemAssembly.LoadFrom(info.FullName);
+                    assembly = loadContext.LoadFromAssemblyPath(info.FullName);
                 }
-                
+
                 pluginTypes = assembly.GetTypes()
                     .Where(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type))
                     .ToArray();
@@ -40,26 +52,36 @@ namespace ORBIT9000.Engine.Loaders.Assembly
 
                 if (!containsPlugins)
                 {
-                    _logger?.Warning("File does not contain any plugins. {FileName}", info.Name);
+                    _logger?.LogWarning("File does not contain any plugins. {FileName}", info.Name);
                 }
             }
             catch (FileNotFoundException ex)
             {
-                _logger?.Error(ex, "File not found: {Path}", info.FullName);
+                _logger?.LogError(ex, "File not found: {Path}", info.FullName);
                 exceptions.Add(ex);
             }
             catch (BadImageFormatException ex)
             {
-                _logger?.Error(ex, "Invalid assembly format: {Path}", info.FullName);
+                _logger?.LogError(ex, "Invalid assembly format: {Path}", info.FullName);
                 exceptions.Add(ex);
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex, "Failed to load assembly from {Path}", info.FullName);
+                _logger?.LogError(ex, "Failed to load assembly from {Path}", info.FullName);
                 exceptions.Add(ex);
             }
 
             return new AssemblyLoadResult(assembly, containsPlugins, pluginTypes, exceptions);
+        }
+
+        public static void UnloadAssembly(string assemblyPath)
+        {
+            if (_loadContexts.TryGetValue(assemblyPath, out var loadContext))
+            {
+                loadContext.Unload();
+                _loadContexts.Remove(assemblyPath);
+                _logger?.LogInformation("Unloaded assembly: {Path}", assemblyPath);
+            }
         }
     }
 }
