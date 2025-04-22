@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Engine.State
+﻿namespace ORBIT9000.Engine.Runtime.State
 {
     public class EngineState
     {

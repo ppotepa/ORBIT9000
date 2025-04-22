@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
-namespace ORBIT9000.Engine.Loaders.Plugin
+namespace ORBIT9000.Engine.IO.Loaders.Plugin
 {
     internal static class PluginLoaderFactory
     {

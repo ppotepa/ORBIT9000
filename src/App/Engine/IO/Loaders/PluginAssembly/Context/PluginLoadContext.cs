@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace ORBIT9000.Engine.Loaders.PluginAssembly.Context
+namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
 {
     internal class PluginLoadContext : AssemblyLoadContext
     {

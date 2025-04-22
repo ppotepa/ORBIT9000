@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Engine.Loaders
+﻿namespace ORBIT9000.Engine.IO.Loaders
 {
     public class PluginRegistrationInfo
     {

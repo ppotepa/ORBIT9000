@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace ORBIT9000.Engine.Exceptions
+namespace ORBIT9000.Engine.Runtime.Exceptions
 {
     public class ExceptionFactory
     {

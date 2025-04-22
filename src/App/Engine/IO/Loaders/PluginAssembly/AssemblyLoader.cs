@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Loaders;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
-using ORBIT9000.Engine.Loaders.PluginAssembly.Context;
 using System.Reflection;
 
-namespace ORBIT9000.Engine.Loaders.PluginAssembly
+namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 {
     internal sealed class AssemblyLoader : IAssemblyLoader
     {
@@ -48,17 +48,17 @@ namespace ORBIT9000.Engine.Loaders.PluginAssembly
             }
             catch (FileNotFoundException ex)
             {
-                _logger?.LogError(ex, "File not found: {Path}", info.FullName);
+                _logger.LogError(ex, "File not found: {Path}", info.FullName);
                 exceptions.Add(ex);
             }
             catch (BadImageFormatException ex)
             {
-                _logger?.LogError(ex, "Invalid assembly format: {Path}", info.FullName);
+                _logger.LogError(ex, "Invalid assembly format: {Path}", info.FullName);
                 exceptions.Add(ex);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Failed to load assembly from {Path}", info.FullName);
+                _logger.LogError(ex, "Failed to load assembly from {Path}", info.FullName);
                 exceptions.Add(ex);
             }
 
@@ -71,7 +71,7 @@ namespace ORBIT9000.Engine.Loaders.PluginAssembly
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                _logger?.LogInformation("Unloaded assembly: {Path}", assemblyPath);
+                _logger.LogInformation("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 

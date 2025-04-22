@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
-    <None Include="Strategies\Running\DefaultEngineStrategy.cs" />
+    <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
   </ItemGroup>
 
   <ItemGroup>

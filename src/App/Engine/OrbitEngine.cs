@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Exceptions;
 using ORBIT9000.Engine.Loaders;
+using ORBIT9000.Engine.Runtime.Exceptions;
 using ORBIT9000.Engine.State;
 
 namespace ORBIT9000.Engine
@@ -52,7 +52,7 @@ namespace ORBIT9000.Engine
 
             if (IsRunning)
             {
-                _logger?.LogWarning("Engine is already running.");
+                _logger.LogWarning("Engine is already running.");
                 return;
             }
 

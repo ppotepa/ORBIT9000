@@ -1,5 +1,5 @@
 ﻿using SystemAssembly = System.Reflection.Assembly;
-namespace ORBIT9000.Engine.Loaders.Plugin.Details
+namespace ORBIT9000.Engine.IO.Loaders.Plugin.Details
 {
     /// <summary>
     /// Contains all the relevant properties resulting from attempting to load a plugin file.

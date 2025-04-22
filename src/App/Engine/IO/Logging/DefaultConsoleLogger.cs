@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace ORBIT9000.Engine.Logging
+namespace ORBIT9000.Engine.IO.Logging
 {
     internal class DefaultConsoleLogger : ILogger<OrbitEngine>
     {

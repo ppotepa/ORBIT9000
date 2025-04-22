@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace ORBIT9000.Engine.Loaders.Plugin.Validation
+namespace ORBIT9000.Engine.IO.Loaders.Plugin.Validation
 {
     /// <summary>
     /// Helper class to validate plugin files.
@@ -27,13 +27,13 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Validation
         {
             if (!FileExists)
             {
-                _logger?.LogWarning("File does not exist: {FilePath}", _info.FullName);
+                _logger.LogWarning("File does not exist: {FilePath}", _info.FullName);
                 Exceptions.Add(new FileNotFoundException($"File does not exist: {_info.FullName}"));
             }
 
             if (!IsDll)
             {
-                _logger?.LogWarning("File is not a DLL: {FilePath}", _info.FullName);
+                _logger.LogWarning("File is not a DLL: {FilePath}", _info.FullName);
                 Exceptions.Add(new ArgumentException($"File is not a DLL: {_info.FullName}"));
             }
 

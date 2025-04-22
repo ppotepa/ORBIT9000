@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
-namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
+namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        public DirectoryPluginLoader(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+        public DirectoryPluginLoader(ILogger? logger, RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
         {
         }
 
-        public override IEnumerable<Results.AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
+        public override IEnumerable<AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
         {
             if (!source.Exists)
                 source.Create();
@@ -20,7 +21,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 
             if (files.Length == 0)
             {
-                this._logger?.LogWarning($"No plugins found in {source.FullName}");
+                this._logger.LogWarning($"No plugins found in {source.FullName}");
             }
             else
             {
