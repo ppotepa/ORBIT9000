@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions.Result;
+﻿using ORBIT9000.Core.Abstractions.Providers.Data;
 
 namespace ORBIT9000.Plugins.Twitter.DataProviders
 {

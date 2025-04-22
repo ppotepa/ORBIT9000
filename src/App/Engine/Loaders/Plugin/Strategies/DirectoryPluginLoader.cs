@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
@@ -6,11 +7,11 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        public DirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
+        public DirectoryPluginLoader(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
         {
         }
 
-        public override IEnumerable<PluginLoadResult> LoadPlugins(DirectoryInfo source)
+        public override IEnumerable<Results.AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
         {
             if (!source.Exists)
                 source.Create();

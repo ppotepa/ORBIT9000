@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine;
 using ORBIT9000.Engine.Builders;
 using ORBIT9000.Plugins.Twitter;
@@ -13,6 +14,7 @@ namespace ORBIT9000.PoCDemo
 
         private static void Main(string[] args)
         {
+            var a = typeof(IOrbitPlugin).IsAssignableFrom(typeof(TwitterPlugin));
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: _outputTemplate)
@@ -26,7 +28,6 @@ namespace ORBIT9000.PoCDemo
 
             OrbitEngine engine = new OrbitEngineBuilder(loggerFactory)
                 .UseConfiguration()
-                .RegisterPlugins(typeof(TwitterPlugin))
                 .Build();
             
             engine.Start();

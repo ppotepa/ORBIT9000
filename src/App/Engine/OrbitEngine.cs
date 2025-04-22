@@ -8,38 +8,40 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
-        private readonly InternalOrbitEngineConfig _configuration;
+        private readonly InitializedInternalConfig _configuration;
         private readonly ExceptionFactory _exceptionFactory;
 
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
-        private readonly Dictionary<Type, PluginRegistrationInfo> _pluginRegistrations;
+        private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
 
         public OrbitEngine(
             ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
-            InternalOrbitEngineConfig configuration,
-            Dictionary<Type, PluginRegistrationInfo> pluginRegistrations
+            InitializedInternalConfig configuration,
+            IPluginProvider pluginProvider
             )
         {
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(loggerFactory);
             ArgumentNullException.ThrowIfNull(serviceProvider);
-            ArgumentNullException.ThrowIfNull(pluginRegistrations);
+            ArgumentNullException.ThrowIfNull(pluginProvider);
 
             _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
             _exceptionFactory = new ExceptionFactory(_logger, true);
-            _mainThread = new Thread(Strategies.Running.Default.DefaultEngineStrategy);
-            _pluginRegistrations = pluginRegistrations;
+            _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
+            _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 
             IsInitialized = true;
+            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration); 
         }
 
         public bool IsInitialized { get; }
         public bool IsRunning { get; private set; }
-        public Dictionary<Type, PluginRegistrationInfo> PluginRegistrations { get => _pluginRegistrations; }
+        public IPluginProvider PluginProvider { get => _pluginProvider; }
+
         //public Dictionary<Type, PluginActivationInfo> PluginActivations { get => _pluginActivations; }
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
 

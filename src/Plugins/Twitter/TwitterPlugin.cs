@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Plugin;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Plugins.Twitter.DataProviders;
 
 namespace ORBIT9000.Plugins.Twitter
@@ -8,6 +9,8 @@ namespace ORBIT9000.Plugins.Twitter
     {
         private readonly TwitterDataProvider _dataProvider;
         private readonly ILogger<TwitterPlugin> _logger;
+
+        private readonly IServiceProvider _pluginServices;
         private readonly IServiceProvider _provider;
 
         public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger, TwitterDataProvider dataProvider)
@@ -27,6 +30,11 @@ namespace ORBIT9000.Plugins.Twitter
         {
             _logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
+        }
+
+        public void RegisterServices(IServiceCollection collection)
+        {
+            throw new NotImplementedException();
         }
     }
 }
