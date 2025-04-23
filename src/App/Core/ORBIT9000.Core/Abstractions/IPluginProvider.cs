@@ -4,8 +4,7 @@ namespace ORBIT9000.Abstractions
 {
     public interface IPluginProvider
     {
-        IOrbitPlugin Activate(Type plugin);
-        Type[] GetPluginRegistrationInfo();
-        IOrbitPlugin Register(Type plugin);        
+        IOrbitPlugin Activate(Type plugin); 
+        IOrbitPlugin Activate(object plugin); 
     }
 }

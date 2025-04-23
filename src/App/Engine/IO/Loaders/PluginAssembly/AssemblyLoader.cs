@@ -18,11 +18,8 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
         }
 
         public Assembly Load(FileInfo info, bool loadAsBinary = false)
-        {
-            //loadAsBinary = true;
-            //info = new FileInfo("C:\\dummy.txt");
+        {   
             Assembly? assembly = null;
-            List<Exception> exceptions = new();
 
             try
             {
@@ -44,22 +41,10 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                     .ToArray();
 
                 return assembly;
-
-            }
-            catch (FileNotFoundException ex)
-            {
-                _logger.LogError(ex, "File not found: {Path}", info.FullName);
-                exceptions.Add(ex);
-            }
-            catch (BadImageFormatException ex)
-            {
-                _logger.LogError(ex, "Invalid assembly format: {Path}", info.FullName);
-                exceptions.Add(ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load assembly from {Path}", info.FullName);
-                exceptions.Add(ex);
+                _logger.LogError(ex, "Failed to load assembly from {Path}", info.FullName);                
             }
 
             return assembly;

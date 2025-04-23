@@ -9,8 +9,6 @@ namespace ORBIT9000.Plugins.Twitter
     {
         private readonly TwitterDataProvider _dataProvider;
         private readonly ILogger<TwitterPlugin> _logger;
-
-        private readonly IServiceProvider _pluginServices;
         private readonly IServiceProvider _provider;
 
         public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger, TwitterDataProvider dataProvider)
@@ -22,7 +20,7 @@ namespace ORBIT9000.Plugins.Twitter
 
         public Task OnLoad()
         {
-            var data = _dataProvider.GetData();
+            Task<IEnumerable<TwitterResult>> data = _dataProvider.GetData();
             return Task.CompletedTask;
         }
 
@@ -30,6 +28,11 @@ namespace ORBIT9000.Plugins.Twitter
         {
             _logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
+        }
+
+        public void RegisterServices(IServiceCollection services)
+        {
+            services.AddTransient<TwitterDataProvider>();
         }
     }
 }

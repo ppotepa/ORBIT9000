@@ -8,7 +8,7 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
-        private readonly InitializedInternalConfig _configuration;
+        private readonly RuntimeConfiguration _configuration;
         private readonly ExceptionFactory _exceptionFactory;
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -19,7 +19,7 @@ namespace ORBIT9000.Engine
         public OrbitEngine(
             ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
-            InitializedInternalConfig configuration,
+            RuntimeConfiguration configuration,
             IPluginProvider pluginProvider
             )
         {

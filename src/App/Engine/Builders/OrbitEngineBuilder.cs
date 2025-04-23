@@ -21,7 +21,7 @@ namespace ORBIT9000.Engine.Builders
         private readonly Dictionary<Type, PluginRegistrationInfo> _plugins = new();
         private readonly IServiceCollection _services = new ServiceCollection();
         private IConfiguration? _configuration;
-        private InitializedInternalConfig? _internalOrbitEngineConfig;
+        private RuntimeConfiguration? _internalOrbitEngineConfig;
         private ILoggerFactory _loggerFactory;
         private RawConfiguration? _rawConfiguration;
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
@@ -36,13 +36,14 @@ namespace ORBIT9000.Engine.Builders
             _services.AddSingleton(_loggerFactory);
             _services.AddSingleton(_configuration);
             _services.AddSingleton(_rawConfiguration);
+            _services.AddSingleton(_services);
 
             _services.AddTransient<StringArrayPluginLoader>();
             _services.AddTransient<DebugDirectoryPluginLoader>();
             _services.AddTransient<DirectoryPluginLoader>();
             _services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
 
-            _services.AddSingleton<InitializedInternalConfig>();
+            _services.AddSingleton<RuntimeConfiguration>();
             _services.AddSingleton<IPluginProvider, PluginProvider>();
             _services.AddLogging();
 
