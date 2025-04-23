@@ -7,7 +7,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
     internal class StringArrayPluginLoader : PluginLoaderBase<string[]>
     {
-        public StringArrayPluginLoader(ILogger<StringArrayPluginLoader> logger, RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+        public StringArrayPluginLoader(ILogger<StringArrayPluginLoader> logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
         {
         }
 

@@ -1,11 +1,8 @@
-﻿namespace ORBIT9000.Engine.Configuration.Raw
-{
-    public class RawConfiguration
-    {
-        public required EngineConfiguration OrbitEngine { get; set; }
-    }
+﻿using Microsoft.Extensions.Options;
 
-    public class EngineConfiguration
+namespace ORBIT9000.Engine.Configuration.Raw
+{
+    public class RawEngineConfiguration
     {
         public required PluginsConfiguration Plugins { get; set; }
         public bool UseDefaultFolder => this.Plugins.ActivePlugins.Length == 0;

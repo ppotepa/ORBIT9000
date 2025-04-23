@@ -7,7 +7,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        public DirectoryPluginLoader(ILogger? logger, RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+        public DirectoryPluginLoader(ILogger? logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
         {
         }
 

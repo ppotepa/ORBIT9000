@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 
 namespace ORBIT9000.Engine.Configuration
@@ -9,10 +10,10 @@ namespace ORBIT9000.Engine.Configuration
     /// </summary>
     public class RuntimeConfiguration
     {
-        private readonly Raw.RawConfiguration _config;
-        private readonly IPluginLoader _loader;
+        private readonly RawEngineConfiguration _config;
+        private readonly IPluginLoader _loader;        
 
-        public RuntimeConfiguration(ILogger<RuntimeConfiguration> logger, Raw.RawConfiguration config, IPluginLoader loader)
+        public RuntimeConfiguration(ILogger<RuntimeConfiguration> logger, RawEngineConfiguration config, IPluginLoader loader)
         {
             this._config = config;
             this._loader = loader;
@@ -29,7 +30,7 @@ namespace ORBIT9000.Engine.Configuration
             {
                 logger?.LogError(ex, "An error occurred while Loading Plugins.");
 
-                if (config.OrbitEngine.Plugins.AbortOnError)
+                if (config.Plugins.AbortOnError)
                 {
                     throw;
                 }
@@ -37,14 +38,13 @@ namespace ORBIT9000.Engine.Configuration
         }
 
         public DirectoryInfo DefaultFolder { get; set; }
-
         public PluginInfo[] Plugins { get; set; }
 
         private object PluginSource
         {
             get
             {
-                if (_config.OrbitEngine.Plugins.ActivePlugins.Any()) return _config.OrbitEngine.Plugins.ActivePlugins;
+                if (_config.Plugins.ActivePlugins.Any()) return _config.Plugins.ActivePlugins;
                 else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
         }

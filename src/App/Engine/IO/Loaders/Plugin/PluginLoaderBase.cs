@@ -11,9 +11,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected readonly ILogger _logger;
         protected bool _abortOnError = false;
         private readonly IAssemblyLoader _assemblyLoader;
-        private readonly Configuration.Raw.RawConfiguration _config;
+        private readonly Configuration.Raw.RawEngineConfiguration _config;
 
-        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader assemblyLoader)
+        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(config);

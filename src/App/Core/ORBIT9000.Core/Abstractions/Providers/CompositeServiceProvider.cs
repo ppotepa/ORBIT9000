@@ -38,19 +38,6 @@ namespace ORBIT9000.Core.Abstractions.Providers
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-
-            if (disposing)
-            {
-                if (_primaryScope is IDisposable pd) pd.Dispose();
-                if (_secondaryScope is IDisposable sd) sd.Dispose();
-            }
-
-            _disposed = true;
-        }
-
         public object GetService(Type serviceType)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(CompositeServiceProvider));
@@ -65,5 +52,18 @@ namespace ORBIT9000.Core.Abstractions.Providers
             => serviceType == typeof(IServiceScopeFactory)
                ? this
                : GetService(serviceType);
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                if (_primaryScope is IDisposable pd) pd.Dispose();
+                if (_secondaryScope is IDisposable sd) sd.Dispose();
+            }
+
+            _disposed = true;
+        }
     }
 }

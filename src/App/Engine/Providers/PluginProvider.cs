@@ -10,17 +10,21 @@ using System.Runtime.CompilerServices;
 namespace ORBIT9000.Engine.Providers
 {
     internal class PluginProvider : IPluginProvider
-    {
-        private readonly IServiceProvider _composite;
+    {   
         private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
+        private readonly ServiceProvider _pluginServiceProvider;
         private readonly IServiceProvider _provider;
         private readonly List<PluginInfo> _validPlugins;
-        public PluginProvider(ILogger<PluginProvider> logger, IPluginLoader pluginLoader, RuntimeConfiguration config, IServiceProvider provider)
-        {
-            IServiceCollection pluginScopeServiceCollection = new ServiceCollection();
 
+        public PluginProvider(ILogger<PluginProvider> logger, 
+            IPluginLoader pluginLoader, 
+            RuntimeConfiguration config, 
+            IServiceProvider provider,
+            IServiceCollection rootCollection
+            )
+        {
             _pluginLoader = pluginLoader;
             _logger = logger;
             _config = config;
@@ -30,11 +34,10 @@ namespace ORBIT9000.Engine.Providers
             this._validPlugins.ForEach(plugin =>
             {
                 var dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(plugin.PluginType);
-                dummy.RegisterServices(pluginScopeServiceCollection);
+                dummy.RegisterServices(rootCollection);
             });
 
-            ServiceProvider pluginScopeServiceProvider = pluginScopeServiceCollection.BuildServiceProvider();
-            _composite = new CompositeServiceProvider(_provider, pluginScopeServiceProvider);
+            _pluginServiceProvider = rootCollection.BuildServiceProvider();
         }
 
         public IOrbitPlugin Activate(object plugin)
@@ -44,7 +47,8 @@ namespace ORBIT9000.Engine.Providers
                 var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
                 if (target != null)
                 {
-                    IOrbitPlugin? instance = (IOrbitPlugin)ActivatorUtilities.CreateInstance(_composite, target.PluginType);
+                    var scope = _pluginServiceProvider.CreateScope();
+                    IOrbitPlugin? instance = (IOrbitPlugin)ActivatorUtilities.CreateInstance(scope.ServiceProvider, target.PluginType);
                     return instance;
                 }
             }

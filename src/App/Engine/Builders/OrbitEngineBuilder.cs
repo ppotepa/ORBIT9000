@@ -23,7 +23,7 @@ namespace ORBIT9000.Engine.Builders
         private IConfiguration? _configuration;
         private RuntimeConfiguration? _internalOrbitEngineConfig;
         private ILoggerFactory _loggerFactory;
-        private RawConfiguration? _rawConfiguration;
+        private RawEngineConfiguration? _rawConfiguration;
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -49,9 +49,9 @@ namespace ORBIT9000.Engine.Builders
 
             _ = _services.AddSingleton(typeof(IPluginLoader), static provider =>
             {
-                RawConfiguration config = provider.GetService<RawConfiguration>();
+                RawEngineConfiguration config = provider.GetService<RawEngineConfiguration>();
 
-                return config.OrbitEngine.Plugins.ActivePlugins.Length switch
+                return config.Plugins.ActivePlugins.Length switch
                 {
                     > 0 => provider.GetService<StringArrayPluginLoader>(),
                     _ when AppEnvironment.IsDebug => provider.GetService<DebugDirectoryPluginLoader>(),
@@ -90,14 +90,14 @@ namespace ORBIT9000.Engine.Builders
                     .AddJsonFile(settingsPath, optional: false, reloadOnChange: false)
                     .Build();
 
-                _rawConfiguration = _configuration.Get<RawConfiguration>();
+                _rawConfiguration = _configuration.GetSection("OrbitEngine").Get<RawEngineConfiguration>();
             }
             else { throw new InvalidOperationException("Configuration has already been set."); }
 
             return this;
         }
 
-        public OrbitEngineBuilder UseConfiguration(RawConfiguration rawConfiguration)
+        public OrbitEngineBuilder UseConfiguration(RawEngineConfiguration rawConfiguration)
         {
             string json = JsonConvert.SerializeObject(rawConfiguration);
 
