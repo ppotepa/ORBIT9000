@@ -20,7 +20,8 @@ namespace ORBIT9000.Plugins.Example
 
         public Task OnLoad()
         {
-            Task<IEnumerable<DataProviders.ExamplePlugin>> data = this._dataProvider.GetData();
+            IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
+            _logger.LogInformation("Fetched data from weather API: {Data}", data);  
             return Task.CompletedTask;
         }
 

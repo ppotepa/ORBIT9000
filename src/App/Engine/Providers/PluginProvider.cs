@@ -10,16 +10,17 @@ namespace ORBIT9000.Engine.Providers
 {
     internal class PluginProvider : IPluginProvider
     {   
-        private readonly RuntimeConfiguration _config;
-        private readonly ILogger<PluginProvider> _logger;
-        private readonly IPluginLoader _pluginLoader;
-        private readonly ServiceProvider _pluginServiceProvider;
-        private readonly IServiceProvider _provider;
+        private readonly RuntimeConfiguration _config;       
+        private readonly ServiceProvider _pluginServiceProvider;        
         private readonly List<PluginInfo> _validPlugins;
 
-        public PluginProvider(ILogger<PluginProvider> logger, 
-            IPluginLoader pluginLoader, 
-            RuntimeConfiguration config, 
+        private readonly ILogger<PluginProvider> _logger;
+        private readonly IPluginLoader _pluginLoader;
+        private readonly IServiceProvider _provider;
+
+        public PluginProvider(ILogger<PluginProvider> logger,
+            RuntimeConfiguration config,
+            IPluginLoader pluginLoader,             
             IServiceProvider provider,
             IServiceCollection rootCollection
             )
