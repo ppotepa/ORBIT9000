@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Flurl.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Plugins.Example.DataProviders;
@@ -21,7 +22,7 @@ namespace ORBIT9000.Plugins.Example
         public Task OnLoad()
         {
             IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
-            _logger.LogInformation("Fetched data from weather API: {Data}", data);  
+            _logger.LogInformation("Fetched data from weather API: {@Data}", data);  
             return Task.CompletedTask;
         }
 

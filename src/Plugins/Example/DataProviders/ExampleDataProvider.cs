@@ -5,6 +5,7 @@ using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Plugins.Example.DataProviders.Query;
 
 namespace ORBIT9000.Plugins.Example.DataProviders
 {
@@ -31,13 +32,15 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
-            var url = "https://api.open-meteo.com/v1/forecast".SetQueryParams(new
-           {
-               latitude = 52.52,
-               longitude = 13.41,
-               hourly = "temperature_2m",
-               timezone = "Europe/Berlin"
-           });
+            var query = new 
+            {
+                latitude = 52.52,
+                longitude = 13.41,
+                hourly = "temperature_2m",
+                imezone = "Europe/Warsaw"
+            };
+
+            var url = "https://api.open-meteo.com/v1/forecast".SetQueryParams(query);
 
             var result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
 
