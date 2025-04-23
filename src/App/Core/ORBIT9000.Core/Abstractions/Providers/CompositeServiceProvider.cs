@@ -58,7 +58,7 @@ namespace ORBIT9000.Core.Abstractions.Providers
             var svc = _primaryScope.GetService(serviceType);
             if (svc != null) return svc;
 
-            return _secondaryScope.GetService(serviceType);
+            return _secondaryScope.GetService(serviceType)!;
         }
 
         object IServiceProvider.GetService(Type serviceType)
