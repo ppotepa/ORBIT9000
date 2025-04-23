@@ -1,8 +1,8 @@
 ﻿using ORBIT9000.Core.Abstractions.Providers.Data;
 
-namespace ORBIT9000.Plugins.Twitter.DataProviders
+namespace ORBIT9000.Plugins.Example.DataProviders
 {
-    public class TwitterResult : IResult
+    public class ExamplePlugin : IResult
     {
         public Double Temperature { get; set; }
         public Double WindSpeed { get; set; }

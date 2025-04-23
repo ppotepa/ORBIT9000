@@ -25,7 +25,7 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         {
-            var plugin = engine.PluginProvider.Activate("TwitterPlugin") as IOrbitPlugin;
+            var plugin = engine.PluginProvider.Activate("ExamplePlugin") as IOrbitPlugin;
             await plugin.OnLoad();
         };
 

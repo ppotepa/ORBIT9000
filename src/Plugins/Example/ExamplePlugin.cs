@@ -1,17 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Loaders;
-using ORBIT9000.Plugins.Twitter.DataProviders;
+using ORBIT9000.Plugins.Example.DataProviders;
 
-namespace ORBIT9000.Plugins.Twitter
+namespace ORBIT9000.Plugins.Example
 {
-    public class TwitterPlugin : IOrbitPlugin
+    public class ExamplePlugin : IOrbitPlugin
     {
-        private readonly TwitterDataProvider _dataProvider;
-        private readonly ILogger<TwitterPlugin> _logger;
+        private readonly ExampleDataProvider _dataProvider;
+        private readonly ILogger<ExamplePlugin> _logger;
         private readonly IServiceProvider _provider;
 
-        public TwitterPlugin(IServiceProvider provider, ILogger<TwitterPlugin> logger, TwitterDataProvider dataProvider)
+        public ExamplePlugin(IServiceProvider provider, ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider)
         {
             this._provider = provider;
             this._logger = logger;
@@ -20,7 +20,7 @@ namespace ORBIT9000.Plugins.Twitter
 
         public Task OnLoad()
         {
-            Task<IEnumerable<TwitterResult>> data = _dataProvider.GetData();
+            Task<IEnumerable<DataProviders.ExamplePlugin>> data = this._dataProvider.GetData();
             return Task.CompletedTask;
         }
 
@@ -32,7 +32,7 @@ namespace ORBIT9000.Plugins.Twitter
 
         public void RegisterServices(IServiceCollection services)
         {
-            services.AddTransient<TwitterDataProvider>();
+            services.AddTransient<ExampleDataProvider>();
         }
     }
 }
