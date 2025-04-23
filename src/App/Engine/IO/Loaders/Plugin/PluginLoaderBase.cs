@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Loaders;
-using ORBIT9000.Engine.IO.Loaders.Plugin.Validation;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
+using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin
 {
@@ -26,13 +25,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
         }
   
-        public abstract IEnumerable<AssemblyLoadResult> LoadPlugins(TSource source);
-        public IEnumerable<AssemblyLoadResult> LoadPlugins(object source)
+        public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
+
+        public IEnumerable<PluginInfo> LoadPlugins(object source)
         {
-            return LoadPlugins((TSource)source);
+            return ((IPluginLoader<TSource>)this).LoadPlugins((TSource)source);
         }
 
-        protected AssemblyLoadResult LoadSingle(string path)
+        protected PluginInfo LoadSingle(string path)
         {
             FileInfo fileInfo = new FileInfo(path);
 
@@ -40,80 +40,20 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             {
                 _logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
-                AssemblyLoadResult details = TryLoadSingleFile(fileInfo);
+                PluginInfo result = TryLoadSingleFile(fileInfo);
 
-                return details;
+                return result;
             }
         }
 
-        private static string FormatErrorMessages(List<Exception> exceptions)
-            => string.Join('\n', exceptions.Select(ex => ex.Message));
-
-        private AssemblyLoadResult CreateAssemblyLoadResult(
-            PluginFileValidator fileValidator,
-            TryLoadAssemblyResult? assemblyLoadResult,
-            List<Exception> exceptions)
+        private PluginInfo TryLoadSingleFile(FileInfo info)
         {
-            return new AssemblyLoadResult(
-                exists: fileValidator.FileExists,
-                isDll: fileValidator.IsDll,
-                containsPlugins: assemblyLoadResult?.PluginTypes.Any() ?? false,
-                error: FormatErrorMessages(exceptions),
-                assembly: assemblyLoadResult?.Assembly,
-                pluginTypes: assemblyLoadResult?.PluginTypes ?? Array.Empty<Type>(),
-                exceptions: exceptions
-            );
-        }
-
-        private void HandleErrors(List<Exception> exceptions)
-        {
-            if (_abortOnError)
+            var assemblyLoadResult = _assemblyLoader.Load(info);
+            return new PluginInfo
             {
-                _logger.LogCritical("Aborting due to errors:");
-
-                foreach (Exception ex in exceptions)
-                {
-                    _logger.LogCritical(ex, ex.Message);
-                }
-
-                if (exceptions.Count is 1)
-                {
-                    throw exceptions[0];
-                }
-                if (exceptions.Count > 1)
-                {
-                    throw new AggregateException("Multiple errors occurred while loading plugins.", exceptions);
-                }
-            }
-        }
-
-        private AssemblyLoadResult TryLoadSingleFile(FileInfo info)
-        {
-            var fileValidator = new PluginFileValidator(info, _logger);
-            var validationExceptions = fileValidator.Validate().Exceptions;
-
-            if (!fileValidator.IsValid)
-            {
-                return CreateAssemblyLoadResult(fileValidator, null, validationExceptions);
-            }
-
-            var assemblyLoadResult = _assemblyLoader.TryLoadAssembly(info);
-            var allExceptions = validationExceptions
-                .Concat(assemblyLoadResult.Exceptions ?? Enumerable.Empty<Exception>())
-                .ToList();
-
-            if (assemblyLoadResult.PluginTypes.Length == 0)
-            {
-                _logger.LogInformation("No plugins found in {Assembly}. Unloading ...", info.FullName);
-                _assemblyLoader.UnloadAssembly(info);
-            }
-
-            if (allExceptions.Any())
-            {
-                HandleErrors(allExceptions);
-            }
-
-            return CreateAssemblyLoadResult(fileValidator, assemblyLoadResult, allExceptions);
+                Assembly = assemblyLoadResult,
+                FileInfo = info
+            };
         }
     }
 }

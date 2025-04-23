@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Core.Extensions.IO.Files;
-using ORBIT9000.Engine.IO.Loaders.Plugin;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
+using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
@@ -15,13 +14,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         {
         }
 
-        public override IEnumerable<AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
+        public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
             source = FindSrcFolder(source);
 
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
-                this._logger.LogWarning("Source directory {Name} contains subdirectories. " +
+                this._logger.LogInformation("Source directory {Name} contains subdirectories. " +
                     $"Only the top-level directory will be used.", source.FullName);
 
                 DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));

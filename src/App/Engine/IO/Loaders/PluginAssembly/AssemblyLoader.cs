@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
 using System.Reflection;
 
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
@@ -17,14 +16,13 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
         {
             this._logger = logger;
         }
-       
-        public TryLoadAssemblyResult TryLoadAssembly(FileInfo info, bool loadAsBinary = false)
-        {
-            loadAsBinary = true;
-            Assembly? assembly = null;
-            List<Exception> exceptions = new List<Exception>();
 
-            Type[] pluginTypes = Array.Empty<Type>();
+        public Assembly Load(FileInfo info, bool loadAsBinary = false)
+        {
+            //loadAsBinary = true;
+            //info = new FileInfo("C:\\dummy.txt");
+            Assembly? assembly = null;
+            List<Exception> exceptions = new();
 
             try
             {
@@ -41,9 +39,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                     assembly = loadContext.LoadFromAssemblyPath(info.FullName);
                 }
 
-                pluginTypes = assembly.GetTypes()
+                var pluginTypes = assembly.GetTypes()
                     .Where(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)))
                     .ToArray();
+
+                return assembly;
 
             }
             catch (FileNotFoundException ex)
@@ -62,7 +62,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                 exceptions.Add(ex);
             }
 
-            return new TryLoadAssemblyResult(assembly, pluginTypes, exceptions);
+            return assembly;
         }
 
         public void UnloadAssembly(string assemblyPath)
@@ -71,12 +71,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                _logger.LogInformation("Unloaded assembly: {Path}", assemblyPath);
+                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 
         public void UnloadAssembly(FileInfo info) 
             => UnloadAssembly(info.FullName);
-
     }
 }

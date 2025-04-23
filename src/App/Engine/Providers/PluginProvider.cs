@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace ORBIT9000.Engine.Providers
 {
@@ -16,7 +15,7 @@ namespace ORBIT9000.Engine.Providers
         private readonly IPluginLoader _pluginLoader;
         private readonly IServiceProvider _provider;
 
-        public PluginProvider(IPluginLoader pluginLoader, ILogger<PluginProvider> logger, InitializedInternalConfig config, IServiceProvider provider)
+        public PluginProvider(ILogger<PluginProvider> logger, IPluginLoader pluginLoader, InitializedInternalConfig config, IServiceProvider provider)
         {
             _pluginLoader = pluginLoader;
             _logger = logger;
@@ -30,9 +29,9 @@ namespace ORBIT9000.Engine.Providers
             return ActivatorUtilities.CreateInstance(scope.ServiceProvider, plugin, []) as IOrbitPlugin;
         }
 
-        public AssemblyLoadResult[] GetPluginRegistrationInfo()
+        public Type[] GetPluginRegistrationInfo()
         {
-            return this._config.PluginInfo;
+            return _config.Plugins.Select(x => x.PluginType).ToArray();
         }
 
         public IOrbitPlugin Register(Type plugin)
