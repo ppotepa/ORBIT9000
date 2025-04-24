@@ -8,9 +8,6 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
-        private readonly RuntimeConfiguration _configuration;
-        private readonly ExceptionFactory _exceptionFactory;
-
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
