@@ -15,10 +15,11 @@ namespace ORBIT9000.Engine.Strategies.Running
             }
 
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
-            LoadPlugins!(state.Engine);
+            
 
             while (state.Engine.IsRunning)
             {
+                LoadPlugins!(state.Engine);
                 Thread.Sleep(TimeSpan.FromMilliseconds(100));
             }
         };

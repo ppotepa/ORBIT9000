@@ -18,6 +18,7 @@ namespace ORBIT9000.Plugins.Example.DataProviders
         {
             ArgumentNullException.ThrowIfNull(logger);
             this._logger = logger;
+            this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());    
         }
 
         public bool AllowAnonymous => true;
