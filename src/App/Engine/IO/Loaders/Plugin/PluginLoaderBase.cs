@@ -13,7 +13,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         private readonly IAssemblyLoader _assemblyLoader;
         private readonly Configuration.Raw.RawEngineConfiguration _config;
 
-        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
+        protected PluginLoaderBase(ILogger logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(config);

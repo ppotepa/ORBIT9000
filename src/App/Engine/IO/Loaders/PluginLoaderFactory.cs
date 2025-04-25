@@ -20,6 +20,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             if (_rawConfig == null)
                 throw new ArgumentNullException(nameof(_rawConfig));
 
+
             return _rawConfig.Plugins.ActivePlugins.Length switch
             {
                 > 0 => _serviceProvider.GetRequiredService<StringArrayPluginLoader>(),

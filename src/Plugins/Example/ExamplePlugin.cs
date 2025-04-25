@@ -22,7 +22,7 @@ namespace ORBIT9000.Plugins.Example
         public Task OnLoad()
         {
             IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
-            _logger.LogInformation("Fetched data from weather API: {@Data}", data);  
+            _logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());  
             return Task.CompletedTask;
         }
 

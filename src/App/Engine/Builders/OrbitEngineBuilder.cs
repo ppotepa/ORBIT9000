@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
-using ORBIT9000.Core.Environment;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
-using ORBIT9000.Engine.IO.Loaders;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
@@ -17,59 +16,87 @@ namespace ORBIT9000.Engine.Builders
 {
     public class OrbitEngineBuilder
     {
+        private readonly ContainerBuilder _containerBuilder;
         private readonly ILogger<OrbitEngineBuilder>? _logger;
-        private readonly Dictionary<Type, PluginRegistrationInfo> _plugins = new();
-        private readonly IServiceCollection _services = new ServiceCollection();
+        private readonly ILoggerFactory _loggerFactory;
         private IConfiguration? _configuration;
-        private RuntimeConfiguration? _internalOrbitEngineConfig;
-        private ILoggerFactory _loggerFactory;
         private RawEngineConfiguration? _rawConfiguration;
+        private IContainer _container;
+
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
             _logger.LogDebug("OrbitEngineBuilder initialized");
+
+            _containerBuilder = new ContainerBuilder();
         }
 
-        public OrbitEngine Build()
+        public OrbitEngine? Build()
         {
-            _services.AddSingleton(_loggerFactory);
-            _services.AddSingleton(_configuration);
-            _services.AddSingleton(_rawConfiguration);
-            _services.AddSingleton(_services);
+            _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
+            _containerBuilder.RegisterGeneric(typeof(Logger<>)).As(typeof(ILogger<>));
 
-            _services.AddTransient<StringArrayPluginLoader>();
-            _services.AddTransient<DebugDirectoryPluginLoader>();
-            _services.AddTransient<DirectoryPluginLoader>();
-            _services.AddTransient<PluginLoaderFactory>();
+            _containerBuilder.RegisterGeneric((context, genericArguments, parameters) => {
+                _logger.LogInformation("Trying to factorize Logger for {type}", genericArguments[0].Name);
 
-            _services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
+                var loggerFactory = context.Resolve<ILoggerFactory>();
 
-            _services.AddSingleton<RuntimeConfiguration>();
-            _services.AddSingleton<IPluginProvider, PluginProvider>();
-            _services.AddLogging();
+                var method = typeof(LoggerFactoryExtensions)
+                    .GetMethods()
+                    .First(m => m.Name == "CreateLogger" && m.IsGenericMethod && m.GetParameters().Length == 1);
 
-            _services.AddSingleton<IPluginLoader>(provider
-                =>
+                var genericMethod = method.MakeGenericMethod(genericArguments[0]);
+
+                var logger = genericMethod.Invoke(null, new object[] { loggerFactory });
+
+                return logger;
+            })
+            .As(typeof(ILogger<>))
+            .InstancePerDependency();
+
+            _containerBuilder.RegisterInstance(_configuration).As<IConfiguration>();
+
+            _containerBuilder.RegisterInstance(_rawConfiguration).AsSelf();
+            _containerBuilder.RegisterInstance(_containerBuilder).AsSelf();
+
+            _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf();
+            _containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf();
+            _containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf();
+            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf();
+
+            _containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
+
+            _containerBuilder.RegisterType<RuntimeConfiguration>().AsSelf().SingleInstance();
+            _containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
+
+            _containerBuilder.Register(c => _loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
+
+            _containerBuilder.Register(c =>
             {
-                return provider.GetRequiredService<PluginLoaderFactory>().Create();
-            });
+                PluginLoaderFactory factory = c.Resolve<PluginLoaderFactory>();
+                return factory.Create();
+            })
+            .As<IPluginLoader>()
+            .SingleInstance();
 
+            _containerBuilder.RegisterType<OrbitEngine>()
+                .AsSelf()
+                .SingleInstance();
 
-            _services.AddSingleton<OrbitEngine>();
+            _containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
+                .As<IServiceProvider>()
+                .SingleInstance();
 
-            return _services.BuildServiceProvider().GetRequiredService<OrbitEngine>();
+            _container = _containerBuilder.Build();
+
+            return _container.BeginLifetimeScope()
+                .Resolve<OrbitEngine>();
         }
 
         public OrbitEngineBuilder Configure(IConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            return this;
-        }
-
-        public OrbitEngineBuilder ConfigureServices(Action<IServiceCollection> configureServices)
-        {
-            configureServices?.Invoke(_services);
             return this;
         }
 
