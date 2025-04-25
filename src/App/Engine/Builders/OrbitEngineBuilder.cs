@@ -294,8 +294,11 @@ namespace ORBIT9000.Engine.Builders
             _services.AddSingleton<IPluginProvider, PluginProvider>();
             _services.AddLogging();
 
-            _services.AddSingleton<IPluginLoader>(provider 
-                => provider.GetRequiredService<PluginLoaderFactory>().Create());
+            _services.AddSingleton<IPluginLoader>(provider
+                =>
+            {
+                return provider.GetRequiredService<PluginLoaderFactory>().Create();
+            });
 
 
             _services.AddSingleton<OrbitEngine>();

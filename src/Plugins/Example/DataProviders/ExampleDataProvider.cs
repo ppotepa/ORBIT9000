@@ -5,12 +5,11 @@ using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.Example.DataProviders.Query;
 
 namespace ORBIT9000.Plugins.Example.DataProviders
 {
     [DataProvider]
-    [DefaultProject("Example")]
+    [DefaultProject("Example")]    
     public class ExampleDataProvider : IDataProvider<WeatherResponse>, IAuthenticate
     {
         private readonly ILogger<ExampleDataProvider> _logger;
