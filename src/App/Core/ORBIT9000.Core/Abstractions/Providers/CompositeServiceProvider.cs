@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ORBIT9000.Core.Abstractions.Providers
 {
@@ -8,28 +9,15 @@ namespace ORBIT9000.Core.Abstractions.Providers
         private readonly IServiceProvider _primaryScope, _secondaryScope;
         private bool _disposed;
 
+        public IServiceProvider ServiceProvider => throw new NotImplementedException();
+
         public CompositeServiceProvider(IServiceProvider primary, IServiceProvider secondary)
         {
-            _primary = primary;
-            _secondary = secondary;
+            _primary = primary ?? throw new ArgumentNullException(nameof(primary));
+            _secondary = secondary ?? throw new ArgumentNullException(nameof(secondary));
 
             _primaryScope = primary;
             _secondaryScope = secondary;
-        }
-
-        public IServiceProvider ServiceProvider => _primaryScope ?? _secondaryScope;
-
-        public IServiceScope CreateScope()
-        {
-            if (_disposed) throw new ObjectDisposedException(nameof(CompositeServiceProvider));
-
-            var pFactory = _primary.GetService<IServiceScopeFactory>();
-            var sFactory = _secondary.GetService<IServiceScopeFactory>();
-
-            var pScope = pFactory?.CreateScope() ?? throw new InvalidOperationException("Primary has no scope factory");
-            var sScope = sFactory?.CreateScope() ?? throw new InvalidOperationException("Secondary has no scope factory");
-
-            return new CompositeServiceProvider(pScope.ServiceProvider, sScope.ServiceProvider);
         }
 
         public void Dispose()
@@ -42,16 +30,22 @@ namespace ORBIT9000.Core.Abstractions.Providers
         {
             if (_disposed) throw new ObjectDisposedException(nameof(CompositeServiceProvider));
 
-            var svc = _primaryScope.GetService(serviceType);
-            if (svc != null) return svc;
+            var instance = _primaryScope.GetService(serviceType);
+            if (instance != null) return instance;
 
-            return _secondaryScope.GetService(serviceType)!;
+            instance = _secondaryScope.GetService(serviceType);
+            if (instance != null) return instance;
+
+            return ActivatorUtilities.CreateInstance(this, serviceType);
         }
 
         object IServiceProvider.GetService(Type serviceType)
-            => serviceType == typeof(IServiceScopeFactory)
-               ? this
-               : GetService(serviceType);
+        {
+            if (serviceType == typeof(IServiceScopeFactory))
+                return this;
+
+            return GetService(serviceType);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -64,6 +58,11 @@ namespace ORBIT9000.Core.Abstractions.Providers
             }
 
             _disposed = true;
+        }
+
+        public IServiceScope CreateScope()
+        {
+            throw new NotImplementedException();
         }
     }
 }
