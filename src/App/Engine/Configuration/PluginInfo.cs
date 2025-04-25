@@ -72,6 +72,7 @@ namespace ORBIT9000.Engine.Configuration
         public bool ContainsPlugins => PluginType is not null;
 
         public bool Activated { get; internal set; }
+        public bool IsSingleton { get; internal set; }
     }
 }
 >>>>>>> 254394d (Remove OverLogging)

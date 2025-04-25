@@ -169,7 +169,7 @@ namespace ORBIT9000.Engine.Strategies.Running
             while (state.Engine.IsRunning)
             {
                 LoadPlugins!(state.Engine);
-                Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             }
         };
 
