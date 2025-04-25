@@ -19,44 +19,55 @@ namespace ORBIT9000.Engine.Providers
         private readonly ILifetimeScope _rootScope;
         private readonly List<PluginInfo> _validPlugins;
 
+        // Stores single-instance plugins
+        private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
+
         public PluginProvider(
             ILogger<PluginProvider> logger,
             RuntimeConfiguration config,
             IPluginLoader pluginLoader,
             ILifetimeScope rootScope
-            )
+        )
         {
-            _pluginLoader = pluginLoader;
             _logger = logger;
             _config = config;
+            _pluginLoader = pluginLoader;
             _rootScope = rootScope;
-            _validPlugins = _config.Plugins.Where(x => x.ContainsPlugins).ToList();
+            _validPlugins = _config.Plugins
+                .Where(x => x.ContainsPlugins)
+                .ToList();
         }
 
         public IOrbitPlugin Activate(object plugin)
         {
             if (plugin is string pluginName)
             {
-                var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
+                PluginInfo? target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
                 if (target != null)
                 {
-                    if (target.Activated)
+                    if (target.IsSingleton && _activePlugins.TryGetValue(target.PluginType, out var existingInstance))
                     {
-                        _logger.LogWarning("Plugin activation skipped. Plugin is already running: {Plugin}", pluginName);
-                        throw new InvalidOperationException($"Plugin '{pluginName}' is already running.");
+                        _logger.LogInformation("Plugin already active (singleton): {Plugin}", pluginName);
+                        return existingInstance;
                     }
 
-                    // Create a child scope for plugin
                     var scope = _rootScope.BeginLifetimeScope(builder =>
                     {
-                        ServiceCollection collection = new ServiceCollection();
+                        var services = new ServiceCollection();
                         IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(target.PluginType);
-                        dummy.RegisterServices(collection);
-                        builder.Populate(collection);
+                        dummy.RegisterServices(services);
+                        builder.Populate(services);
                     });
 
-                    target.Activated = true;
-                    return (IOrbitPlugin)CreateInstanceFromScope(target.PluginType, scope);
+                    var instance = (IOrbitPlugin)CreateInstanceFromScope(target.PluginType, scope);
+
+                    if (target.IsSingleton)
+                    {
+                        _activePlugins[target.PluginType] = instance;
+                    }
+
+                    _logger.LogInformation("Plugin activated: {Plugin}", pluginName);
+                    return instance;
                 }
             }
 
@@ -71,7 +82,7 @@ namespace ORBIT9000.Engine.Providers
 
         public object CreateInstanceFromScope(Type type, ILifetimeScope scope)
         {
-            IServiceProvider serviceProvider = scope.Resolve<IServiceProvider>();
+            var serviceProvider = scope.Resolve<IServiceProvider>();
             return ActivatorUtilities.CreateInstance(serviceProvider, type);
         }
     }
