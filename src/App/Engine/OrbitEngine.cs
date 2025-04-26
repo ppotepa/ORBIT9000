@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Runtime.State;
@@ -11,6 +12,7 @@ namespace ORBIT9000.Engine
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
+  
 
         public OrbitEngine(
             ILoggerFactory loggerFactory,
@@ -24,23 +26,27 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(pluginProvider);
 
-            _logger = loggerFactory.CreateLogger<OrbitEngine>() 
+            _logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
-         
+
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 
             IsInitialized = true;
+            _configuration = configuration;
             _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
+
         }
 
         public bool IsInitialized { get; }
+
+        private RuntimeConfiguration _configuration;
+
         public bool IsRunning { get; private set; }
         public IPluginProvider PluginProvider { get => _pluginProvider; }
-
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
-
+        internal RuntimeConfiguration Configuration { get => _configuration; set => _configuration = value; }
         public void Start()
         {
             if (!IsInitialized)

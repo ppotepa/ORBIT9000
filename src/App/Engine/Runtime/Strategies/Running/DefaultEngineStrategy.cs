@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using ORBIT9000.Engine.Runtime.State;
-using System.Data;
 using System.IO.Pipes;
 using System.Text;
 
@@ -10,12 +9,15 @@ namespace ORBIT9000.Engine.Strategies.Running
     {
         public readonly static ParameterizedThreadStart EngineStartupStrategy = static (obj) =>
         {
-            var pipeThread = new Thread(PipeThread);
-            pipeThread.Start(obj);
-
             if (obj is not EngineState state || state.Engine is null)
             {
                 throw new InvalidOperationException("Engine state is null.");
+            }
+
+            if(state.Engine.Configuration.EnableTerminal is true)
+            {
+                var pipeThread = new Thread(PipeThread!);
+                pipeThread.Start(obj);
             }
 
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
@@ -32,7 +34,12 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         public readonly static ParameterizedThreadStart PipeThread = async static (obj) =>
         {
-            var state = obj as EngineState; 
+
+            if (obj is not EngineState state || state.Engine is null)
+            {
+                throw new InvalidOperationException("Engine state is null.");
+            }
+
             var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
             Console.WriteLine("Waiting for GUI to connect...");
             await server.WaitForConnectionAsync();
@@ -50,8 +57,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                 byte[] buffer = Encoding.UTF8.GetBytes(json);
 
                 await server.WriteAsync(buffer, 0, buffer.Length);
-                Console.WriteLine("Message sent!");
-                Task.Delay(TimeSpan.FromMilliseconds(50));
+                await Task.Delay(TimeSpan.FromMilliseconds(50));
             }
 
             server.Dispose();
