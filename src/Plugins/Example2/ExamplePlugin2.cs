@@ -30,7 +30,7 @@ namespace ORBIT9000.Plugins.Example
             IEnumerable<WeatherResponse> data = await _provider.GetData();
             IEnumerable<int> data2 = await _numbers.GenerateRandomNumbers();
 
-            _logger.LogInformation("Fetched data from random number generator: {D1}, {D2}", data, data2);
+            _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count(), data2.Count());
         }
 
         public Task OnUnload()

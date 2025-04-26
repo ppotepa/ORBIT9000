@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>CONSOLE_GUI</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
@@ -31,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Extensions\" />
     <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 
