@@ -19,9 +19,9 @@ namespace ORBIT9000.Engine.Builders
         private readonly ContainerBuilder _containerBuilder;
         private readonly ILogger<OrbitEngineBuilder>? _logger;
         private readonly ILoggerFactory _loggerFactory;
+
         private IConfiguration? _configuration;
         private RawEngineConfiguration? _rawConfiguration;
-        private IContainer _container;
 
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
         {
@@ -31,14 +31,14 @@ namespace ORBIT9000.Engine.Builders
 
             _containerBuilder = new ContainerBuilder();
         }
-
-        public OrbitEngine? Build()
+      
+        public OrbitEngine Build()
         {
             _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
-            _containerBuilder.RegisterGeneric(typeof(Logger<>)).As(typeof(ILogger<>));
 
-            _containerBuilder.RegisterGeneric((context, genericArguments, parameters) => {
-                _logger.LogInformation("Trying to factorize Logger for {type}", genericArguments[0].Name);
+            _ = _containerBuilder.RegisterGeneric((context, genericArguments, parameters) =>
+            {
+                _logger!.LogInformation("Trying to factorize Logger for {Type}", genericArguments[0].Name);
 
                 var loggerFactory = context.Resolve<ILoggerFactory>();
 
@@ -48,16 +48,13 @@ namespace ORBIT9000.Engine.Builders
 
                 var genericMethod = method.MakeGenericMethod(genericArguments[0]);
 
-                var logger = genericMethod.Invoke(null, new object[] { loggerFactory });
-
-                return logger;
+                return genericMethod.Invoke(null, [loggerFactory])!;
             })
             .As(typeof(ILogger<>))
             .InstancePerDependency();
 
-            _containerBuilder.RegisterInstance(_configuration).As<IConfiguration>();
-
-            _containerBuilder.RegisterInstance(_rawConfiguration).AsSelf();
+            _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>();
+            _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf();
             _containerBuilder.RegisterInstance(_containerBuilder).AsSelf();
 
             _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf();
@@ -88,9 +85,7 @@ namespace ORBIT9000.Engine.Builders
                 .As<IServiceProvider>()
                 .SingleInstance();
 
-            _container = _containerBuilder.Build();
-
-            return _container.BeginLifetimeScope()
+            return _containerBuilder.Build().BeginLifetimeScope()
                 .Resolve<OrbitEngine>();
         }
 
@@ -114,7 +109,7 @@ namespace ORBIT9000.Engine.Builders
                     .AddJsonFile(settingsPath, optional: false, reloadOnChange: false)
                     .Build();
 
-                _rawConfiguration = _configuration.GetSection("OrbitEngine").Get<RawEngineConfiguration>();
+                _rawConfiguration = _configuration.GetSection("OrbitEngine").Get<RawEngineConfiguration>()!;
             }
             else { throw new InvalidOperationException("Configuration has already been set."); }
 

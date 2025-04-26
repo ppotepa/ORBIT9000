@@ -8,12 +8,13 @@ namespace ORBIT9000.Plugins.Example
 {
     public class ExamplePlugin2 : IOrbitPlugin
     {
-        private readonly RandomNumberService _numbers;
         private readonly ILogger<ExamplePlugin2> _logger;
+        private readonly RandomNumberService _numbers;
         private readonly ExampleDataProvider _provider;
 
         // we should not be able to get data from the ExampleDataProvider here
-        // because it is not having the shared scope
+        // Accessing data from the ExampleDataProvider here is not allowed
+        // because it does not have a shared scope
 
         public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger, ExampleDataProvider provider)
         {
@@ -28,6 +29,7 @@ namespace ORBIT9000.Plugins.Example
         {
             IEnumerable<WeatherResponse> data = await _provider.GetData();
             IEnumerable<int> data2 = await _numbers.GenerateRandomNumbers();
+
             _logger.LogInformation("Fetched data from random number generator: {D1}, {D2}", data, data2);
         }
 
