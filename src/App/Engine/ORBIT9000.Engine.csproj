@@ -37,11 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
+    <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IO\Loaders\PluginAssembly\Result\" />
+    <ProjectReference Include="..\Core\ORBIT9000.Core.csproj" />
   </ItemGroup>
 
 </Project>

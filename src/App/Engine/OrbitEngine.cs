@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Engine.Configuration;
@@ -12,7 +15,6 @@ namespace ORBIT9000.Engine
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
-  
 
         public OrbitEngine(
             ILoggerFactory loggerFactory,
@@ -60,7 +62,7 @@ namespace ORBIT9000.Engine
 
             IsRunning = true;
 
-            _mainThread.Start(new EngineState { Engine = this });
+            _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
         }
     }
 }
