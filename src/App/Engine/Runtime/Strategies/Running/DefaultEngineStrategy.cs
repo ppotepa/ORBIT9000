@@ -12,16 +12,19 @@ namespace ORBIT9000.Engine.Strategies.Running
             }
 
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
-            
+
+
+            Initialize!(state.Engine);
 
             while (state.Engine.IsRunning)
             {
-                LoadPlugins!(state.Engine);
+                Execute!(state.Engine);
+
                 Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             }
         };
 
-        private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
+        private static readonly Action<OrbitEngine> Execute = async (engine) =>
         {
             try
             {
@@ -35,6 +38,11 @@ namespace ORBIT9000.Engine.Strategies.Running
             {
                 engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
             }
+        };
+
+        private static readonly Action<OrbitEngine> Initialize = (engine) =>
+        {
+            engine.PluginProvider.Initialize();
         };
 
         public Default()

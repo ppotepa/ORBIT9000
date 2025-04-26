@@ -7,6 +7,7 @@ namespace ORBIT9000.Abstractions
         IOrbitPlugin Activate(Type plugin);
 
         IOrbitPlugin Activate(object plugin);
+        void Initialize();
         void Unload(object plugin);
     }
 }

@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿#nullable disable
+
+using ORBIT9000.Core.Attributes.Engine;
+using System.Reflection;
 
 namespace ORBIT9000.Engine.Configuration
 {
@@ -10,6 +13,6 @@ namespace ORBIT9000.Engine.Configuration
         public bool ContainsPlugins => PluginType is not null;
 
         public bool Activated { get; internal set; }
-        public bool IsSingleton { get; internal set; }
+        public bool IsSingleton => PluginType.IsDefined(typeof(SingletonAttribute), true);
     }
 }

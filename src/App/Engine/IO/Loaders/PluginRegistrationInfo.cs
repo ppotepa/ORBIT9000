@@ -1,4 +1,5 @@
-﻿namespace ORBIT9000.Engine.IO.Loaders
+﻿#nullable disable
+namespace ORBIT9000.Engine.IO.Loaders
 {
     public class PluginRegistrationInfo
     {
