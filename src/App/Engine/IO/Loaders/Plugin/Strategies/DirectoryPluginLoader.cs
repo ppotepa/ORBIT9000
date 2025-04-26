@@ -7,7 +7,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
     internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
-        public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+        public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, IAssemblyLoader loader) : base(logger, loader)
         {
         }
 
@@ -20,7 +20,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (files.Length == 0)
             {
-                this._logger.LogWarning($"No plugins found in {source.FullName}");
+                this._logger.LogWarning("No plugins found in {Name}", source.FullName);
             }
             else
             {

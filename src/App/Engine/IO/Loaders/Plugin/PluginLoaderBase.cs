@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Loaders;
+using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
@@ -11,16 +11,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected readonly ILogger _logger;
         protected bool _abortOnError = false;
         private readonly IAssemblyLoader _assemblyLoader;
-        private readonly Configuration.Raw.RawEngineConfiguration _config;
-
-        protected PluginLoaderBase(ILogger logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
+     
+        protected PluginLoaderBase(ILogger logger, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
-            ArgumentNullException.ThrowIfNull(config);
             ArgumentNullException.ThrowIfNull(assemblyLoader);
 
             _logger = logger;
-            _config = config;
             _assemblyLoader = assemblyLoader;
 
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
@@ -50,23 +47,30 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
             var assemblyLoadResult = _assemblyLoader.Load(info);
-            
-            if(assemblyLoadResult is null)
+
+            if (assemblyLoadResult is null)
             {
                 return new PluginInfo
                 {
-                    Assembly = null,
-                    FileInfo = info,                    
-                };  
+                    Assembly = null!,
+                    FileInfo = info,
+                };
             }
+
+            var pluginType = assemblyLoadResult.GetTypes()
+                .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)));
 
             return new PluginInfo
             {
                 Assembly = assemblyLoadResult,
                 FileInfo = info,
-                PluginType = assemblyLoadResult.GetTypes()
-                    .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin))),               
+                PluginType = pluginType!,
             };
+        }
+
+        public void Unload(object plugin)
+        {
+            throw new NotImplementedException();
         }
     }
 }

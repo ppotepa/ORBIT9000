@@ -3,8 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
-using ORBIT9000.Core.Abstractions.Loaders;
-using ORBIT9000.Core.Abstractions.Providers;
+using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Runtime.CompilerServices;
@@ -13,14 +12,14 @@ namespace ORBIT9000.Engine.Providers
 {
     internal class PluginProvider : IPluginProvider
     {
+        // Stores single-instance plugins
+        private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
+
         private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
         private readonly List<PluginInfo> _validPlugins;
-
-        // Stores single-instance plugins
-        private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
 
         public PluginProvider(
             ILogger<PluginProvider> logger,
@@ -53,7 +52,7 @@ namespace ORBIT9000.Engine.Providers
 
                     var scope = _rootScope.BeginLifetimeScope(builder =>
                     {
-                        var services = new ServiceCollection();
+                        ServiceCollection services = new ServiceCollection();
                         IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(target.PluginType);
                         dummy.RegisterServices(services);
                         builder.Populate(services);
@@ -80,7 +79,12 @@ namespace ORBIT9000.Engine.Providers
             throw new NotImplementedException();
         }
 
-        public object CreateInstanceFromScope(Type type, ILifetimeScope scope)
+        public void Unload(object plugin)
+        {
+            _pluginLoader.Unload(plugin);
+        }
+
+        private static object CreateInstanceFromScope(Type type, ILifetimeScope scope)
         {
             var serviceProvider = scope.Resolve<IServiceProvider>();
             return ActivatorUtilities.CreateInstance(serviceProvider, type);

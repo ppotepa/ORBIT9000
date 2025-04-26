@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
 using System.Reflection;
 
@@ -12,15 +11,13 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 
         private readonly ILogger<AssemblyLoader> _logger;
 
-        public AssemblyLoader(ILogger<AssemblyLoader> logger) 
+        public AssemblyLoader(ILogger<AssemblyLoader> logger)
         {
             this._logger = logger;
         }
 
         public Assembly Load(FileInfo info, bool loadAsBinary = false)
-        {   
-            Assembly? assembly = null;
-
+        {
             try
             {
                 PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
@@ -29,25 +26,19 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                 if (loadAsBinary)
                 {
                     byte[] bytes = File.ReadAllBytes(info.FullName);
-                    assembly = loadContext.LoadFromAssemblyBytes(bytes);
+                    return loadContext.LoadFromAssemblyBytes(bytes);
                 }
                 else
                 {
-                    assembly = loadContext.LoadFromAssemblyPath(info.FullName);
+                    return loadContext.LoadFromAssemblyPath(info.FullName);
                 }
-
-                var pluginTypes = assembly.GetTypes()
-                    .Where(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)))
-                    .ToArray();
-
-                return assembly;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load assembly from {Path}", info.FullName);                
+                var contextualMessage = $"Failed to load assembly from {info.FullName}.";
+                _logger.LogError(ex, contextualMessage);
+                throw new InvalidOperationException(contextualMessage, ex); 
             }
-
-            return assembly;
         }
 
         public void UnloadAssembly(string assemblyPath)
@@ -60,7 +51,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             }
         }
 
-        public void UnloadAssembly(FileInfo info) 
+        public void UnloadAssembly(FileInfo info)
             => UnloadAssembly(info.FullName);
     }
 }
