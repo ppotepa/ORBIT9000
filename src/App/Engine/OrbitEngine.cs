@@ -1,7 +1,5 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Engine.Configuration;
@@ -32,6 +30,8 @@ namespace ORBIT9000.Engine
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
+            _mainThread.Name = "MainEngineThread";
+
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 

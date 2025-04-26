@@ -7,7 +7,7 @@ namespace ORBIT9000.Engine.Strategies.Running
 {
     internal static class Default
     {
-        public static void EngineStartupStrategy(object obj)
+        public static void EngineStartupStrategy(object? obj)
         {
             if (obj is not EngineState state || state.Engine is null)
             {
@@ -39,12 +39,14 @@ namespace ORBIT9000.Engine.Strategies.Running
 
                 Task.Run(async () =>
                 {
+                    Thread.CurrentThread.Name = "Plugin_ExamplePlugin";
                     var plugin = await pluginTask;
                     await plugin.OnLoad();
                 });
 
                 Task.Run(async () =>
                 {
+                    Thread.CurrentThread.Name = "Plugin_ExamplePlugin2";
                     var plugin2 = await plugin2Task;
                     await plugin2.OnLoad();
                 });
