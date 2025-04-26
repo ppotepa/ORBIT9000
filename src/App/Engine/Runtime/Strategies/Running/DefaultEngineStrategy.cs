@@ -5,46 +5,65 @@ using System.Text;
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
-    internal struct Default
+    internal static class Default
     {
-        public readonly static ParameterizedThreadStart EngineStartupStrategy = static (obj) =>
+        public static void EngineStartupStrategy(object obj)
         {
             if (obj is not EngineState state || state.Engine is null)
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
 
-            if(state.Engine.Configuration.EnableTerminal is true)
+            if (state.Engine.Configuration.EnableTerminal)
             {
-                var pipeThread = new Thread(PipeThread!);
-                pipeThread.Start(obj);
+                // Start PipeThread correctly
+                Task.Run(() => PipeThread(state));
             }
 
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
 
-            Initialize!(state.Engine);
+            Initialize(state.Engine);
 
-            while (state.Engine.IsRunning)
+            while (state.Engine?.IsRunning == true) // Fix for CS8602: Added null conditional operator
             {
-                Execute!(state.Engine);
-
-                Thread.Sleep(TimeSpan.FromMilliseconds(150));
+                Execute(state.Engine);
+                Thread.Sleep(TimeSpan.FromMilliseconds(100));
             }
-        };
+        }
 
-        public readonly static ParameterizedThreadStart PipeThread = async static (obj) =>
+        private static void Execute(OrbitEngine engine)
         {
+            try
+            {
+                var plugin = engine.PluginProvider.Activate("ExamplePlugin");
+                var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
 
-            if (obj is not EngineState state || state.Engine is null)
+                Task.Run(plugin.OnLoad);
+                Task.Run(plugin2.OnLoad);
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
+            }
+        }
+
+        private static void Initialize(OrbitEngine engine)
+        {
+            // Any initialization logic here
+        }
+
+        private static async Task PipeThread(EngineState? state)
+        {
+            if (state is null || state.Engine is null)
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
 
-            var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
+            using var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
+
             Console.WriteLine("Waiting for GUI to connect...");
             await server.WaitForConnectionAsync();
             Console.WriteLine("GUI connected!");
-
 
             while (state.Engine.IsRunning) 
             {
@@ -53,38 +72,16 @@ namespace ORBIT9000.Engine.Strategies.Running
                     state = state.Engine
                 };
 
-                string json = JsonConvert.SerializeObject(message, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+                string json = JsonConvert.SerializeObject(message, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+
                 byte[] buffer = Encoding.UTF8.GetBytes(json);
 
                 await server.WriteAsync(buffer, 0, buffer.Length);
                 await Task.Delay(TimeSpan.FromMilliseconds(50));
             }
-
-            server.Dispose();
-        };
-
-        private static readonly Action<OrbitEngine> Execute = async (engine) =>
-        {
-            try
-            {
-                var plugin = engine.PluginProvider.Activate("ExamplePlugin");
-                var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
-
-                await plugin.OnLoad();
-                await plugin2.OnLoad();
-            }
-            catch (Exception ex)
-            {
-                engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
-            }
-        };
-
-        private static readonly Action<OrbitEngine> Initialize = (engine) =>
-        {
-        };
-
-        public Default()
-        {
         }
     }
 }
