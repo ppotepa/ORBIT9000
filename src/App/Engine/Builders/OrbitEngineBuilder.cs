@@ -10,16 +10,22 @@ using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 using ORBIT9000.Engine.Providers;
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace ORBIT9000.Engine.Builders
 {
     public class OrbitEngineBuilder
     {
+        private static readonly MethodInfo _createLoggerMethod = typeof(LoggerFactoryExtensions)
+                    .GetMethod(nameof(ILoggerFactory.CreateLogger), [typeof(ILoggerFactory)])!;
+
+        private static readonly ConcurrentDictionary<Type, Func<ILoggerFactory, object>> _loggerFactoryCache = new();
         private readonly ContainerBuilder _containerBuilder;
         private readonly ILogger<OrbitEngineBuilder>? _logger;
         private readonly ILoggerFactory _loggerFactory;
-
         private IConfiguration? _configuration;
         private RawEngineConfiguration? _rawConfiguration;
 
@@ -27,29 +33,24 @@ namespace ORBIT9000.Engine.Builders
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
-            _logger.LogDebug("OrbitEngineBuilder initialized");
-
             _containerBuilder = new ContainerBuilder();
         }
-      
+
         public OrbitEngine Build()
         {
             _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
 
             _ = _containerBuilder.RegisterGeneric((context, genericArguments, parameters) =>
             {
-                _logger!.LogInformation("Trying to factorize Logger for {Type}", genericArguments[0].Name);
+                Type categoryType = genericArguments[0];
+                _logger!.LogDebug("Creating Logger for {Type}", categoryType.Name);
 
-                var loggerFactory = context.Resolve<ILoggerFactory>();
-
-                var method = typeof(LoggerFactoryExtensions)
-                    .GetMethods()
-                    .First(m => m.Name == "CreateLogger" && m.IsGenericMethod && m.GetParameters().Length == 1);
-
-                var genericMethod = method.MakeGenericMethod(genericArguments[0]);
-
-                return genericMethod.Invoke(null, [loggerFactory])!;
-            }).As(typeof(ILogger<>)).InstancePerDependency();
+                ILoggerFactory loggerFactory = context.Resolve<ILoggerFactory>();
+             
+                var factory = CreateLoggerFactory(categoryType);
+                return factory(loggerFactory);
+            })
+            .As(typeof(ILogger<>)).InstancePerDependency();
 
             _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>();
             _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf();
@@ -130,6 +131,21 @@ namespace ORBIT9000.Engine.Builders
             else { throw new InvalidOperationException("Configuration has already been set."); }
 
             return this;
+        }
+
+        private static Func<ILoggerFactory, object> CreateLoggerFactory(Type categoryType)
+        {
+            return _loggerFactoryCache.GetOrAdd(categoryType, type =>
+            {
+                ParameterExpression factoryParam = Expression.Parameter(typeof(ILoggerFactory), "factory");
+                MethodCallExpression callExpression = Expression.Call(null, _createLoggerMethod.MakeGenericMethod(type), factoryParam);
+
+                Expression<Func<ILoggerFactory, object>> lambda = Expression.Lambda<Func<ILoggerFactory, object>>(
+                    Expression.Convert(callExpression, typeof(object)),
+                    factoryParam);
+
+                return lambda.Compile();
+            });
         }
     }
 }
