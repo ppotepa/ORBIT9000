@@ -9,17 +9,20 @@ namespace ORBIT9000.Engine.Configuration
     [MessagePackObject(AllowPrivate = true)]
     public partial class PluginInfo
     {
+        [Key(0)]
+        private bool? _isSingleton;
+
+        [Key(3)]
+        public bool Activated { get; internal set; }
+
         [IgnoreMember]
         public Assembly Assembly { get; internal set; }
 
-        [IgnoreMember]
-        public Type PluginType { get; internal set; }
+        [Key(2)]
+        public bool ContainsPlugins => PluginType is not null;
 
         [IgnoreMember]
         public FileInfo FileInfo { get; internal set; }
-
-        [Key(0)]
-        private bool? _isSingleton;
 
         [Key(1)]
         public bool IsSingleton
@@ -31,10 +34,7 @@ namespace ORBIT9000.Engine.Configuration
             }
         }
 
-        [Key(2)]
-        public bool ContainsPlugins => PluginType is not null;
-
-        [Key(3)]
-        public bool Activated { get; internal set; }
+        [IgnoreMember]
+        public Type PluginType { get; internal set; }
     }
 }
