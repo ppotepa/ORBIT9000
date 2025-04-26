@@ -1,5 +1,7 @@
-﻿using System.IO.Pipes;
-using System.Text;
+﻿using MessagePack;
+using ORBIT9000.Engine.Configuration;
+using System.Buffers;
+using System.IO.Pipes;
 
 namespace Orbit9000.EngineTerminal
 {
@@ -28,14 +30,21 @@ namespace Orbit9000.EngineTerminal
                         break;
                     }
 
-                    string json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine("Received Engine state: " + json);
+                    var @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer));
+                    Console.WriteLine("Received Engine state: " + @object.Count);
+
+                    foreach(var pluginInfo in @object)
+                    {
+                        Console.WriteLine($"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}");
+                    }   
                 }
                 catch (IOException ex)
                 {
                     Console.WriteLine("Pipe broken: " + ex.Message);
                     break;
                 }
+
+                Thread.Sleep(1000);
             }
         }
     }

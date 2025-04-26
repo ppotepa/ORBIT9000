@@ -70,24 +70,14 @@ namespace ORBIT9000.Engine.Strategies.Running
             }
 
             using var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
-
-            Console.WriteLine("Waiting for GUI to connect...");
+          
             await server.WaitForConnectionAsync();
-            Console.WriteLine("GUI connected!");
+            state.Engine.LogInformation($"GUI Connected");
 
             while (state.Engine.IsRunning)
             {
-                var message = new
-                {
-                    plugins = state.ActivePlugins
-                };
-
-                string json = JsonConvert.SerializeObject(message, new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-
-                byte[] buffer = Encoding.UTF8.GetBytes(json);
+                state.Engine.LogInformation($"Engine instance {state.Engine.GetHashCode()}");
+                byte[] buffer = MessagePack.MessagePackSerializer.Serialize(state.ActivatedPlugins);  
 
                 await server.WriteAsync(buffer, 0, buffer.Length);
                 await Task.Delay(TimeSpan.FromMilliseconds(50));

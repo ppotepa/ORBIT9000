@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
-    //[Singleton(typeof(ExamplePlugin))]
+    [Singleton(typeof(ExamplePlugin))]
     public class ExamplePlugin : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider;

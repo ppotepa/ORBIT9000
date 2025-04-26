@@ -96,7 +96,7 @@ namespace ORBIT9000.Engine.Builders
 
             var container = _containerBuilder.Build();
             var engine = container.Resolve<OrbitEngine>();
-
+            _logger.LogInformation($"Engine instance is {engine.GetHashCode()}");
             return engine;
         }
 

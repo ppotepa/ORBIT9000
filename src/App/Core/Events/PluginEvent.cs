@@ -12,6 +12,6 @@
     public class PluginEvent
     {
         public PluginEventType Type { get; set; }
-        public string PluginName { get; set; }
+        public Type PluginType { get; set; }
     }
 }
