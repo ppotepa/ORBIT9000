@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 
-namespace ORBIT9000.Plugins.Example2.Services
+namespace ORBIT9000.Plugins.Example.Services
 {
     public class RandomNumberService
     {
@@ -13,7 +13,7 @@ namespace ORBIT9000.Plugins.Example2.Services
             _logger.LogInformation("RandomNumberService created");
         }
 
-        public async Task<IEnumerable<int>> GenerateRandomNumber()
+        public async Task<IEnumerable<int>> GenerateRandomNumbers()
         {
             var numbers = Enumerable.Range(0, 100).Select(x => RandomNumberGenerator.GetInt32(0, 100));
             Thread.Sleep(RandomNumberGenerator.GetInt32(0, 1000));

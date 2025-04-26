@@ -35,7 +35,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
                 return LoadFromAssemblyPath(assemblyPath);
             }
 
-            return null;
+            return null!;
         }
 
         protected override nint LoadUnmanagedDll(string unmanagedDllName)

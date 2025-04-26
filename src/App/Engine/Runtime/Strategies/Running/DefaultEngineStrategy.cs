@@ -1,6 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions;
-using ORBIT9000.Core.Abstractions.Loaders;
-using ORBIT9000.Engine.Runtime.State;
+﻿using ORBIT9000.Engine.Runtime.State;
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -25,8 +23,17 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         {
-            var plugin = engine.PluginProvider.Activate("ExamplePlugin");
-            await plugin.OnLoad();
+            try
+            {
+                var plugin = engine.PluginProvider.Activate("ExamplePlugin");
+                var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
+                await plugin.OnLoad();
+                await plugin2.OnLoad();
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
+            }
         };
 
         public Default()

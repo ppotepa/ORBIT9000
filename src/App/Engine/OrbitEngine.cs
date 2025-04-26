@@ -8,7 +8,6 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
-        private readonly ExceptionFactory _exceptionFactory;
 
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
@@ -28,7 +27,7 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(pluginProvider);
 
             _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
-            _exceptionFactory = new ExceptionFactory(_logger, true);
+         
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
