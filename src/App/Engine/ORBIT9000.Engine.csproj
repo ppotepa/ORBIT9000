@@ -12,6 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
   </ItemGroup>
@@ -35,7 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
     <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 

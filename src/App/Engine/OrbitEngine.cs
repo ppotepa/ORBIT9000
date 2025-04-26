@@ -1,14 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Runtime.Exceptions;
 using ORBIT9000.Engine.Runtime.State;
 
 namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
-
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
@@ -26,7 +24,8 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(serviceProvider);
             ArgumentNullException.ThrowIfNull(pluginProvider);
 
-            _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
+            _logger = loggerFactory.CreateLogger<OrbitEngine>() 
+                ?? throw new InvalidOperationException("Logger could not be created.");
          
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
             _pluginProvider = pluginProvider;
