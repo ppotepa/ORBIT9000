@@ -13,7 +13,7 @@ namespace EngineTerminal.Views {
     using Terminal.Gui;
     
     
-    public partial class MyView : Terminal.Gui.Window 
+    public partial class MainView : Terminal.Gui.Window 
     {
         
     }

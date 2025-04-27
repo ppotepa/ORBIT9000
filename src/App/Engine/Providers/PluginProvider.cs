@@ -48,7 +48,7 @@ namespace ORBIT9000.Engine.Providers
                 if (_individualPluginScopes == null)
                 {
                     _individualPluginScopes = new Dictionary<Type, ILifetimeScope>();
-                    foreach (var info in _validPlugins)
+                    foreach (PluginInfo info in _validPlugins)
                     {
                         _individualPluginScopes[info.PluginType] = _rootScope.BeginLifetimeScope(builder =>
                         {
@@ -58,6 +58,7 @@ namespace ORBIT9000.Engine.Providers
                         });
                     }
                 }
+
                 return _individualPluginScopes;
             }
         }
