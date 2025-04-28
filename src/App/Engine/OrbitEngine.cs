@@ -192,6 +192,8 @@ namespace ORBIT9000.Engine
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
+            _mainThread.IsBackground = true;
+
             _mainThread.Name = "MainEngineThread";
 
             _pluginProvider = pluginProvider;
