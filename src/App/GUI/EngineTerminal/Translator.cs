@@ -9,6 +9,7 @@ namespace Orbit9000.EngineTerminal
         private readonly Toplevel _top;
         private readonly PropertyInfo[] _topProperties;
         private readonly Dictionary<string, FrameView> views = new();
+
         private View _mainView = new FrameView("Main View")
         {
             X = 0,
@@ -30,7 +31,7 @@ namespace Orbit9000.EngineTerminal
         public void Translate()
         {
             var topProperties = _data.GetType().GetProperties();
-            IEnumerable<MenuBarItem> topItems = GenerateMenuBar(topProperties);
+            IEnumerable<MenuBarItem> topItems = GenerateMenuBar();
 
             _menuBar = new MenuBar(topItems.ToArray());
 
@@ -40,9 +41,9 @@ namespace Orbit9000.EngineTerminal
             Application.Init();
         }
 
-        private IEnumerable<MenuBarItem> GenerateMenuBar(System.Reflection.PropertyInfo[] topProperties)
+        private IEnumerable<MenuBarItem> GenerateMenuBar()
         {
-            return topProperties.Select(property => new MenuBarItem()
+            return _topProperties.Select(property => new MenuBarItem()
             {
                 Title = property.Name,
                 Action = () =>
