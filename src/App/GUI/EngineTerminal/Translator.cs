@@ -1,157 +1,79 @@
-﻿using HtmlAgilityPack;
+using System.Reflection;
 using Terminal.Gui;
 
-public class Translator
+namespace Orbit9000.EngineTerminal
 {
-    private readonly Dictionary<string, Func<HtmlNode, View>> _tagHandlers;
-
-    public Translator()
+    public class Translator
     {
-        _tagHandlers = new Dictionary<string, Func<HtmlNode, View>>(StringComparer.OrdinalIgnoreCase)
+        private readonly object _data;
+        private readonly Toplevel _top;
+        private readonly PropertyInfo[] _topProperties;
+        private readonly Dictionary<string, FrameView> views = new();
+        private View _mainView = new FrameView("Main View")
         {
-            { "nav", CreateNavbar },
-            { "section", CreateSection },
-            { "h1", node => CreateLabel("# " + node.InnerText.Trim()) },
-            { "h2", node => CreateLabel("## " + node.InnerText.Trim()) },
-            { "h3", node => CreateLabel("### " + node.InnerText.Trim()) },
-            { "p", node => CreateLabel(node.InnerText.Trim()) },
-            { "ul", CreateListView },
-            { "li", node => CreateLabel("- " + node.InnerText.Trim()) }
-        };
-    }
-
-    public View Translate(string html)
-    {
-        var doc = new HtmlDocument();
-        doc.LoadHtml(html);
-
-        var root = new View()
-        {
+            X = 0,
+            Y = 1,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(),
+            Text = "SPACER"
         };
 
-        MenuBar navbar = null;
+        private MenuBar _menuBar = new();
 
-        foreach (var node in doc.DocumentNode.SelectNodes("//body/*") ?? throw new ArgumentException("Tag body not found"))
+        public Translator(Toplevel top, object data)
         {
-            var childView = TranslateNode(node);
-            if (childView is MenuBar menuBar)
+            _top = top;
+            _data = data;
+            _topProperties = data.GetType().GetProperties();
+        }
+
+        public void Translate()
+        {
+            var topProperties = _data.GetType().GetProperties();
+            IEnumerable<MenuBarItem> topItems = GenerateMenuBar(topProperties);
+
+            _menuBar = new MenuBar(topItems.ToArray());
+
+            _top.Add(_menuBar);
+            _top.Add(_mainView);
+
+            Application.Init();
+        }
+
+        private IEnumerable<MenuBarItem> GenerateMenuBar(System.Reflection.PropertyInfo[] topProperties)
+        {
+            return topProperties.Select(property => new MenuBarItem()
             {
-                navbar = menuBar;
-            }
-            else if (childView != null)
-            {
-                root.Add(childView);
-            }
-        }
-
-        if (navbar != null)
-        {
-            root.Add(navbar);
-        }
-
-        return root;
-    }
-
-    private Label CreateLabel(string text)
-    {
-        return new Label(text)
-        {
-            Width = Dim.Fill(),
-            Height = 1
-        };
-    }
-
-    private ListView CreateListView(HtmlNode node)
-    {
-        var items = new List<string>();
-
-        foreach (var li in node.SelectNodes(".//li"))
-        {
-            items.Add(li.InnerText.Trim());
-        }
-
-        return new ListView(items)
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
-    }
-
-    private MenuBar CreateNavbar(HtmlNode node)
-    {
-        var menuItems = new List<MenuBarItem>();
-
-        foreach (var li in node.SelectNodes(".//li"))
-        {
-            var link = li.SelectSingleNode(".//a");
-            if (link != null)
-            {
-                menuItems.Add(new MenuBarItem(link.InnerText.Trim(), new MenuItem[] { }));
-            }
-        }
-
-        return new MenuBar(menuItems.ToArray());
-    }
-
-    private View CreateSection(HtmlNode node)
-    {
-        var section = new View()
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
-
-        var header = node.SelectSingleNode(".//h1 | .//h2 | .//h3");
-        if (header != null)
-        {
-            section.Add(CreateLabel(header.InnerText.Trim()));
-        }
-
-        var paragraph = node.SelectSingleNode(".//p");
-        if (paragraph != null)
-        {
-            section.Add(CreateLabel(paragraph.InnerText.Trim()));
-        }
-
-        return section;
-    }
-
-    private View TranslateNode(HtmlNode node)
-    {
-        if (_tagHandlers.TryGetValue(node.Name, out var handler))
-        {
-            var currentView = handler(node);
-
-            foreach (var childNode in node.ChildNodes)
-            {
-                var childView = TranslateNode(childNode);
-                if (childView != null)
+                Title = property.Name,
+                Action = () =>
                 {
-                    currentView.Add(childView);
+                    if (views.ContainsKey(property.Name) is false)
+                    {
+                        var frame = new FrameView(property.Name)
+                        {
+                            X = 0,
+                            Y = 1,
+                            Width = Dim.Fill(),
+                            Height = Dim.Fill(),
+                        };
+
+                        views[property.Name] = frame;
+                        _mainView = frame;
+                    }
+                    else _mainView = views[property.Name];
+
+                    Redraw();
+
+                    Application.Refresh();
                 }
-            }
-
-            return currentView;
+            });
         }
 
-        // Default behavior for unsupported tags
-        var defaultView = new View()
+        private void Redraw()
         {
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
-
-        foreach (var childNode in node.ChildNodes)
-        {
-            var childView = TranslateNode(childNode);
-            if (childView != null)
-            {
-                defaultView.Add(childView);
-            }
+            Application.Top.RemoveAll();
+            Application.Top.Add(_menuBar);
+            Application.Top.Add(_mainView);
         }
-
-        return defaultView;
     }
 }

@@ -16,12 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Views\index.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   
 
 </Project>
