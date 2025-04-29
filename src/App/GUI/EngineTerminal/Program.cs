@@ -81,43 +81,60 @@ namespace Orbit9000.EngineTerminal
     {
         static void Main(string[] args)
         {
-            var exampleData = new
+            ExampleData exampleData = new ExampleData
             {
-                Plugins = new[]
+                Frame1 = new SettingsData
                 {
-                    new { Name = "Plugin1", Activated = true },
-                    new { Name = "Plugin2", Activated = false },
-                    new { Name = "Plugin3", Activated = true }
-                },
-
-                Threads = new[]
-                {
-                    new { Name = "Thread1", State = "Running" },
-                    new { Name = "Thread2", State = "Stopped" },
-                    new { Name = "Thread3", State = "Running" }
-                },
-
-                Diagnostics = new[]
-                {
-                    new { Name = "Diagnostic1", Value = 42 },
-                    new { Name = "Diagnostic2", Value = 100 },
-                    new { Name = "Diagnostic3", Value = 75 }
-                },
-
-                Settings = new
-                {
-                    Colour = new
-                    {
-                        Text = "ColourSettings",
-                        Items = new[] {
-                            new {
-                                Background = "Black",
-                                Text = "White"
-                            }
-                        }
-                    }
+                    Setting1 = "Text1",
+                    Setting2 = "Text2"
                 }
             };
+
+            #region example_data
+            //var exampleData = new
+            //{
+            //    Plugins = new
+            //    {
+            //        BasicInfo = "Info about the engine",
+            //        TestInfo = "TestInfo about the engine"
+
+            //        //ActivePlugins = new[]
+            //        //{
+            //        //        new { Name = "Plugin1", Activated = true },
+            //        //        new { Name = "Plugin2", Activated = false },
+            //        //        new { Name = "Plugin3", Activated = true }
+            //        //}
+            //    },
+
+            //    //Threads = new[]
+            //    //{
+            //    //    new { Name = "Thread1", State = "Running" },
+            //    //    new { Name = "Thread2", State = "Stopped" },
+            //    //    new { Name = "Thread3", State = "Running" }
+            //    //},
+
+            //    //Diagnostics = new[]
+            //    //{
+            //    //    new { Name = "Diagnostic1", Value = 42 },
+            //    //    new { Name = "Diagnostic2", Value = 100 },
+            //    //    new { Name = "Diagnostic3", Value = 75 }
+            //    //},
+
+            //    //Frame1 = new
+            //    //{
+            //    //    Colour = new
+            //    //    {
+            //    //        Text = "ColourSettings",
+            //    //        Items = new[] {
+            //    //            new {
+            //    //                Background = "Black",
+            //    //                Text = "White"
+            //    //            }
+            //    //        }
+            //    //    }
+            //    //}
+            //};
+            #endregion
 
             Application.Init();
 
@@ -129,7 +146,7 @@ namespace Orbit9000.EngineTerminal
                 HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.DarkGray)
             };
 
-            var translator = new Translator(Application.Top, exampleData);            
+            var translator = new Translator(Application.Top, exampleData);
             translator.Translate();
             Application.Run();
         }
