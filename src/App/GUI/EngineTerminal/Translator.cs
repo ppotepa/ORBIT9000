@@ -112,35 +112,38 @@ namespace Orbit9000.EngineTerminal
 
             foreach (var property in properties)
             {
-                TraverseMenuItem(property.GetValue(data), views[property.Name], depth + 1, property.Name);
+                TraverseMenuItem((property, property.GetValue(data)), views[property.Name], depth + 1, property.Name);
             }
         }
 
-        private void TraverseMenuItem(object? prop, View? parent, int depth, string route, int xIndex = 0)
+        private void TraverseMenuItem((PropertyInfo info, object value) item, View? parent, int depth, string route, int xIndex = 0)
         {
-            if (prop is not string)
+            if (item.value is not string)
             {
-                if (prop is not null && prop is not string)
+                if (item.value is not null && item.value is not string)
                 {
-                    PropertyInfo[] subProperties = prop.GetType().GetProperties();
+                    PropertyInfo[] subProperties = item.info.PropertyType.GetProperties();
                     foreach (PropertyInfo property in subProperties)
                     {
-                        TraverseMenuItem(property.GetValue(prop), views[route], depth + 1, route, xIndex++);
+                        TraverseMenuItem((info: property, value: property.GetValue(item.value)), views[route], depth + 1, route, xIndex++);
                     }
                 }
             }
-            else if (prop is string)
+            else if (item.value is string stringProp)
             {
-                int row = xIndex / 5; 
+                int row = xIndex / 5;
                 int col = xIndex % 5;
 
                 FrameView frameView = new FrameView
                 {
                     Width = Dim.Percent(20f),
                     Height = Dim.Percent(20f),
+
                     X = col * 25,
                     Y = row * 5,
-                    Text = prop.ToString() ?? string.Empty,
+
+                    Title = $"{route}.{stringProp}",
+                    Text = stringProp ?? string.Empty,
                 };
 
                 if (views.TryGetValue(route, out var view))
