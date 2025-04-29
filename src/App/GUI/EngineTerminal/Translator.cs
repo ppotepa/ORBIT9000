@@ -48,15 +48,13 @@ namespace Orbit9000.EngineTerminal
         {
             _menuBarItems = _topProperties.Select(property =>
             {
-                FrameView frameView = new FrameView(property.Name)
+                views[property.Name] = new FrameView(property.Name)
                 {
                     X = 0,
                     Y = 1,
                     Width = Dim.Fill(),
                     Height = Dim.Fill(),
                 };
-
-                views[property.Name] = frameView;
 
                 return new MenuBarItem
                 {
@@ -112,11 +110,11 @@ namespace Orbit9000.EngineTerminal
 
             foreach (var property in properties)
             {
-                TraverseMenuItem((property, property.GetValue(data)), views[property.Name], depth + 1, property.Name);
+                TraverseMenuItem((property, property.GetValue(data)), depth + 1, property.Name, views[property.Name]);
             }
         }
 
-        private void TraverseMenuItem((PropertyInfo info, object value) item, View? parent, int depth, string route, int xIndex = 0)
+        private void TraverseMenuItem((PropertyInfo info, object value) item, int depth, string route, View? parent, int xIndex = 0)
         {
             if (item.value is not string)
             {
@@ -125,7 +123,7 @@ namespace Orbit9000.EngineTerminal
                     PropertyInfo[] subProperties = item.info.PropertyType.GetProperties();
                     foreach (PropertyInfo property in subProperties)
                     {
-                        TraverseMenuItem((info: property, value: property.GetValue(item.value)), views[route], depth + 1, route, xIndex++);
+                        TraverseMenuItem((info: property, value: property.GetValue(item.value)),  depth + 1, route, parent, xIndex++);
                     }
                 }
             }
