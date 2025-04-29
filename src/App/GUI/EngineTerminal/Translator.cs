@@ -48,7 +48,7 @@ namespace Orbit9000.EngineTerminal
         {
             _menuBarItems = _topProperties.Select(property =>
             {
-                var frameView = new FrameView(property.Name)
+                FrameView frameView = new FrameView(property.Name)
                 {
                     X = 0,
                     Y = 1,
@@ -72,6 +72,7 @@ namespace Orbit9000.EngineTerminal
                                 Width = Dim.Fill(),
                                 Height = Dim.Fill(),
                             };
+
                             views[property.Name] = newFrame;
                             _mainView = newFrame;
                         }
@@ -115,30 +116,36 @@ namespace Orbit9000.EngineTerminal
             }
         }
 
-        private void TraverseMenuItem(object? prop, View? parent, int depth, string route)
+        private void TraverseMenuItem(object? prop, View? parent, int depth, string route, int xIndex = 0)
         {
             if (prop is not string)
             {
                 if (prop is not null && prop is not string)
                 {
-                    foreach (PropertyInfo property in prop.GetType().GetProperties())
+                    PropertyInfo[] subProperties = prop.GetType().GetProperties();
+                    foreach (PropertyInfo property in subProperties)
                     {
-                        TraverseMenuItem(property.GetValue(prop), views[route], depth + 1, route);
+                        TraverseMenuItem(property.GetValue(prop), views[route], depth + 1, route, xIndex++);
                     }
                 }
             }
             else if (prop is string)
             {
-                Label label = new Label
+                int row = xIndex / 5; 
+                int col = xIndex % 5;
+
+                FrameView frameView = new FrameView
                 {
-                    Width = Dim.Fill(),
-                    Height = Dim.Fill(),
+                    Width = Dim.Percent(20f),
+                    Height = Dim.Percent(20f),
+                    X = col * 25,
+                    Y = row * 5,
                     Text = prop.ToString() ?? string.Empty,
                 };
 
                 if (views.TryGetValue(route, out var view))
                 {
-                    view.Add(label);
+                    view.Add(frameView);
                 }
             }
         }
