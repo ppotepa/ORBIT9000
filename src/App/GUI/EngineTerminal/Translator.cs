@@ -20,6 +20,7 @@ namespace Orbit9000.EngineTerminal
         };
 
         private MenuBar _menuBar = new();
+        private MenuBarItem[] _menuBarItems;
 
         public Translator(Toplevel top, object data)
         {
@@ -30,10 +31,12 @@ namespace Orbit9000.EngineTerminal
 
         public void Translate()
         {
-            var topProperties = _data.GetType().GetProperties();
-            IEnumerable<MenuBarItem> topItems = GenerateMenuBar();
+            GenerateMenuBar();            
 
-            _menuBar = new MenuBar(topItems.ToArray());
+            _menuBar = new MenuBar(_menuBarItems);
+            _menuBar.X = 0;
+
+            GenerateViews();
 
             _top.Add(_menuBar);
             _top.Add(_mainView);
@@ -41,9 +44,9 @@ namespace Orbit9000.EngineTerminal
             Application.Init();
         }
 
-        private IEnumerable<MenuBarItem> GenerateMenuBar()
+        private void GenerateMenuBar()
         {
-            return _topProperties.Select(property => new MenuBarItem()
+            _menuBarItems = [.. _topProperties.Select(property => new MenuBarItem()
             {
                 Title = property.Name,
                 Action = () =>
@@ -67,7 +70,17 @@ namespace Orbit9000.EngineTerminal
 
                     Application.Refresh();
                 }
-            });
+            })];
+        }
+
+        private void GenerateViews()
+        {
+            if (_topProperties.Any())
+            {
+                foreach (var property in _topProperties) {
+                    Traverse(property);
+                }
+            }
         }
 
         private void Redraw()
@@ -75,6 +88,45 @@ namespace Orbit9000.EngineTerminal
             Application.Top.RemoveAll();
             Application.Top.Add(_menuBar);
             Application.Top.Add(_mainView);
+        }
+
+        private void Traverse(PropertyInfo property, View previous = null, int depth = 0)
+        {
+            Console.WriteLine($"Traversing property: {property.Name}, Depth: {depth}");
+
+            if (views.ContainsKey(property.Name) is false)
+            {
+                Console.WriteLine($"Creating new FrameView for property: {property.Name}");
+
+                var frame = new FrameView(property.Name)
+                {
+                    X = 0,
+                    Y = 1,
+                    Width = Dim.Fill(),
+                    Height = Dim.Fill(),
+                };
+
+                views[property.Name] = frame;
+
+                if (previous != null)
+                {
+                    Console.WriteLine($"Adding FrameView for property: {property.Name} to parent view: {previous.GetType().Name}");
+                    previous.Add(frame);
+                }
+
+                if (property.PropertyType.GetType().GetProperties().Any())
+                {
+                    Console.WriteLine($"Property {property.Name} has sub-properties. Traversing...");
+                    foreach (var subProperty in property.PropertyType.GetType().GetProperties())
+                    {
+                        Traverse(subProperty, frame, depth + 1);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($"FrameView for property: {property.Name} already exists. Skipping creation.");
+            }
         }
     }
 }
