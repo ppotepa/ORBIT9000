@@ -7,7 +7,11 @@ namespace Orbit9000.EngineTerminal
     {
         private readonly object _data;
         private readonly Toplevel _top;
+
         private readonly PropertyInfo[] _topProperties;
+
+        private readonly Dictionary<string, ValueBinding> ALL_BINDINGS = new Dictionary<string, ValueBinding>();
+
         private readonly Dictionary<string, FrameView> views = [];
 
         private View _mainView = new FrameView("Main View")
@@ -46,7 +50,7 @@ namespace Orbit9000.EngineTerminal
 
         private void GenerateMenuBar()
         {
-            _menuBarItems = _topProperties.Select(property =>
+            _menuBarItems = [.. _topProperties.Select(property =>
             {
                 views[property.Name] = new FrameView(property.Name)
                 {
@@ -63,7 +67,7 @@ namespace Orbit9000.EngineTerminal
                     {
                         if (!views.ContainsKey(property.Name))
                         {
-                            var newFrame = new FrameView(property.Name)
+                            FrameView newFrame = new FrameView(property.Name)
                             {
                                 X = 0,
                                 Y = 1,
@@ -83,7 +87,7 @@ namespace Orbit9000.EngineTerminal
                         Application.Refresh();
                     }
                 };
-            }).ToArray();
+            })];
         }
 
         private void GenerateViews()
@@ -116,38 +120,74 @@ namespace Orbit9000.EngineTerminal
 
         private void TraverseMenuItem((PropertyInfo info, object value) item, int depth, string route, View? parent, int xIndex = 0)
         {
-            if (item.value is not string)
+            string baseRoute = route.Split(".").FirstOrDefault();
+            switch (item.value)
             {
-                if (item.value is not null && item.value is not string)
-                {
-                    PropertyInfo[] subProperties = item.info.PropertyType.GetProperties();
-                    foreach (PropertyInfo property in subProperties)
+                case (not string and not int):
+                    if (item.info.PropertyType.IsClass &&
+                        item.info.PropertyType != typeof(string) &&
+                        item.info.PropertyType.GetProperties().Length > 0)
                     {
-                        TraverseMenuItem((info: property, value: property.GetValue(item.value)),  depth + 1, route, parent, xIndex++);
+                        PropertyInfo[] subProperties = item.info.PropertyType.GetProperties();
+                        foreach (PropertyInfo property in subProperties)
+                        {
+                            string newRoute = route + $".{property.Name}"; 
+                            TraverseMenuItem((info: property, value: property.GetValue(item.value)), depth + 1, newRoute, parent, xIndex++);
+                        }
                     }
-                }
-            }
-            else if (item.value is string stringProp)
-            {
-                int row = xIndex / 5;
-                int col = xIndex % 5;
+                    break;
+                case string @string:
+                    {
+                        int row = xIndex / 5;
+                        int col = xIndex % 5;
 
-                FrameView frameView = new FrameView
-                {
-                    Width = Dim.Percent(20f),
-                    Height = Dim.Percent(20f),
+                        FrameView frameView = new FrameView
+                        {
+                            Width = Dim.Percent(20f),
+                            Height = Dim.Percent(20f),
 
-                    X = col * 25,
-                    Y = row * 5,
+                            X = col * 25,
+                            Y = row * 5,
 
-                    Title = $"{route}.{stringProp}",
-                    Text = stringProp ?? string.Empty,
-                };
+                            Title = $"{route}",
+                            Text = @string ?? string.Empty,
+                        };
 
-                if (views.TryGetValue(route, out var view))
-                {
-                    view.Add(frameView);
-                }
+                        if (views.TryGetValue(baseRoute, out var view))
+                        {
+                            view.Add(frameView);
+                        }
+
+                        ALL_BINDINGS.Add(route, new ValueBinding(frameView, @string));
+                    }
+                    break;
+
+                case int @int:
+                    {
+                        int row = xIndex / 5;
+                        int col = xIndex % 5;
+
+                        FrameView frameView = new FrameView
+                        {
+                            Width = Dim.Percent(20f),
+                            Height = Dim.Percent(20f),
+
+                            X = col * 25,
+                            Y = row * 5,
+
+                            Title = $"{route}",
+                            Text = string.Format("{0}", @int),                            
+                        };
+
+                        if (views.TryGetValue(baseRoute, out var view))
+                        {
+                            view.Add(frameView);
+                        }
+
+                        ALL_BINDINGS.Add(route, new ValueBinding(frameView, @int));
+                    }
+
+                    break;
             }
         }
     }

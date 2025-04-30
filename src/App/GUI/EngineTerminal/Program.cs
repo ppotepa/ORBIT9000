@@ -92,12 +92,12 @@ namespace Orbit9000.EngineTerminal
                     Setting5 = "Text5",
                     Setting6 = "Text6",
 
-                    Setting7 = "Text7",
-                    Setting8 = "Text8",
-                    Setting9 = "Text9",
-                    Setting10 = "Text10",
-                    Setting11 = "Text11",
-                    Setting12 = "Text12",
+                    Setting7 = 5_00,
+                    Setting8 = 5_00,
+                    Setting9 = 5_00,
+                    Setting10 = 5_00,
+                    Setting11 = 5_00,
+                    Setting12 = 5_00,
                 },
 
                 Frame2 = new SettingsData
@@ -109,12 +109,12 @@ namespace Orbit9000.EngineTerminal
                     Setting5 = "Text17",
                     Setting6 = "Text18",
 
-                    Setting7 = "Text19",
-                    Setting8 = "Text20",
-                    Setting9 = "Text21",
-                    Setting10 = "Text22",
-                    Setting11 = "Text23",
-                    Setting12 = "Text24",
+                    Setting7 = 1_000,
+                    Setting8 = 1_000,
+                    Setting9 = 1_000,
+                    Setting10 = 1_000,
+                    Setting11 = 1_000,
+                    Setting12 = 1_000,
                 }
             };
 
