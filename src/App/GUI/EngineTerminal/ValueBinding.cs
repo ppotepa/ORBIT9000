@@ -4,7 +4,7 @@ namespace Orbit9000.EngineTerminal
 {
     public class ValueBinding
     {
-        public ValueBinding (View view, object Value) 
+        public ValueBinding (View view, ref object Value) 
         {
             this.View = view;
             this.Value = Value;

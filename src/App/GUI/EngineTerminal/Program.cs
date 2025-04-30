@@ -99,8 +99,11 @@ namespace Orbit9000.EngineTerminal
                 HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.DarkGray)
             };
 
-            var translator = new Translator(Application.Top, exampleData);
-            translator.Translate();
+            var translator = new Translator(Application.Top, ref exampleData);
+
+            Dictionary<string, ValueBinding> bindigs = translator.Translate();
+
+            Application.Init();
             Application.Run();
         }
 
