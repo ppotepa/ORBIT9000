@@ -12,17 +12,17 @@ namespace Orbit9000.EngineTerminal
         private readonly PropertyInfo[] _properties;
         private readonly int _rows;
         private readonly string _secret = @"
-           ______
-         /        \
-        |  ( o  o ) |
-        |    (_)    |   <- Pope John Paul II
-         \  \___/  /
-          |_______|
-         /         \
-        |  +----+  |  <- Papal garments (symbolic)
-        |  | JP2 |  |
-         \_______/
-    ";
+              ______
+            /        \
+           |  ( o  o ) |
+           |    (_)    |   <- Pope John Paul II
+            \  \___/  /
+             |_______|
+            /         \
+           |  +----+  |  <- Papal garments (symbolic)
+           |  | JP2 |  |
+            \_______/
+       ";
 
         private readonly Toplevel _top;
         private readonly Dictionary<string, FrameView> _views = new();
@@ -41,7 +41,6 @@ namespace Orbit9000.EngineTerminal
             _input = input;
 
             _mainView = CreateFrame("Main View");
-            Console.WriteLine($"{input.GetHashCode()} {input.GetType().Name}");
         }
 
         public Dictionary<string, ValueBinding> Translate()
@@ -75,7 +74,7 @@ namespace Orbit9000.EngineTerminal
             _allBindings[route] = binding;
 
             textField.TextChanged += PipelineFactory.Instance.Builder
-                .Create(textField,  binding,  parent, info)
+                .Create(textField, binding, parent, info)
                 .AddIf(() => textField.Text == "2137", _ => MessageBox.Query("Secret", _secret, "OK"))
                 .Build();
 
@@ -92,7 +91,6 @@ namespace Orbit9000.EngineTerminal
         private void BuildViews(ExampleData data)
         {
             if (_properties.Length == 0) return;
-            Console.WriteLine($"{data.GetHashCode()} {data.GetType().Name}");
             Traverse(ref data);
         }
 
@@ -127,16 +125,16 @@ namespace Orbit9000.EngineTerminal
 
         private void Traverse(ref ExampleData input, int depth = 0)
         {
-            Console.WriteLine($"{input.GetHashCode()} {input.GetType().Name}");
-
             foreach (PropertyInfo property in input.GetType().GetProperties())
             {
                 object? current = property.GetValue(input);
 
+                //TODO: Not sure if it's going to work without for objects with more nested properties
+                //Currently aiming at maximal depth of 1
+
                 // Pass 'input' as 'ref object' to TraverseMenuItem
                 object parent = input; // Box the struct to pass as ref object
-                TraverseMenuItem(property, ref current, ref parent, depth + 1, property.Name, _views[property.Name]);
-
+                TraverseMenuItem(property, ref current, ref parent, depth + 1, property.Name, _views[property.Name]);                
                 // Unbox and update the input after modifications
                 input = (ExampleData)parent;
             }
@@ -161,7 +159,6 @@ namespace Orbit9000.EngineTerminal
 
             if (current is string || current is int)
             {
-                Console.WriteLine($"{parent.GetHashCode()}", $"{parent.GetType().Name}");
                 AddBindingProperty(info, ref current, ref parent, route, container, index, depth);
             }
         }

@@ -175,9 +175,6 @@ namespace Orbit9000.EngineTerminal
             };
 
             var translator = new Translator(Application.Top, ref exampleData);
-
-            Console.WriteLine(exampleData.GetHashCode());
-
             IReadOnlyDictionary<string, ValueBinding> bindigs = translator.Translate();
 
             Application.Init();
