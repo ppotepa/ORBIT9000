@@ -48,11 +48,11 @@ namespace EngineTerminal
             return this;
         }
 
-        internal ActionBuilder AddIf(bool v, Func<object, int> value)
+        internal ActionBuilder AddIf(Func<bool> condition, Func<object, int> value)
         {
             Actions.Add((s) =>
             {
-                if (v)
+                if (condition())
                 {
                     value(null);
                 }

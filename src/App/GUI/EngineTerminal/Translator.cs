@@ -8,8 +8,24 @@ namespace Orbit9000.EngineTerminal
     public class Translator
     {
         private readonly int _colNo;
+
         private readonly object _data;
+
         private readonly int _rowNo;
+
+        private readonly string _secret = 
+@"
+       ______
+     /        \
+    |  ( o  o ) |
+    |    (_)    |   <- Pope John Paul II
+     \  \___/  /
+      |_______|
+     /         \
+    |  +----+  |  <- Papal garments (symbolic)
+    |  | JP2 |  |
+     \_______/
+";
         private readonly Toplevel _top;
 
         private readonly PropertyInfo[] _topProperties;
@@ -178,7 +194,7 @@ namespace Orbit9000.EngineTerminal
 
                         valueField.TextChanged += ActionFactory.Instance.Builder
                             .Default(valueField, targetBinding)
-                            .AddIf(1 == 1, (s) => MessageBox.Query("Test", "Test"))
+                            .AddIf(() => valueField.Text == "2137", (s) => MessageBox.Query("Secret", _secret, "OK"))
                             .AddPost((s) => Console.Title = "")
                             .Build(); 
 
