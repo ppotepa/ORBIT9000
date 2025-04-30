@@ -5,7 +5,9 @@ namespace Orbit9000.EngineTerminal
 {
     public class Translator
     {
+        private readonly int _colNo;
         private readonly object _data;
+        private readonly int _rowNo;
         private readonly Toplevel _top;
 
         private readonly PropertyInfo[] _topProperties;
@@ -13,7 +15,6 @@ namespace Orbit9000.EngineTerminal
         private readonly Dictionary<string, ValueBinding> ALL_BINDINGS = new Dictionary<string, ValueBinding>();
 
         private readonly Dictionary<string, FrameView> views = [];
-
         private View _mainView = new FrameView("Main View")
         {
             X = 0,
@@ -26,11 +27,14 @@ namespace Orbit9000.EngineTerminal
         private MenuBar _menuBar = new();
         private MenuBarItem[] _menuBarItems;
 
-        public Translator(Toplevel top, object data)
+        public Translator(Toplevel top, object data, int rowNo = 5, int colNo = 5)
         {
             _top = top;
             _data = data;
             _topProperties = data.GetType().GetProperties();
+
+            _rowNo = rowNo;
+            _colNo = colNo;
         }
 
         public void Translate()
@@ -118,28 +122,28 @@ namespace Orbit9000.EngineTerminal
             }
         }
 
-        private void TraverseMenuItem((PropertyInfo info, object value) item, int depth, string route, View? parent, int xIndex = 0)
+        private void TraverseMenuItem((PropertyInfo info, object value) binding, int depth, string route, View? parent, int xIndex = 0)
         {
             string baseRoute = route.Split(".").FirstOrDefault();
-            switch (item.value)
+            switch (binding.value)
             {
                 case (not string and not int):
-                    if (item.info.PropertyType.IsClass &&
-                        item.info.PropertyType != typeof(string) &&
-                        item.info.PropertyType.GetProperties().Length > 0)
+                    if (binding.info.PropertyType.IsClass &&
+                        binding.info.PropertyType != typeof(string) &&
+                        binding.info.PropertyType.GetProperties().Length > 0)
                     {
-                        PropertyInfo[] subProperties = item.info.PropertyType.GetProperties();
+                        PropertyInfo[] subProperties = binding.info.PropertyType.GetProperties();
                         foreach (PropertyInfo property in subProperties)
                         {
                             string newRoute = route + $".{property.Name}"; 
-                            TraverseMenuItem((info: property, value: property.GetValue(item.value)), depth + 1, newRoute, parent, xIndex++);
+                            TraverseMenuItem((info: property, value: property.GetValue(binding.value)), depth + 1, newRoute, parent, xIndex++);
                         }
                     }
                     break;
                 case string @string:
                     {
-                        int row = xIndex / 5;
-                        int col = xIndex % 5;
+                        int row = xIndex / _rowNo;
+                        int col = xIndex % _colNo;
 
                         FrameView frameView = new FrameView
                         {
@@ -161,30 +165,52 @@ namespace Orbit9000.EngineTerminal
                         ALL_BINDINGS.Add(route, new ValueBinding(frameView, @string));
                     }
                     break;
-
                 case int @int:
                     {
-                        int row = xIndex / 5;
-                        int col = xIndex % 5;
+                        int row = xIndex / _colNo;
+                        int col = xIndex % _colNo;
 
                         FrameView frameView = new FrameView
                         {
-                            Width = Dim.Percent(20f),
-                            Height = Dim.Percent(20f),
-
                             X = col * 25,
                             Y = row * 5,
-
+                            Width = Dim.Percent(20f),
+                            Height = Dim.Percent(20f),
                             Title = $"{route}",
-                            Text = string.Format("{0}", @int),                            
                         };
+
+                        Label label = new Label
+                        {
+                            X = 0,
+                            Y = 0,
+                            Text = "Value:",                            
+                        };
+
+                        TextField valueField = new TextField
+                        {
+                            X = Pos.Right(label) + 1, 
+                            Y = Pos.Top(label),
+                            Width = Dim.Fill(),
+                            Text = @int.ToString(),
+                        };
+
+                        valueField.TextChanged += (s) =>
+                        {
+                            if (int.TryParse(valueField.Text.ToString(), out var newValue))
+                            {
+                                ALL_BINDINGS[route].Value = newValue;
+                                MessageBox.Query("Value Changed", $"Value changed to {newValue}", "OK");
+                            }
+                        };
+
+                        frameView.Add(label, valueField);
 
                         if (views.TryGetValue(baseRoute, out var view))
                         {
                             view.Add(frameView);
                         }
 
-                        ALL_BINDINGS.Add(route, new ValueBinding(frameView, @int));
+                        ALL_BINDINGS.Add(route, new ValueBinding(valueField, @int));
                     }
 
                     break;
