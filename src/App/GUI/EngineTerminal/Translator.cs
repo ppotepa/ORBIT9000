@@ -1,3 +1,5 @@
+using EngineTerminal;
+using NStack;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -169,24 +171,16 @@ namespace Orbit9000.EngineTerminal
                             Text = binding.value.ToString(),
                         };
 
-                        valueField.TextChanged += (s) =>
-                        {
-                            if (binding.value is int && int.TryParse(valueField.Text.ToString(), out var newValue))
-                            {
-                                ALL_BINDINGS[route].Value = newValue;
+                        ValueBinding bindingValue = new ValueBinding(valueField, binding.value);
+                        ALL_BINDINGS.Add(route, bindingValue);
+                        ValueBinding targetBinding = ALL_BINDINGS[route];
 
-                                if (newValue is 2137)
-                                {
-                                    ALL_BINDINGS[route].View.Text = "You found the secret!";
 
-                                    MessageBox.Query("Value Changed", $"You found the secret!", "OK");
-                                }
-                            }
-                            else
-                            {
-                                ALL_BINDINGS[route].Value = valueField.Text.ToString();
-                            }
-                        };
+                        valueField.TextChanged += ActionFactory.Instance.Builder
+                            .Default(valueField, targetBinding)
+                            .AddIf(1 == 1, (s) => MessageBox.Query("Test", "Test"))
+                            .AddPost((s) => Console.Title = "")
+                            .Build(); 
 
                         frameView.Add(label, valueField);
 
@@ -195,7 +189,7 @@ namespace Orbit9000.EngineTerminal
                             parent.Add(frameView);
                         }
 
-                        ALL_BINDINGS.Add(route, new ValueBinding(valueField, binding.value));
+                       
                     }
                     break;
             }
