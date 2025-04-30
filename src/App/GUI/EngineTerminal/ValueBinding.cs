@@ -11,6 +11,6 @@ namespace Orbit9000.EngineTerminal
         }
 
         public View View { get; }
-        public object Value { get; }
+        public object Value { get; set; }
     }
 }
