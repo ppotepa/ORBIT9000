@@ -188,13 +188,12 @@ namespace Orbit9000.EngineTerminal
                         };
 
                         ValueBinding bindingValue = new ValueBinding(valueField, binding.value);
+                        
                         ALL_BINDINGS.Add(route, bindingValue);
-                        ValueBinding targetBinding = ALL_BINDINGS[route];
 
-
-                        valueField.TextChanged += ActionFactory.Instance.Builder
-                            .Default(valueField, targetBinding)
-                            .AddIf(() => valueField.Text == "2137", (s) => MessageBox.Query("Secret", _secret, "OK"))
+                        valueField.TextChanged += PipelineFactory.Instance.Builder
+                            .Default(valueField, bindingValue)
+                            .AddIf(() => valueField.Text == "2137", (bindingValue) => MessageBox.Query("Secret", _secret, "OK"))
                             .AddPost((s) => Console.Title = "")
                             .Build(); 
 
@@ -202,9 +201,8 @@ namespace Orbit9000.EngineTerminal
 
                         if (views.TryGetValue(baseRoute, out var view))
                         {
-                            parent.Add(frameView);
+                            parent?.Add(frameView);
                         }
-
                        
                     }
                     break;
