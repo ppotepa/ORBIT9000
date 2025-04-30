@@ -1,5 +1,6 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
+using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -49,8 +50,27 @@ namespace EngineTerminal
                     _targetBinding.Value = textValue;
                     info.SetValue(parent, textValue);
                 }
+
                 else if (info.PropertyType == typeof(int))
                 {
+                    if (info.CustomAttributes.Any(attr => attr.AttributeType == typeof(MaxValueAttribute)))
+                    {
+                        var maxValueAttribute = info.GetCustomAttribute<MaxValueAttribute>();
+                        if (maxValueAttribute != null)
+                        {
+                            int maxValue = maxValueAttribute.Max;
+                            if (int.TryParse(textValue, out int @value) && @value < maxValue)
+                            {
+                                _valueField.Text = maxValue.ToString();
+                                textValue = maxValue.ToString();
+                            }
+                            else
+                            {
+                                MessageBox.Query("Error", $"Value must be less than {maxValue}", "OK"); 
+                            }
+                        }
+                    }   
+
                     bool success = int.TryParse(textValue, out int intValue);
                     if (success)
                     {

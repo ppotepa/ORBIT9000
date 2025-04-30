@@ -25,21 +25,10 @@ namespace Orbit9000.EngineTerminal
                     Setting12 = 5_00,
                 },
 
-                Frame2 = new SettingsData
+                Frame2 = new EngineData
                 {
-                    Setting1 = "Text13",
-                    Setting2 = "Text14",
-                    Setting3 = "Text15",
-                    Setting4 = "Text16",
-                    Setting5 = "Text17",
-                    Setting6 = "Text18",
-
-                    Setting7 = 1_000,
-                    Setting8 = 1_000,
-                    Setting9 = 1_000,
-                    Setting10 = 1_000,
-                    Setting11 = 1_000,
-                    Setting12 = 1_000,
+                    Setting1 = 100,
+                    Setting2 = 200
                 }
             };
 
@@ -99,7 +88,7 @@ namespace Orbit9000.EngineTerminal
                 HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.DarkGray)
             };
 
-            var translator = new Translator(Application.Top, ref exampleData);
+            var translator = new Translator(Application.Top,  exampleData);
             IReadOnlyDictionary<string, ValueBinding> bindigs = translator.Translate();
 
             Application.Init();

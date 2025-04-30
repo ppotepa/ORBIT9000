@@ -30,7 +30,7 @@ namespace Orbit9000.EngineTerminal
         private View _mainView;
         private MenuBar _menuBar;
 
-        public Translator(Toplevel top, ref ExampleData input, int rows = 5, int cols = 5)
+        public Translator(Toplevel top, ExampleData input, int rows = 5, int cols = 5)
         {
             _top = top;
 
@@ -52,7 +52,10 @@ namespace Orbit9000.EngineTerminal
             return _allBindings;
         }
 
-        private void AddBindingProperty(PropertyInfo info, ref object value, ref object parent, string route, View container, int index, int depth)
+        private void AddBindingProperty(PropertyInfo info,
+            ref object value, ref object parent,
+            string route, View container,
+            int index, int depth)
         {
             int row = index / _cols;
             int col = index % _cols;
@@ -134,7 +137,7 @@ namespace Orbit9000.EngineTerminal
 
                 // Pass 'input' as 'ref object' to TraverseMenuItem
                 object parent = input; // Box the struct to pass as ref object
-                TraverseMenuItem(property, ref current, ref parent, depth + 1, property.Name, _views[property.Name]);                
+                TraverseMenuItem(property, ref current, ref parent, depth + 1, property.Name, _views[property.Name]);
                 // Unbox and update the input after modifications
                 input = (ExampleData)parent;
             }
