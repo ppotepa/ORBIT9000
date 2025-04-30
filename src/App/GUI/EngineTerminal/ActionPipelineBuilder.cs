@@ -1,13 +1,14 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
+using System.Reflection;
 using Terminal.Gui;
 
 namespace EngineTerminal
 {
     public class ActionPipelineBuilder
     {
-        private ValueBinding targetBinding;
-        private TextField valueField;
+        private ValueBinding targetBinding = default;
+        private TextField valueField = default;
 
         private List<Action<ustring>> Actions { get; set; } = new List<Action<ustring>>();
 
@@ -34,15 +35,16 @@ namespace EngineTerminal
             };
         }
 
-        public ActionPipelineBuilder Default(TextField valueField, ValueBinding targetBinding)
+        public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, FieldInfo info)
         {
             this.valueField = valueField;
-            this.targetBinding = targetBinding;
-
+            this.targetBinding = targetBinding;      
+            
             Actions.Add((s) =>
             {
+                info.SetValue(parent, this.valueField.Text.ToString());
                 Console.Title += targetBinding.GetHashCode().ToString();
-                targetBinding.Value = valueField.Text.ToString();
+                targetBinding.Value = valueField.Text.ToString();                
             });
 
             return this;

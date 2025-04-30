@@ -1,6 +1,6 @@
 using EngineTerminal;
-using NStack;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Terminal.Gui;
 
 namespace Orbit9000.EngineTerminal
@@ -9,11 +9,8 @@ namespace Orbit9000.EngineTerminal
     {
         private readonly int _colNo;
 
-        private readonly object _data;
-
         private readonly int _rowNo;
-
-        private readonly string _secret = 
+        private readonly string _secret =
 @"
        ______
      /        \
@@ -26,13 +23,12 @@ namespace Orbit9000.EngineTerminal
     |  | JP2 |  |
      \_______/
 ";
+
         private readonly Toplevel _top;
-
-        private readonly PropertyInfo[] _topProperties;
-
+        private readonly FieldInfo[] _topFields;
         private readonly Dictionary<string, ValueBinding> ALL_BINDINGS = new Dictionary<string, ValueBinding>();
-
         private readonly Dictionary<string, FrameView> views = [];
+        private ExampleData _data;
         private View _mainView = new FrameView("Main View")
         {
             X = 0,
@@ -43,19 +39,19 @@ namespace Orbit9000.EngineTerminal
         };
 
         private MenuBar _menuBar = new();
-        private MenuBarItem[] _menuBarItems;
+        private MenuBarItem[] _menuBarItems;        
 
-        public Translator(Toplevel top, object data, int rowNo = 5, int colNo = 5)
+        public Translator(Toplevel top, ref ExampleData data, int rowNo = 5, int colNo = 5)
         {
             _top = top;
             _data = data;
-            _topProperties = data.GetType().GetProperties();
+            _topFields = data.GetType().GetFields();
 
             _rowNo = rowNo;
             _colNo = colNo;
         }
 
-        public void Translate()
+        public Dictionary<string, ValueBinding> Translate()
         {
             GenerateMenuBar();
 
@@ -67,14 +63,14 @@ namespace Orbit9000.EngineTerminal
             _top.Add(_menuBar);
             _top.Add(_mainView);
 
-            Application.Init();
+            return this.ALL_BINDINGS;
         }
 
         private void GenerateMenuBar()
         {
-            _menuBarItems = [.. _topProperties.Select(property =>
+            _menuBarItems = [.. _topFields.Select(field =>
             {
-                views[property.Name] = new FrameView(property.Name)
+                views[field.Name] = new FrameView(field.Name)
                 {
                     X = 0,
                     Y = 1,
@@ -84,12 +80,12 @@ namespace Orbit9000.EngineTerminal
 
                 return new MenuBarItem
                 {
-                    Title = property.Name,
+                    Title = field.Name,
                     Action = () =>
                     {
-                        if (!views.ContainsKey(property.Name))
+                        if (!views.ContainsKey(field.Name))
                         {
-                            FrameView newFrame = new FrameView(property.Name)
+                            FrameView newFrame = new FrameView(field.Name)
                             {
                                 X = 0,
                                 Y = 1,
@@ -97,12 +93,12 @@ namespace Orbit9000.EngineTerminal
                                 Height = Dim.Fill(),
                             };
 
-                            views[property.Name] = newFrame;
+                            views[field.Name] = newFrame;
                             _mainView = newFrame;
                         }
                         else
                         {
-                            _mainView = views[property.Name];
+                            _mainView = views[field.Name];
                         }
 
                         Redraw();
@@ -114,9 +110,9 @@ namespace Orbit9000.EngineTerminal
 
         private void GenerateViews()
         {
-            if (_topProperties.Any())
+            if (_topFields.Any())
             {
-                Traverse(_data);
+                Traverse(ref _data);
             }
         }
 
@@ -127,39 +123,38 @@ namespace Orbit9000.EngineTerminal
             Application.Top.Add(_mainView);
         }
 
-        private void Traverse(object data, int depth = 0)
+        private void Traverse(ref ExampleData data, int depth = 0)
         {
-            if (data is null)
-                throw new ArgumentNullException(nameof(data));
+            FieldInfo[] fields = data.GetType().GetFields();
 
-            PropertyInfo[] properties = data.GetType().GetProperties();
-
-            foreach (var property in properties)
+            foreach (var field in fields)
             {
-                TraverseMenuItem((property, property.GetValue(data)), depth + 1, property.Name, views[property.Name]);
+                Console.Title = "";
+                Console.Title = data.Frame1.GetHashCode().ToString();
+                TraverseMenuItem((field, field.GetValue(data)), data, depth + 1, field.Name, views[field.Name]);
             }
         }
 
-        private void TraverseMenuItem((PropertyInfo info, object value) binding, int depth, string route, View? parent, int xIndex = 0)
+        private void TraverseMenuItem((FieldInfo info, object value) binding, object parent, int depth, string route, View? root, int xIndex = 0)
         {
             string baseRoute = route.Split(".").FirstOrDefault();
+
             switch (binding.value)
             {
                 case (not string and not int):
-                    if (binding.info.PropertyType.IsClass &&
-                        binding.info.PropertyType != typeof(string) &&
-                        binding.info.PropertyType.GetProperties().Length > 0)
+                    if (binding.info.FieldType.IsValueType &&                        
+                        binding.info.FieldType.GetFields().Length > 0)
                     {
-                        foreach (PropertyInfo property in binding.info.PropertyType.GetProperties())
+                        foreach (FieldInfo field in binding.info.FieldType.GetFields())
                         {
-                            string newRoute = route + $".{property.Name}";
-                            TraverseMenuItem((info: property, value: property.GetValue(binding.value)), depth + 1, newRoute, parent, xIndex++);
+                            string newRoute = route + $".{field.Name}";
+                            TraverseMenuItem((info: field, value: field.GetValue(binding.value)), binding.value, depth + 1, newRoute, root, xIndex++);
                         }
                     }
                     break;
                 case string @string:
                 case int @int:
-                    {
+                {
                         int row = xIndex / _colNo;
                         int col = xIndex % _colNo;
 
@@ -187,25 +182,24 @@ namespace Orbit9000.EngineTerminal
                             Text = binding.value.ToString(),
                         };
 
-                        ValueBinding bindingValue = new ValueBinding(valueField, binding.value);
+                        ValueBinding bindingValue = new ValueBinding(valueField, ref binding.value);
                         
                         ALL_BINDINGS.Add(route, bindingValue);
-
+             
                         valueField.TextChanged += PipelineFactory.Instance.Builder
-                            .Default(valueField, bindingValue)
-                            .AddIf(() => valueField.Text == "2137", (bindingValue) => MessageBox.Query("Secret", _secret, "OK"))
-                            .AddPost((s) => Console.Title = "")
+                            .Create(valueField, bindingValue, parent, binding.info)
+                            .AddIf(() => valueField.Text == "2137", (bindingValue) => MessageBox.Query("Secret", _secret, "OK"))                            
                             .Build(); 
 
                         frameView.Add(label, valueField);
 
                         if (views.TryGetValue(baseRoute, out var view))
                         {
-                            parent?.Add(frameView);
+                            root?.Add(frameView);
                         }
                        
-                    }
-                    break;
+                }
+                break;
             }
         }
     }
