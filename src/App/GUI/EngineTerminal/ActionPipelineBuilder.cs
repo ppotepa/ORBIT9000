@@ -8,9 +8,22 @@ namespace EngineTerminal
 {
     public class ActionPipelineBuilder
     {
+        private List<Action<ustring>> _actions = new List<Action<ustring>>();
         private ValueBinding _targetBinding;
         private TextField _valueField;
-        private List<Action<ustring>> _actions = new List<Action<ustring>>();
+        public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
+        {
+            _actions.Add((ustring input) =>
+            {
+                bool conditionMet = condition();
+                if (conditionMet)
+                {
+                    action(_targetBinding);
+                }
+            });
+
+            return this;
+        }
 
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
@@ -53,49 +66,24 @@ namespace EngineTerminal
 
                 else if (info.PropertyType == typeof(int))
                 {
-                    if (info.CustomAttributes.Any(attr => attr.AttributeType == typeof(MaxValueAttribute)))
-                    {
-                        var maxValueAttribute = info.GetCustomAttribute<MaxValueAttribute>();
-                        if (maxValueAttribute != null)
-                        {
-                            int maxValue = maxValueAttribute.Max;
-                            if (int.TryParse(textValue, out int @value) && @value < maxValue)
-                            {
-                                _valueField.Text = maxValue.ToString();
-                                textValue = maxValue.ToString();
-                            }
-                            else
-                            {
-                                MessageBox.Query("Error", $"Value must be less than {maxValue}", "OK"); 
-                            }
-                        }
-                    }   
-
                     bool success = int.TryParse(textValue, out int intValue);
+
                     if (success)
                     {
                         _targetBinding.Value = intValue;
                         info.SetValue(parent, intValue);
                     }
                 }
-                else
-                {
-                    _targetBinding.Value = textValue;
-                    info.SetValue(parent, textValue);
-                }
-            });
 
-            return this;
-        }
-
-        public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
-        {
-            _actions.Add((ustring input) =>
-            {
-                bool conditionMet = condition();
-                if (conditionMet)
+                else if (info.PropertyType == typeof(bool))
                 {
-                    action(_targetBinding);
+                    bool success = bool.TryParse(textValue, out bool boolValue);
+
+                    if (success)
+                    {
+                        _targetBinding.Value = boolValue;
+                        info.SetValue(parent, boolValue);
+                    }
                 }
             });
 
