@@ -132,39 +132,14 @@ namespace Orbit9000.EngineTerminal
                         binding.info.PropertyType != typeof(string) &&
                         binding.info.PropertyType.GetProperties().Length > 0)
                     {
-                        PropertyInfo[] subProperties = binding.info.PropertyType.GetProperties();
-                        foreach (PropertyInfo property in subProperties)
+                        foreach (PropertyInfo property in binding.info.PropertyType.GetProperties())
                         {
-                            string newRoute = route + $".{property.Name}"; 
+                            string newRoute = route + $".{property.Name}";
                             TraverseMenuItem((info: property, value: property.GetValue(binding.value)), depth + 1, newRoute, parent, xIndex++);
                         }
                     }
                     break;
                 case string @string:
-                    {
-                        int row = xIndex / _rowNo;
-                        int col = xIndex % _colNo;
-
-                        FrameView frameView = new FrameView
-                        {
-                            Width = Dim.Percent(20f),
-                            Height = Dim.Percent(20f),
-
-                            X = col * 25,
-                            Y = row * 5,
-
-                            Title = $"{route}",
-                            Text = @string ?? string.Empty,
-                        };
-
-                        if (views.TryGetValue(baseRoute, out var view))
-                        {
-                            view.Add(frameView);
-                        }
-
-                        ALL_BINDINGS.Add(route, new ValueBinding(frameView, @string));
-                    }
-                    break;
                 case int @int:
                     {
                         int row = xIndex / _colNo;
@@ -183,23 +158,33 @@ namespace Orbit9000.EngineTerminal
                         {
                             X = 0,
                             Y = 0,
-                            Text = "Value:",                            
+                            Text = "Value:",
                         };
 
                         TextField valueField = new TextField
                         {
-                            X = Pos.Right(label) + 1, 
+                            X = Pos.Right(label) + 1,
                             Y = Pos.Top(label),
                             Width = Dim.Fill(),
-                            Text = @int.ToString(),
+                            Text = binding.value.ToString(),
                         };
 
                         valueField.TextChanged += (s) =>
                         {
-                            if (int.TryParse(valueField.Text.ToString(), out var newValue))
+                            if (binding.value is int && int.TryParse(valueField.Text.ToString(), out var newValue))
                             {
                                 ALL_BINDINGS[route].Value = newValue;
-                                MessageBox.Query("Value Changed", $"Value changed to {newValue}", "OK");
+
+                                if (newValue is 2137)
+                                {
+                                    ALL_BINDINGS[route].View.Text = "You found the secret!";
+
+                                    MessageBox.Query("Value Changed", $"You found the secret!", "OK");
+                                }
+                            }
+                            else
+                            {
+                                ALL_BINDINGS[route].Value = valueField.Text.ToString();
                             }
                         };
 
@@ -207,12 +192,11 @@ namespace Orbit9000.EngineTerminal
 
                         if (views.TryGetValue(baseRoute, out var view))
                         {
-                            view.Add(frameView);
+                            parent.Add(frameView);
                         }
 
-                        ALL_BINDINGS.Add(route, new ValueBinding(valueField, @int));
+                        ALL_BINDINGS.Add(route, new ValueBinding(valueField, binding.value));
                     }
-
                     break;
             }
         }
