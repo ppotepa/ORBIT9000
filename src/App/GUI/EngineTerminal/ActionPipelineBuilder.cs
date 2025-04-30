@@ -4,20 +4,20 @@ using Terminal.Gui;
 
 namespace EngineTerminal
 {
-    public class ActionBuilder
+    public class ActionPipelineBuilder
     {
         private ValueBinding targetBinding;
         private TextField valueField;
 
         private List<Action<ustring>> Actions { get; set; } = new List<Action<ustring>>();
 
-        public ActionBuilder AddPost(Action<ustring> action)
+        public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
             this.Actions.Add(action);
             return this;
         }
 
-        public ActionBuilder AddPre(Action<ustring> action)
+        public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
             this.Actions = this.Actions.Prepend(action).ToList();
             return this;
@@ -34,7 +34,7 @@ namespace EngineTerminal
             };
         }
 
-        public ActionBuilder Default(TextField valueField, ValueBinding targetBinding)
+        public ActionPipelineBuilder Default(TextField valueField, ValueBinding targetBinding)
         {
             this.valueField = valueField;
             this.targetBinding = targetBinding;
@@ -48,13 +48,13 @@ namespace EngineTerminal
             return this;
         }
 
-        internal ActionBuilder AddIf(Func<bool> condition, Func<object, int> value)
+        internal ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
             Actions.Add((s) =>
             {
                 if (condition())
                 {
-                    value(null);
+                    action(targetBinding);
                 }
             });
 
