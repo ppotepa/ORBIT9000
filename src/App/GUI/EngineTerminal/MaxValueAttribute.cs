@@ -1,12 +1,34 @@
-﻿namespace Orbit9000.EngineTerminal
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+
+namespace Orbit9000.EngineTerminal
 {
-    internal class MaxValueAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class RegexValidationAttribute : ValidationAttribute
     {
-        public MaxValueAttribute(int max)
+        private readonly Regex _regex;
+
+        public RegexValidationAttribute(string pattern)
         {
-            Max = max;
+            _regex = new Regex(pattern);
         }
 
-        public int Max { get; }  
+        public RegexValidationAttribute(int max)
+        {
+            _regex = new Regex($@"^.{{0,{max}}}$");
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value == null)
+                return ValidationResult.Success;
+
+            var s = value.ToString();
+            if (!_regex.IsMatch(s))
+                return new ValidationResult(
+                    ErrorMessage ?? $"{validationContext.DisplayName} is not valid.");
+
+            return ValidationResult.Success;
+        }
     }
 }

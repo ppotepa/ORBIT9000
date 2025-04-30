@@ -28,55 +28,10 @@ namespace Orbit9000.EngineTerminal
                 Frame2 = new EngineData
                 {
                     Setting1 = 100,
-                    Setting2 = 200
+                    Setting2 = 200,
+                    IsValid = false
                 }
             };
-
-            #region example_data
-            //var exampleData = new
-            //{
-            //    Plugins = new
-            //    {
-            //        BasicInfo = "Info about the engine",
-            //        TestInfo = "TestInfo about the engine"
-
-            //        //ActivePlugins = new[]
-            //        //{
-            //        //        new { Name = "Plugin1", Activated = true },
-            //        //        new { Name = "Plugin2", Activated = false },
-            //        //        new { Name = "Plugin3", Activated = true }
-            //        //}
-            //    },
-
-            //    //Threads = new[]
-            //    //{
-            //    //    new { Name = "Thread1", State = "Running" },
-            //    //    new { Name = "Thread2", State = "Stopped" },
-            //    //    new { Name = "Thread3", State = "Running" }
-            //    //},
-
-            //    //Diagnostics = new[]
-            //    //{
-            //    //    new { Name = "Diagnostic1", Value = 42 },
-            //    //    new { Name = "Diagnostic2", Value = 100 },
-            //    //    new { Name = "Diagnostic3", Value = 75 }
-            //    //},
-
-            //    //Frame1 = new
-            //    //{
-            //    //    Colour = new
-            //    //    {
-            //    //        Text = "ColourSettings",
-            //    //        Items = new[] {
-            //    //            new {
-            //    //                Background = "Black",
-            //    //                Text = "White"
-            //    //            }
-            //    //        }
-            //    //    }
-            //    //}
-            //};
-            #endregion
 
             Application.Init();
 

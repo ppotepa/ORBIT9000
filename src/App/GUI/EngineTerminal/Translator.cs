@@ -62,7 +62,7 @@ namespace Orbit9000.EngineTerminal
 
             var frame = new FrameView($"{route} (Depth: {depth})")
             {
-                X = col * 25,
+                X = col * 30,
                 Y = row * 5,
 
                 Width = Dim.Percent(20),
@@ -119,6 +119,13 @@ namespace Orbit9000.EngineTerminal
             });
         }
 
+        private bool IS_ONE_OF(object current)
+        {
+            return current is not string
+                && current is not int
+                && current is not bool;
+        }
+
         private void Redraw()
         {
             Application.Top.RemoveAll();
@@ -143,11 +150,15 @@ namespace Orbit9000.EngineTerminal
             }
         }
 
-        private void TraverseMenuItem(PropertyInfo info, ref object current, ref object parent, int depth, string route, View container, int index = 0)
+        private void TraverseMenuItem(PropertyInfo info, 
+            ref object current, 
+            ref object parent, 
+            int depth, string route, 
+            View container, int index = 0)
         {
             string baseKey = route.Split('.')[0];
 
-            if (info.PropertyType.IsClass && info.PropertyType.GetProperties().Length > 0 && current is not string && current is not int)
+            if (info.PropertyType.IsClass && info.PropertyType.GetProperties().Length > 0 && IS_ONE_OF(current))
             {
                 foreach (var sub in info.PropertyType.GetProperties())
                 {
@@ -160,10 +171,7 @@ namespace Orbit9000.EngineTerminal
                 return;
             }
 
-            if (current is string || current is int)
-            {
-                AddBindingProperty(info, ref current, ref parent, route, container, index, depth);
-            }
+            AddBindingProperty(info, ref current, ref parent, route, container, index, depth);
         }
     }
 }

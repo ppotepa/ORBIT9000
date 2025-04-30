@@ -2,10 +2,9 @@
 {
     public class EngineData
     {
-        [MaxValue(15)]
+        public bool IsValid { get; set; }
         public int Setting1 { get; set; }
         public int Setting2 { get; set; }
-
     }
 
     public class SettingsData
