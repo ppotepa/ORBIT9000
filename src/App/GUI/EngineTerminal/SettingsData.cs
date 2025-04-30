@@ -1,18 +1,25 @@
 ﻿namespace Orbit9000.EngineTerminal
 {
-    public struct SettingsData
+    public class SettingsData
     {
-        public string Setting1;
-        public string Setting2;
-        public string Setting4;
-        public string Setting3;
-        public string Setting5;
-        public string Setting6;
-        public int Setting7;
-        public int Setting8;
-        public int Setting9;
-        public int Setting10;
-        public int Setting11;
-        public int Setting12;
+        private string setting1;
+
+        public string Setting1
+        {
+            get { return setting1; }
+            set { this.setting1 = value; }
+        }
+
+        public string Setting2 { get; set; }
+        public string Setting4 { get; set; }
+        public string Setting3 { get; set; }
+        public string Setting5 { get; set; }
+        public string Setting6 { get; set; }
+        public int Setting7 { get; set; }
+        public int Setting8 { get; set; }
+        public int Setting9 { get; set; }
+        public int Setting10 { get; set; }
+        public int Setting11 { get; set; }
+        public int Setting12 { get; set; }
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace Orbit9000.EngineTerminal
 {
-    public struct ExampleData
+    public class ExampleData
     {
-        public SettingsData Frame1;
-        public SettingsData Frame2;
+        public SettingsData Frame1 { get; set; }
+        public SettingsData Frame2 { get; set; }
     }
 
 }
