@@ -1,205 +1,168 @@
 using EngineTerminal;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Terminal.Gui;
 
 namespace Orbit9000.EngineTerminal
 {
     public class Translator
     {
-        private readonly int _colNo;
-
-        private readonly int _rowNo;
-        private readonly string _secret =
-@"
-       ______
-     /        \
-    |  ( o  o ) |
-    |    (_)    |   <- Pope John Paul II
-     \  \___/  /
-      |_______|
-     /         \
-    |  +----+  |  <- Papal garments (symbolic)
-    |  | JP2 |  |
-     \_______/
-";
+        private readonly Dictionary<string, ValueBinding> _allBindings = new();
+        private readonly int _cols;
+        private readonly ExampleData _input;
+        private readonly PropertyInfo[] _properties;
+        private readonly int _rows;
+        private readonly string _secret = @"
+           ______
+         /        \
+        |  ( o  o ) |
+        |    (_)    |   <- Pope John Paul II
+         \  \___/  /
+          |_______|
+         /         \
+        |  +----+  |  <- Papal garments (symbolic)
+        |  | JP2 |  |
+         \_______/
+    ";
 
         private readonly Toplevel _top;
-        private readonly FieldInfo[] _topFields;
-        private readonly Dictionary<string, ValueBinding> ALL_BINDINGS = new Dictionary<string, ValueBinding>();
-        private readonly Dictionary<string, FrameView> views = [];
-        private ExampleData _data;
-        private View _mainView = new FrameView("Main View")
-        {
-            X = 0,
-            Y = 1,
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            Text = "SPACER"
-        };
+        private readonly Dictionary<string, FrameView> _views = new();
 
-        private MenuBar _menuBar = new();
-        private MenuBarItem[] _menuBarItems;        
+        private View _mainView;
+        private MenuBar _menuBar;
 
-        public Translator(Toplevel top, ref ExampleData data, int rowNo = 5, int colNo = 5)
+        public Translator(Toplevel top, ref ExampleData input, int rows = 5, int cols = 5)
         {
             _top = top;
-            _data = data;
-            _topFields = data.GetType().GetFields();
 
-            _rowNo = rowNo;
-            _colNo = colNo;
+            _properties = input.GetType().GetProperties();
+
+            _rows = rows;
+            _cols = cols;
+            _input = input;
+
+            _mainView = CreateFrame("Main View");
+            Console.WriteLine($"{input.GetHashCode()} {input.GetType().Name}");
         }
 
         public Dictionary<string, ValueBinding> Translate()
         {
-            GenerateMenuBar();
+            BuildMenuBar();
+            BuildViews(_input);
 
-            _menuBar = new MenuBar(_menuBarItems);
-            _menuBar.X = 0;
-
-            GenerateViews();
-
-            _top.Add(_menuBar);
-            _top.Add(_mainView);
-
-            return this.ALL_BINDINGS;
+            _top.Add(_menuBar, _mainView);
+            return _allBindings;
         }
 
-        private void GenerateMenuBar()
+        private void AddBindingProperty(PropertyInfo info, ref object value, ref object parent, string route, View container, int index, int depth)
         {
-            _menuBarItems = [.. _topFields.Select(field =>
+            int row = index / _cols;
+            int col = index % _cols;
+
+            var frame = new FrameView($"{route} (Depth: {depth})")
             {
-                views[field.Name] = new FrameView(field.Name)
-                {
-                    X = 0,
-                    Y = 1,
-                    Width = Dim.Fill(),
-                    Height = Dim.Fill(),
-                };
+                X = col * 25,
+                Y = row * 5,
 
-                return new MenuBarItem
-                {
-                    Title = field.Name,
-                    Action = () =>
-                    {
-                        if (!views.ContainsKey(field.Name))
-                        {
-                            FrameView newFrame = new FrameView(field.Name)
-                            {
-                                X = 0,
-                                Y = 1,
-                                Width = Dim.Fill(),
-                                Height = Dim.Fill(),
-                            };
+                Width = Dim.Percent(20),
+                Height = Dim.Percent(20)
+            };
 
-                            views[field.Name] = newFrame;
-                            _mainView = newFrame;
-                        }
-                        else
-                        {
-                            _mainView = views[field.Name];
-                        }
+            Label label = new Label(0, 0, "Value:");
 
-                        Redraw();
-                        Application.Refresh();
-                    }
-                };
-            })];
+            TextField textField = new TextField(15, 0, 20, value?.ToString() ?? string.Empty);
+            ValueBinding binding = new ValueBinding(textField, ref value);
+
+            _allBindings[route] = binding;
+
+            textField.TextChanged += PipelineFactory.Instance.Builder
+                .Create(textField,  binding,  parent, info)
+                .AddIf(() => textField.Text == "2137", _ => MessageBox.Query("Secret", _secret, "OK"))
+                .Build();
+
+            frame.Add(label, textField);
+            container.Add(frame);
         }
 
-        private void GenerateViews()
+        private void BuildMenuBar()
         {
-            if (_topFields.Any())
+            MenuBarItem[] items = _properties.Select(property => CreateMenuItem(property)).ToArray();
+            _menuBar = new MenuBar(items) { X = 0 };
+        }
+
+        private void BuildViews(ExampleData data)
+        {
+            if (_properties.Length == 0) return;
+            Console.WriteLine($"{data.GetHashCode()} {data.GetType().Name}");
+            Traverse(ref data);
+        }
+
+        private FrameView CreateFrame(string title)
+        {
+            return new FrameView(title)
             {
-                Traverse(ref _data);
-            }
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill()
+            };
+        }
+
+        private MenuBarItem CreateMenuItem(PropertyInfo property)
+        {
+            _views[property.Name] = CreateFrame(property.Name);
+
+            return new MenuBarItem(property.Name, string.Empty, () =>
+            {
+                _mainView = _views[property.Name];
+                Redraw();
+            });
         }
 
         private void Redraw()
         {
             Application.Top.RemoveAll();
-            Application.Top.Add(_menuBar);
-            Application.Top.Add(_mainView);
+            Application.Top.Add(_menuBar, _mainView);
+            Application.Refresh();
         }
 
-        private void Traverse(ref ExampleData data, int depth = 0)
+        private void Traverse(ref ExampleData input, int depth = 0)
         {
-            FieldInfo[] fields = data.GetType().GetFields();
+            Console.WriteLine($"{input.GetHashCode()} {input.GetType().Name}");
 
-            foreach (var field in fields)
+            foreach (PropertyInfo property in input.GetType().GetProperties())
             {
-                Console.Title = "";
-                Console.Title = data.Frame1.GetHashCode().ToString();
-                TraverseMenuItem((field, field.GetValue(data)), data, depth + 1, field.Name, views[field.Name]);
+                object? current = property.GetValue(input);
+
+                // Pass 'input' as 'ref object' to TraverseMenuItem
+                object parent = input; // Box the struct to pass as ref object
+                TraverseMenuItem(property, ref current, ref parent, depth + 1, property.Name, _views[property.Name]);
+
+                // Unbox and update the input after modifications
+                input = (ExampleData)parent;
             }
         }
 
-        private void TraverseMenuItem((FieldInfo info, object value) binding, object parent, int depth, string route, View? root, int xIndex = 0)
+        private void TraverseMenuItem(PropertyInfo info, ref object current, ref object parent, int depth, string route, View container, int index = 0)
         {
-            string baseRoute = route.Split(".").FirstOrDefault();
+            string baseKey = route.Split('.')[0];
 
-            switch (binding.value)
+            if (info.PropertyType.IsClass && info.PropertyType.GetProperties().Length > 0 && current is not string && current is not int)
             {
-                case (not string and not int):
-                    if (binding.info.FieldType.IsValueType &&                        
-                        binding.info.FieldType.GetFields().Length > 0)
-                    {
-                        foreach (FieldInfo field in binding.info.FieldType.GetFields())
-                        {
-                            string newRoute = route + $".{field.Name}";
-                            TraverseMenuItem((info: field, value: field.GetValue(binding.value)), binding.value, depth + 1, newRoute, root, xIndex++);
-                        }
-                    }
-                    break;
-                case string @string:
-                case int @int:
+                foreach (var sub in info.PropertyType.GetProperties())
                 {
-                        int row = xIndex / _colNo;
-                        int col = xIndex % _colNo;
+                    object? subValue = sub.GetValue(current);
+                    string subRoute = $"{route}.{sub.Name}";
 
-                        FrameView frameView = new FrameView
-                        {
-                            X = col * 25,
-                            Y = row * 5,
-                            Width = Dim.Percent(20f),
-                            Height = Dim.Percent(20f),
-                            Title = $"{route}",
-                        };
-
-                        Label label = new Label
-                        {
-                            X = 0,
-                            Y = 0,
-                            Text = "Value:",
-                        };
-
-                        TextField valueField = new TextField
-                        {
-                            X = Pos.Right(label) + 1,
-                            Y = Pos.Top(label),
-                            Width = Dim.Fill(),
-                            Text = binding.value.ToString(),
-                        };
-
-                        ValueBinding bindingValue = new ValueBinding(valueField, ref binding.value);
-                        
-                        ALL_BINDINGS.Add(route, bindingValue);
-             
-                        valueField.TextChanged += PipelineFactory.Instance.Builder
-                            .Create(valueField, bindingValue, parent, binding.info)
-                            .AddIf(() => valueField.Text == "2137", (bindingValue) => MessageBox.Query("Secret", _secret, "OK"))                            
-                            .Build(); 
-
-                        frameView.Add(label, valueField);
-
-                        if (views.TryGetValue(baseRoute, out var view))
-                        {
-                            root?.Add(frameView);
-                        }
-                       
+                    TraverseMenuItem(sub, ref subValue, ref current, depth + 1, subRoute, container, index++);
                 }
-                break;
+
+                return;
+            }
+
+            if (current is string || current is int)
+            {
+                Console.WriteLine($"{parent.GetHashCode()}", $"{parent.GetType().Name}");
+                AddBindingProperty(info, ref current, ref parent, route, container, index, depth);
             }
         }
     }

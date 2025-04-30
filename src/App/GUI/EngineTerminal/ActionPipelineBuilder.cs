@@ -1,5 +1,8 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -7,56 +10,75 @@ namespace EngineTerminal
 {
     public class ActionPipelineBuilder
     {
-        private ValueBinding targetBinding = default;
-        private TextField valueField = default;
-
-        private List<Action<ustring>> Actions { get; set; } = new List<Action<ustring>>();
+        private ValueBinding _targetBinding;
+        private TextField _valueField;
+        private List<Action<ustring>> _actions = new List<Action<ustring>>();
 
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
-            this.Actions.Add(action);
+            _actions.Add(action);
             return this;
         }
 
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
-            this.Actions = this.Actions.Prepend(action).ToList();
+            List<Action<ustring>> updatedActions = _actions.Prepend(action).ToList();
+            _actions = updatedActions;
             return this;
         }
 
         public Action<ustring> Build()
         {
-            return (s) =>
+            return (ustring input) =>
             {
-                Actions.ForEach(action =>
+                foreach (Action<ustring> action in _actions)
                 {
-                    action(s);
-                });
+                    action(input);
+                }
             };
         }
 
-        public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, FieldInfo info)
+        public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo info)
         {
-            this.valueField = valueField;
-            this.targetBinding = targetBinding;      
-            
-            Actions.Add((s) =>
+            _valueField = valueField;
+            _targetBinding = targetBinding;
+
+            _actions.Add((ustring input) =>
             {
-                info.SetValue(parent, this.valueField.Text.ToString());
-                Console.Title += targetBinding.GetHashCode().ToString();
-                targetBinding.Value = valueField.Text.ToString();                
+                string textValue = _valueField.Text.ToString();
+
+                if (info.PropertyType == typeof(string))
+                {
+                    _targetBinding.Value = textValue;
+                    info.SetValue(parent, textValue);
+                }
+                else if (info.PropertyType == typeof(int))
+                {
+                    bool success = int.TryParse(textValue, out int intValue);
+                    if (success)
+                    {
+                        _targetBinding.Value = intValue;
+                        info.SetValue(parent, intValue);
+                    }
+                }
+                else
+                {
+                    _targetBinding.Value = textValue;
+                    info.SetValue(parent, textValue);
+                }
             });
 
             return this;
         }
 
-        internal ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
+        public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
-            Actions.Add((s) =>
+            _actions.Add((ustring input) =>
             {
-                if (condition())
+                bool conditionMet = condition();
+                if (conditionMet)
                 {
-                    action(targetBinding);
+                    action(_targetBinding);
                 }
             });
 
