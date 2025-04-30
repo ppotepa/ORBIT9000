@@ -2,7 +2,7 @@
 
 namespace Orbit9000.EngineTerminal
 {
-    internal class ValueBinding
+    public class ValueBinding
     {
         public ValueBinding (View view, object Value) 
         {
