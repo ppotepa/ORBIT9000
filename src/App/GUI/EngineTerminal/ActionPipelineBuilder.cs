@@ -1,5 +1,6 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
@@ -11,6 +12,7 @@ namespace EngineTerminal
         private List<Action<ustring>> _actions = new List<Action<ustring>>();
         private ValueBinding _targetBinding;
         private TextField _valueField;
+
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
             _actions.Add((ustring input) =>
@@ -60,26 +62,27 @@ namespace EngineTerminal
 
                 if (info.PropertyType == typeof(string))
                 {
-                    _targetBinding.Value = textValue;
-                    info.SetValue(parent, textValue);
+                    if (ValidateProperty(info, ref parent, textValue))
+                    {
+                        _targetBinding.Value = textValue;
+                        info.SetValue(parent, textValue);
+                    }
                 }
-
                 else if (info.PropertyType == typeof(int))
                 {
                     bool success = int.TryParse(textValue, out int intValue);
 
-                    if (success)
+                    if (success && ValidateProperty(info, ref parent, intValue))
                     {
                         _targetBinding.Value = intValue;
                         info.SetValue(parent, intValue);
                     }
                 }
-
                 else if (info.PropertyType == typeof(bool))
                 {
                     bool success = bool.TryParse(textValue, out bool boolValue);
 
-                    if (success)
+                    if (success && ValidateProperty(info, ref parent, boolValue))
                     {
                         _targetBinding.Value = boolValue;
                         info.SetValue(parent, boolValue);
@@ -88,6 +91,37 @@ namespace EngineTerminal
             });
 
             return this;
+        }
+
+        private bool ValidateProperty(PropertyInfo property, ref object parent,  object value)
+        {
+            var validationAttributes = property.GetCustomAttributes<ValidationAttribute>();
+            var validationContext = new ValidationContext(parent)
+            {
+                MemberName = property.Name
+            };
+
+            foreach (var attribute in validationAttributes)
+            {
+                var result = attribute.GetValidationResult(value, validationContext);
+                if (result != ValidationResult.Success)
+                {
+                    if (attribute is RangeAttribute rangeAttribute)
+                    {
+                        value = rangeAttribute.Maximum;
+                        property.SetValue(parent, value);
+                        MessageBox.ErrorQuery("Validation Error", $"Value reset to maximum: {rangeAttribute.Maximum}", "OK");
+                    }
+                    else
+                    {
+                        MessageBox.ErrorQuery("Validation Error", result.ErrorMessage, "OK");
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
