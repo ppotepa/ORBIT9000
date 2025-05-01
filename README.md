@@ -6,9 +6,10 @@
 
 ---
 
-## 🧩 Features and Goals
+## 🧩 Features
 
 - ⚙️ **Plugin Architecture** – Load, register, and execute plugins at runtime.
+- 🔌 **Multiple Loader Strategies** – Support for directory-based, debug, and string-array plugin loaders.
 - 🧠 **Runtime Engine** – Plugin lifecycle management, execution strategy, and state handling.
 - 💬 **Messaging Interface** – `IMessageChannel` abstraction for internal communication.
 - 🧰 **Attribute-based DI** – Use `[Service]`, `[Singleton]`, `[DefaultProject]` and other custom attributes.
@@ -46,7 +47,12 @@ src/
    dotnet run --project src/App/GUI/EngineTerminal
    ```
 
-3. **Add Plugins**
+3. **Run the PoC Demo (starts the engine directly)**
+   ```bash
+   dotnet run --project src/App/PoC/PoCDemo
+   ```
+
+4. **Add Plugins**
    - Drop compiled plugin DLLs into a specified plugin directory.
    - Use attributes and interfaces to define behaviour.
 
