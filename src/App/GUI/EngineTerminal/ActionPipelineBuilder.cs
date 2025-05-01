@@ -1,7 +1,6 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -9,18 +8,31 @@ namespace EngineTerminal
 {
     public class ActionPipelineBuilder
     {
-        private List<Action<ustring>> _actions = new List<Action<ustring>>();
-        private ValueBinding _targetBinding;
-        private TextField _valueField;
+        private readonly List<Action<ustring>> _pipeline = new();
+        private ValueBinding? _targetBinding;
+        private TextField? _valueField;
+        private object? _parent;
+        private PropertyInfo? _propertyInfo;
+
+        public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
+        {
+            _valueField = valueField ?? throw new ArgumentNullException(nameof(valueField));
+            _targetBinding = targetBinding ?? throw new ArgumentNullException(nameof(targetBinding));
+            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            _propertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
+
+            _pipeline.Add(_ => ProcessInputValue());
+
+            return this;
+        }
 
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
-            _actions.Add((ustring input) =>
+            _pipeline.Add(_ =>
             {
-                bool conditionMet = condition();
-                if (conditionMet)
+                if (condition())
                 {
-                    action(_targetBinding);
+                    action(_targetBinding!);
                 }
             });
 
@@ -29,73 +41,69 @@ namespace EngineTerminal
 
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
-            _actions.Add(action);
+            _pipeline.Add(action);
             return this;
         }
 
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
-            List<Action<ustring>> updatedActions = _actions.Prepend(action).ToList();
-            _actions = updatedActions;
+            _pipeline.Insert(0, action);
             return this;
         }
 
-        public Action<ustring> Build()
-        {
-            return (ustring input) =>
+        public Action<ustring> Build() =>
+            input =>
             {
-                foreach (Action<ustring> action in _actions)
+                foreach (var action in _pipeline)
                 {
                     action(input);
                 }
             };
-        }
 
-        public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo info)
+        private void ProcessInputValue()
         {
-            _valueField = valueField;
-            _targetBinding = targetBinding;
+            if (_valueField == null || _targetBinding == null || _parent == null || _propertyInfo == null)
+                return;
 
-            _actions.Add((ustring input) =>
+            string textValue = _valueField.Text.ToString();
+
+            switch (_propertyInfo.PropertyType)
             {
-                string textValue = _valueField.Text.ToString();
+                case Type type when type == typeof(string):
+                    ProcessValue(textValue, textValue);
+                    break;
 
-                if (info.PropertyType == typeof(string))
-                {
-                    if (ValidateProperty(info, ref parent, textValue))
-                    {
-                        _targetBinding.Value = textValue;
-                        info.SetValue(parent, textValue);
-                    }
-                }
-                else if (info.PropertyType == typeof(int))
-                {
-                    bool success = int.TryParse(textValue, out int intValue);
+                case Type type when type == typeof(int):
+                    if (int.TryParse(textValue, out int intValue))
+                        ProcessValue(intValue, textValue);
+                    break;
 
-                    if (success && ValidateProperty(info, ref parent, intValue))
-                    {
-                        _targetBinding.Value = intValue;
-                        info.SetValue(parent, intValue);
-                    }
-                }
-                else if (info.PropertyType == typeof(bool))
-                {
-                    bool success = bool.TryParse(textValue, out bool boolValue);
-
-                    if (success && ValidateProperty(info, ref parent, boolValue))
-                    {
-                        _targetBinding.Value = boolValue;
-                        info.SetValue(parent, boolValue);
-                    }
-                }
-            });
-
-            return this;
+                case Type type when type == typeof(bool):
+                    if (bool.TryParse(textValue, out bool boolValue))
+                        ProcessValue(boolValue, textValue);
+                    break;
+            }
         }
 
-        private bool ValidateProperty(PropertyInfo property, ref object parent,  object value)
+        private void ProcessValue<T>(T value, string originalText)
+        {
+            if (_propertyInfo == null || _parent == null || _targetBinding == null)
+                return;
+
+            if (ValidateProperty(_propertyInfo, _parent, value))
+            {
+                _targetBinding.Value = value;
+                _propertyInfo.SetValue(_parent, value);
+            }
+        }
+
+        private bool ValidateProperty(PropertyInfo property, object parent, object? value)
         {
             var validationAttributes = property.GetCustomAttributes<ValidationAttribute>();
+
+            if (!validationAttributes.Any())
+                return true;
+
             var validationContext = new ValidationContext(parent)
             {
                 MemberName = property.Name
@@ -106,22 +114,30 @@ namespace EngineTerminal
                 var result = attribute.GetValidationResult(value, validationContext);
                 if (result != ValidationResult.Success)
                 {
-                    if (attribute is RangeAttribute rangeAttribute)
-                    {
-                        value = rangeAttribute.Maximum;
-                        property.SetValue(parent, value);
-                        MessageBox.ErrorQuery("Validation Error", $"Value reset to maximum: {rangeAttribute.Maximum}", "OK");
-                    }
-                    else
-                    {
-                        MessageBox.ErrorQuery("Validation Error", result.ErrorMessage, "OK");
-                    }
-
+                    HandleValidationFailure(attribute, property, parent, ref value);
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private void HandleValidationFailure(ValidationAttribute attribute, PropertyInfo property, object parent, ref object? value)
+        {
+            switch (attribute)
+            {
+                case RangeAttribute rangeAttribute:
+                    value = rangeAttribute.Maximum;
+                    property.SetValue(parent, value);
+                    MessageBox.ErrorQuery("Validation Error",
+                        $"Value reset to maximum: {rangeAttribute.Maximum}", "OK");
+                    break;
+
+                default:
+                    MessageBox.ErrorQuery("Validation Error",
+                        attribute.ErrorMessage ?? "Invalid value", "OK");
+                    break;
+            }
         }
     }
 }
