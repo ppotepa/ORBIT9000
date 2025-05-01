@@ -3,7 +3,12 @@
     public class EngineData
     {
         public bool IsValid { get; set; }
+
+        [MaxValue(100)] 
         public int Setting1 { get; set; }
+
+        [MaxValue(15)]
+
         public int Setting2 { get; set; }
     }
 
