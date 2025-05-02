@@ -114,6 +114,8 @@ namespace Orbit9000.EngineTerminal
             };
 
             exampleData.Frame2.PropertyChanged += Notification;
+            exampleData.Frame1.PropertyChanged += Notification;
+
             Application.Init();
 
             Application.Current.ColorScheme = new ColorScheme
@@ -125,7 +127,7 @@ namespace Orbit9000.EngineTerminal
             };
 
             var translator = new Translator(Application.Top,  exampleData);
-            IReadOnlyDictionary<string, ValueBinding> bindigs = translator.Translate();
+            IReadOnlyDictionary<string, ValueBinding> bindings = translator.Translate();
             
             Application.Init();
             Application.Run();
@@ -133,7 +135,7 @@ namespace Orbit9000.EngineTerminal
 
         private static void Notification(object? sender, PropertyChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         #region PipeRegion
