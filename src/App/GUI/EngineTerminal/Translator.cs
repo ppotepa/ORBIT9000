@@ -6,6 +6,7 @@ namespace Orbit9000.EngineTerminal
 {
     public class Translator
     {
+        private const BindingFlags NON_INHERITED = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
         private readonly Dictionary<string, ValueBinding> _allBindings = new();
         private readonly int _cols;
         private readonly ExampleData _input;
@@ -34,7 +35,7 @@ namespace Orbit9000.EngineTerminal
         {
             _top = top;
 
-            _properties = input.GetType().GetProperties();
+            _properties = input.GetType().GetProperties(NON_INHERITED);
 
             _rows = rows;
             _cols = cols;
@@ -87,7 +88,7 @@ namespace Orbit9000.EngineTerminal
 
         private void BuildMenuBar()
         {
-            MenuBarItem[] items = _properties.Select(property => CreateMenuItem(property)).ToArray();
+            MenuBarItem[] items = _properties.Select(CreateMenuItem).ToArray();
             _menuBar = new MenuBar(items) { X = 0 };
         }
 
@@ -135,7 +136,7 @@ namespace Orbit9000.EngineTerminal
 
         private void Traverse(ref ExampleData input, int depth = 0)
         {
-            foreach (PropertyInfo property in input.GetType().GetProperties())
+            foreach (PropertyInfo property in input.GetType().GetProperties(NON_INHERITED))
             {
                 object? current = property.GetValue(input);
 
@@ -158,9 +159,9 @@ namespace Orbit9000.EngineTerminal
         {
             string baseKey = route.Split('.')[0];
 
-            if (info.PropertyType.IsClass && info.PropertyType.GetProperties().Length > 0 && IS_ONE_OF(current))
+            if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NON_INHERITED).Length > 0 && IS_ONE_OF(current))
             {
-                foreach (var sub in info.PropertyType.GetProperties())
+                foreach (var sub in info.PropertyType.GetProperties(NON_INHERITED))
                 {
                     object? subValue = sub.GetValue(current);
                     string subRoute = $"{route}.{sub.Name}";

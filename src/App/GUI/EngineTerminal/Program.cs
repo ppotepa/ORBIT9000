@@ -91,18 +91,8 @@ namespace Orbit9000.EngineTerminal
                 Frame1 = new SettingsData
                 {
                     Setting1 = "Text1",
-                    Setting2 = "Text2",
-                    Setting3 = "Text3",
-                    Setting4 = "Text4",
-                    Setting5 = "Text5",
-                    Setting6 = "Text6",
+                    Setting2 = "Text2"
 
-                    Setting7 = 5_00,
-                    Setting8 = 5_00,
-                    Setting9 = 5_00,
-                    Setting10 = 5_00,
-                    Setting11 = 5_00,
-                    Setting12 = 5_00,
                 },
 
                 Frame2 = new EngineData
