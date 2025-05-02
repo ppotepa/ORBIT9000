@@ -1,5 +1,6 @@
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Data;
+using EngineTerminal.Processors;
 using System.ComponentModel;
 using Terminal.Gui;
 
