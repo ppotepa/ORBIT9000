@@ -41,6 +41,7 @@ namespace ORBIT9000.Engine.Runtime.State
 
         private void HandlePluginEvent(PluginEvent pluginEvent)
         {
+
             if (Engine?.Configuration?.Plugins == null)
             {
                 _engine.LogWarning("Engine configuration or plugins are not properly initialized.");

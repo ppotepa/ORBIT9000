@@ -32,10 +32,10 @@ namespace ORBIT9000.Core.Models.Pipe
 
     public class SettingsData : ReactiveObject
     {
-        private string _setting1;
+        private int _setting1;
         private string _setting2;
 
-        public string Setting1
+        public int Setting1
         {
             get => _setting1;
             set => this.RaiseAndSetIfChanged(ref _setting1, value);

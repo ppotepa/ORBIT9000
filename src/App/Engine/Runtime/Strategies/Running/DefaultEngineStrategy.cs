@@ -1,4 +1,7 @@
-﻿using ORBIT9000.Engine.Runtime.State;
+﻿using MessagePack.Resolvers;
+using MessagePack;
+using ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Engine.Runtime.State;
 using System.IO.Pipes;
 
 namespace ORBIT9000.Engine.Strategies.Running
@@ -89,7 +92,28 @@ namespace ORBIT9000.Engine.Strategies.Running
             while (state.Engine.IsRunning)
             {
                 state.Engine.LogInformation($"Engine instance {state.Engine.GetHashCode()}");
-                byte[] buffer = MessagePack.MessagePackSerializer.Serialize(state.ActivatedPlugins);
+
+                var options = MessagePackSerializerOptions.Standard
+                .WithResolver(CompositeResolver.Create(
+                    ContractlessStandardResolver.Instance,
+                    StandardResolver.Instance
+                ));
+
+                var exampleData = new ExampleData
+                {
+                    Frame1 = new SettingsData
+                    {
+                        Setting1 = new Random().Next(1, 100),
+                        Setting2 = "Text2",
+                    },
+                    Frame2 = new EngineData
+                    {
+                        Setting1 = new Random().Next(1, 100),
+                        Setting2 = new Random().Next(1, 100)
+                    }
+                };
+
+                byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 
                 await server.WriteAsync(buffer, 0, buffer.Length);
                 await Task.Delay(TimeSpan.FromMilliseconds(50));

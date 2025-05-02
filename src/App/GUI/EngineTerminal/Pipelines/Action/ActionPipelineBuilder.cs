@@ -93,7 +93,7 @@ namespace EngineTerminal.Pipelines.Action
 
             if (ValidateProperty(_propertyInfo, _parent, value))
             {
-                _targetBinding.Value = value;
+               _targetBinding.Value = value;
                 _propertyInfo.SetValue(_parent, value);                
             }
         }

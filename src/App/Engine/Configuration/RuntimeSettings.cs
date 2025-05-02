@@ -40,10 +40,9 @@ namespace ORBIT9000.Engine.Configuration
         }
 
         public DirectoryInfo DefaultFolder { get; set; }
+        public bool EnableTerminal { get; }
         public PluginInfo[] Plugins { get; set; }
         public bool SharePluginScopes { get; internal set; }
-        public bool EnableTerminal { get; }
-
         private object PluginSource
         {
             get
