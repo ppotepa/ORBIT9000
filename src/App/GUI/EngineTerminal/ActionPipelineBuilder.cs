@@ -1,6 +1,9 @@
 ﻿using NStack;
 using Orbit9000.EngineTerminal;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -93,7 +96,7 @@ namespace EngineTerminal
             if (ValidateProperty(_propertyInfo, _parent, value))
             {
                 _targetBinding.Value = value;
-                _propertyInfo.SetValue(_parent, value);
+                _propertyInfo.SetValue(_parent, value);                
             }
         }
 
@@ -126,11 +129,12 @@ namespace EngineTerminal
         {
             switch (attribute)
             {
-                case RangeAttribute rangeAttribute:
-                    value = rangeAttribute.Maximum;
-                    property.SetValue(parent, value);
+                case MaxValueAttribute maxValueAttribute:
+                    value = maxValueAttribute.MaxValue;
+                    property.SetValue(parent, value);                    
                     MessageBox.ErrorQuery("Validation Error",
-                        $"Value reset to maximum: {rangeAttribute.Maximum}", "OK");
+                        $"Value reset to maximum: {maxValueAttribute.MaxValue}", "OK");
+                    _valueField!.Text = value.ToString();
                     break;
 
                 default:

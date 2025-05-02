@@ -1,4 +1,5 @@
-﻿using Terminal.Gui;
+﻿using System.ComponentModel;
+using Terminal.Gui;
 
 namespace Orbit9000.EngineTerminal
 {
@@ -33,6 +34,7 @@ namespace Orbit9000.EngineTerminal
                 }
             };
 
+            exampleData.Frame2.PropertyChanged += Notification;
             Application.Init();
 
             Application.Current.ColorScheme = new ColorScheme
@@ -45,9 +47,14 @@ namespace Orbit9000.EngineTerminal
 
             var translator = new Translator(Application.Top,  exampleData);
             IReadOnlyDictionary<string, ValueBinding> bindigs = translator.Translate();
-
+            
             Application.Init();
             Application.Run();
+        }
+
+        private static void Notification(object? sender, PropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #region PipeRegion

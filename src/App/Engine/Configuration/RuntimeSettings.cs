@@ -8,12 +8,12 @@ namespace ORBIT9000.Engine.Configuration
     /// <summary>
     /// Represents the configuration for the Orbit Engine, including plugin information and default folder settings.
     /// </summary>
-    public class RuntimeConfiguration
+    public class RuntimeSettings
     {
         private readonly RawEngineConfiguration _config;
         private readonly IPluginLoader _loader;        
 
-        public RuntimeConfiguration(ILogger<RuntimeConfiguration> logger, RawEngineConfiguration config, IPluginLoader loader)
+        public RuntimeSettings(ILogger<RuntimeSettings> logger, RawEngineConfiguration config, IPluginLoader loader)
         {
             this._config = config;
             this._loader = loader;
@@ -48,6 +48,7 @@ namespace ORBIT9000.Engine.Configuration
         {
             get
             {
+                //TODO: Fix Active Plugins Source
                 if (_config.Plugins.ActivePlugins.Any()) return _config.Plugins.ActivePlugins;
                 else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }

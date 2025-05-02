@@ -17,7 +17,7 @@ namespace ORBIT9000.Engine.Providers
     {
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
         private readonly GlobalMessageChannel<PluginEvent> _channel;
-        private readonly RuntimeConfiguration _config;
+        private readonly RuntimeSettings _config;
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
@@ -28,7 +28,7 @@ namespace ORBIT9000.Engine.Providers
         public PluginProvider
         (
             ILogger<PluginProvider> logger,
-            RuntimeConfiguration config,
+            RuntimeSettings config,
             IPluginLoader pluginLoader,
             ILifetimeScope rootScope,
             GlobalMessageChannel<PluginEvent> channel)

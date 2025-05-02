@@ -17,7 +17,7 @@ namespace ORBIT9000.Engine
         public OrbitEngine(
             ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
-            RuntimeConfiguration configuration,
+            RuntimeSettings configuration,
             IPluginProvider pluginProvider
             )
         {
@@ -45,12 +45,12 @@ namespace ORBIT9000.Engine
 
         public bool IsInitialized { get; }
 
-        private RuntimeConfiguration _configuration;
+        private RuntimeSettings _configuration;
 
         public bool IsRunning { get; private set; }
         public IPluginProvider PluginProvider { get => _pluginProvider; }
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
-        internal RuntimeConfiguration Configuration { get => _configuration; set => _configuration = value; }
+        internal RuntimeSettings Configuration { get => _configuration; set => _configuration = value; }
         public void Start()
         {
             if (!IsInitialized)
