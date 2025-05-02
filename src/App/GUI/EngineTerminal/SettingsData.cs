@@ -46,9 +46,6 @@ namespace Orbit9000.EngineTerminal
     public class SettingsData : INotifyPropertyChanged
     {
         private string setting1;
-        private int setting10;
-        private int setting11;
-        private int setting12;
         private string setting2;
         private string setting3;
         private string setting4;
@@ -57,6 +54,9 @@ namespace Orbit9000.EngineTerminal
         private int setting7;
         private int setting8;
         private int setting9;
+        private int setting10;
+        private int setting11;
+        private int setting12;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -64,24 +64,6 @@ namespace Orbit9000.EngineTerminal
         {
             get => setting1;
             set => SetProperty(ref setting1, value);
-        }
-
-        public int Setting10
-        {
-            get => setting10;
-            set => SetProperty(ref setting10, value);
-        }
-
-        public int Setting11
-        {
-            get => setting11;
-            set => SetProperty(ref setting11, value);
-        }
-
-        public int Setting12
-        {
-            get => setting12;
-            set => SetProperty(ref setting12, value);
         }
 
         public string Setting2
@@ -132,6 +114,24 @@ namespace Orbit9000.EngineTerminal
             set => SetProperty(ref setting9, value);
         }
 
+        public int Setting10
+        {
+            get => setting10;
+            set => SetProperty(ref setting10, value);
+        }
+
+        public int Setting11
+        {
+            get => setting11;
+            set => SetProperty(ref setting11, value);
+        }
+
+        public int Setting12
+        {
+            get => setting12;
+            set => SetProperty(ref setting12, value);
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -145,6 +145,7 @@ namespace Orbit9000.EngineTerminal
                 OnPropertyChanged(propertyName);
                 return true;
             }
+
             return false;
         }
     }
