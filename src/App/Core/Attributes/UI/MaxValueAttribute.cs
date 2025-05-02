@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EngineTerminal.Attributes
+namespace ORBIT9000.Core.Attributes.UI
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class MaxValueAttribute : ValidationAttribute

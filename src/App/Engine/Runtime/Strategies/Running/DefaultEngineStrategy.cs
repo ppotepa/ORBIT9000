@@ -87,7 +87,7 @@ namespace ORBIT9000.Engine.Strategies.Running
             state.Engine.LogInformation($"GUI Connected");
 
             while (state.Engine.IsRunning)
-            {                
+            {
                 state.Engine.LogInformation($"Engine instance {state.Engine.GetHashCode()}");
                 byte[] buffer = MessagePack.MessagePackSerializer.Serialize(state.ActivatedPlugins);
 
