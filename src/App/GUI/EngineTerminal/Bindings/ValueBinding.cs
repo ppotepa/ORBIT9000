@@ -1,6 +1,6 @@
 ﻿using Terminal.Gui;
 
-namespace Orbit9000.EngineTerminal
+namespace EngineTerminal.Bindings
 {
     public class ValueBinding
     {

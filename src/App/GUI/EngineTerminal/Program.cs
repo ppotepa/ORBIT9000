@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using EngineTerminal.Bindings;
+using EngineTerminal.Data;
+using System.ComponentModel;
 using Terminal.Gui;
 
 namespace Orbit9000.EngineTerminal

@@ -1,8 +1,9 @@
-﻿using ReactiveUI;
+﻿using Orbit9000.EngineTerminal;
+using ReactiveUI;
 using System.Reactive.Linq;
 using System.Reflection;
 
-namespace Orbit9000.EngineTerminal
+namespace EngineTerminal.Data
 {
     public class EngineData : ReactiveObject
     {

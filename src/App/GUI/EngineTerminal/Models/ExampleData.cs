@@ -1,4 +1,4 @@
-﻿namespace Orbit9000.EngineTerminal
+﻿namespace EngineTerminal.Data
 {
     public class ExampleData
     {
