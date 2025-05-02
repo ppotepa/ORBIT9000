@@ -1,7 +1,11 @@
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Data;
 using EngineTerminal.Processors;
+using MessagePack;
+using ORBIT9000.Engine.Configuration;
+using System.Buffers;
 using System.ComponentModel;
+using System.IO.Pipes;
 using Terminal.Gui;
 
 namespace Orbit9000.EngineTerminal
@@ -40,10 +44,74 @@ namespace Orbit9000.EngineTerminal
                 HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.DarkGray)
             };
 
-            var translator = new Translator(Application.Top,  exampleData);
+            var translator = new Translator(Application.Top, exampleData);
             IReadOnlyDictionary<string, ValueBinding> bindings = translator.Translate();
-            
-            Application.Init();
+
+            var messageItem = new StatusItem(Key.Null, "NO MESSAGES", null);
+            var statusBar = new StatusBar(new StatusItem[]
+            {
+                new StatusItem(Key.F1, "~F1~ Help", null),
+                messageItem
+            });
+
+            Application.Top.Add(statusBar);
+
+            var backgroundThread = new Thread(() =>
+            {
+                var client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
+
+                try
+                {
+                    client.Connect();
+                    Application.MainLoop.Invoke(() => messageItem.Title = "Connected to engine!");
+                    Application.Refresh();
+
+                    var buffer = new byte[4096];
+
+                    while (true)
+                    {
+                        try
+                        {
+                            int bytesRead = client.Read(buffer, 0, buffer.Length);
+                            if (bytesRead == 0)
+                            {
+                                Application.MainLoop.Invoke(() => messageItem.Title = "Server closed connection.");
+                                Application.Refresh();
+                                break;
+                            }
+
+                            List<PluginInfo> @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer, 0, bytesRead));
+
+                            Application.MainLoop.Invoke(() =>
+                            {
+                                messageItem.Title = $"Received Engine state: {@object.Count}";
+
+                                foreach (var pluginInfo in @object)
+                                {
+                                    messageItem.Title = $"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}";
+                                }
+
+                                Application.Refresh();
+                            });
+                        }
+                        catch (IOException ex)
+                        {
+                            Application.MainLoop.Invoke(() => messageItem.Title = $"Pipe broken: {ex.Message}");
+                            Application.Refresh();
+                            break;
+                        }
+                        
+                        Thread.Sleep(50);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Application.MainLoop.Invoke(() => messageItem.Title = $"Error connecting to pipe: {ex.Message}");
+                }
+
+            });
+
+            backgroundThread.Start();          
             Application.Run();
         }
 
@@ -51,56 +119,5 @@ namespace Orbit9000.EngineTerminal
         {
             
         }
-
-        #region PipeRegion
-        //var backgroundThread = new Thread(() =>
-        //    {
-        //        var client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
-
-        //        try
-        //        {
-        //            client.Connect();
-        //            Application.MainLoop.Invoke(() => textView.Text += "Connected to engine!\n");
-
-        //            var buffer = new byte[4096];
-
-        //            while (true)
-        //            {
-        //                try
-        //                {
-        //                    int bytesRead = client.Read(buffer, 0, buffer.Length);
-        //                    if (bytesRead == 0)
-        //                    {
-        //                        Application.MainLoop.Invoke(() => textView.Text += "Server closed connection.\n");
-        //                        break;
-        //                    }
-
-        //                    List<PluginInfo> @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer, 0, bytesRead));
-
-        //                    Application.MainLoop.Invoke(() =>
-        //                    {
-        //                        textView.Text += ($"Received Engine state: {@object.Count}\n");
-
-        //                        foreach (var pluginInfo in @object)
-        //                        {
-        //                            textView.Text += $"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}\n";
-        //                        }
-        //                    });
-        //                }
-        //                catch (IOException ex)
-        //                {
-        //                    Application.MainLoop.Invoke(() => textView.Text += $"Pipe broken: {ex.Message}\n");
-        //                    break;
-        //                }
-
-        //                Thread.Sleep(1000);
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Application.MainLoop.Invoke(() => textView.Text += $"Error connecting to pipe: {ex.Message}\n");
-        //        }
-        //    }); 
-        #endregion
     }
 }

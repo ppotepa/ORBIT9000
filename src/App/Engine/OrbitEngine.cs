@@ -38,6 +38,7 @@ namespace ORBIT9000.Engine
             _serviceProvider = serviceProvider;
 
             IsInitialized = true;
+            IsRunning = true;
             _configuration = configuration;
             _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
 
@@ -56,15 +57,13 @@ namespace ORBIT9000.Engine
             if (!IsInitialized)
                 throw new InvalidOperationException("Engine has not been initialized.");
 
-            if (IsRunning)
-            {
-                _logger.LogWarning("Engine is already running.");
-                return;
-            }
-
-            IsRunning = true;
-
+            _logger.LogInformation("Starting engine thread...");
             _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
+
+            while(IsRunning)
+            {
+                Thread.Sleep(100);
+            }   
         }
     }
 }
