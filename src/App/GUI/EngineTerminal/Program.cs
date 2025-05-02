@@ -81,6 +81,7 @@ using Terminal.Gui;
 =======
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Data;
+using EngineTerminal.Processors;
 using System.ComponentModel;
 >>>>>>> 9942610 (Update Project Structure)
 using Terminal.Gui;
