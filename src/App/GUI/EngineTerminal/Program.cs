@@ -9,6 +9,12 @@ using System.IO.Pipes;
 using System.Reflection;
 using Terminal.Gui;
 
+/// <summary>
+/// This is an experimental terminal project for the Orbit9000 engine.  
+/// It is designed with minimal dependencies and libraries to focus on core functionality.  
+/// The primary focus is to create pipe communication and generic property change handling for better
+/// display and monitoring.
+/// </summary>
 namespace Orbit9000.EngineTerminal
 {
     public class Program
@@ -22,7 +28,7 @@ namespace Orbit9000.EngineTerminal
         static void Main(string[] args)
         {
             _exampleData = CreateInitialData();
-            _cancellationTokenSource = new CancellationTokenSource();
+            using var _ = _cancellationTokenSource = new CancellationTokenSource();
 
             InitializeUI();
 
@@ -67,27 +73,31 @@ namespace Orbit9000.EngineTerminal
         {
             Application.Init();
 
-            var topLayer = new FrameView("TOP LAYER")
+            View topLayer = new View
             {
                 X = 0,
                 Y = 0,
                 Width = Dim.Fill(),
-                Height = Dim.Fill(),
+                Height = Dim.Fill() -1,
                 CanFocus = true
             };
 
             SetupColorScheme();
-            
-            var translator = new Translator(topLayer, _exampleData);            
+
+            Translator translator = new Translator(topLayer, _exampleData);
 
             _bindings = translator.Translate();
             _messageStatusItem = new StatusItem(Key.Null, "Starting...", null);
 
             StatusBar statusBar = new StatusBar(
-            [
-                new StatusItem(Key.F1, "~F1~ Help", () => ShowHelp()),
-                _messageStatusItem
-            ]);
+                new StatusItem[]
+                {
+                    new StatusItem(Key.F1, "~F1~ Help", () => ShowHelp()),
+                    _messageStatusItem
+                })
+            {
+                CanFocus = true
+            };
 
             Application.Top.Add(topLayer);
             Application.Top.Add(statusBar);
@@ -226,7 +236,7 @@ namespace Orbit9000.EngineTerminal
         {
             if (source == null || target == null) return;
 
-            var properties = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
             {
                 if (!property.CanRead || !property.CanWrite)

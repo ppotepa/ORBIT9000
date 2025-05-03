@@ -29,6 +29,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                 using var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
 
                 await server.WaitForConnectionAsync();
+
                 _state.Engine.LogInformation("GUI Connected");
 
                 var random = new Random();
