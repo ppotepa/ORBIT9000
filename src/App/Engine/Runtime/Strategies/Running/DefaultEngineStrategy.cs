@@ -213,9 +213,11 @@ namespace ORBIT9000.Engine.Strategies.Running
             while (state.Engine?.IsRunning == true)
             {
                 state.Engine.LogDebug("Engine loop iteration started.");
+
                 Execute(state.Engine);
+
                 state.Engine.LogDebug("Engine loop iteration completed.");
-                Thread.Sleep(TimeSpan.FromMilliseconds(100));
+                Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             }
 
             state.Engine.LogInformation("EngineStartupStrategy has completed.");
@@ -233,7 +235,9 @@ namespace ORBIT9000.Engine.Strategies.Running
                 Task.Run(async () =>
                 {
                     Thread.CurrentThread.Name = "Plugin_ExamplePlugin";
+
                     var plugin = await pluginTask;
+
                     engine.LogDebug("Plugin ExamplePlugin loaded.");
                     await plugin.OnLoad();
                 });
@@ -241,8 +245,11 @@ namespace ORBIT9000.Engine.Strategies.Running
                 Task.Run(async () =>
                 {
                     Thread.CurrentThread.Name = "Plugin_ExamplePlugin2";
+
                     var plugin2 = await plugin2Task;
+
                     engine.LogDebug("Plugin ExamplePlugin2 loaded.");
+
                     await plugin2.OnLoad();
                 });
             }
@@ -275,10 +282,7 @@ namespace ORBIT9000.Engine.Strategies.Running
 
             while (state.Engine.IsRunning)
             {
-                state.Engine.LogInformation($"Engine instance {state.Engine.GetHashCode()}");
-
-                var options = MessagePackSerializerOptions.Standard
-                .WithResolver(CompositeResolver.Create(
+                var options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(
                     ContractlessStandardResolver.Instance,
                     StandardResolver.Instance
                 ));
@@ -288,8 +292,9 @@ namespace ORBIT9000.Engine.Strategies.Running
                     Frame1 = new SettingsData
                     {
                         Setting1 = new Random().Next(1, 100),
-                        Setting2 = "Text2",
+                        Setting2 = "Text2",                        
                     },
+
                     Frame2 = new EngineData
                     {
                         Setting1 = new Random().Next(1, 100),

@@ -240,6 +240,7 @@ namespace Orbit9000.EngineTerminal
                     {
                         UpdateStatusMessage($"Error processing data: {ex.Message}");
                     }
+
                     await Task.Delay(50, cancellationToken);
                 }
             }
@@ -279,8 +280,7 @@ namespace Orbit9000.EngineTerminal
 
                 Application.MainLoop.Invoke(() =>
                 {
-                    _bindings[propertyPath].Value = "Test";
-                    _bindings[propertyPath].View.Text = "Test";
+                    _bindings[propertyPath].Value = new Random().Next(1, 100).ToString();
 
                     binding.View.SetNeedsDisplay();
                     Application.Refresh();
@@ -310,23 +310,22 @@ namespace Orbit9000.EngineTerminal
                     continue;
 
                 var sourceValue = property.GetValue(source);
-
                 property.SetValue(target, sourceValue);
 
-                string propertyPath = $"{objectTypeName}.{property.Name}";
+                string propertyPath = $"Frame1.Setting1";
 
-                if (_bindings.TryGetValue(propertyPath, out var binding))
-                {
-                    binding.Value = sourceValue;
-                    binding.View.SetNeedsDisplay();
-                }
+                _bindings[propertyPath].Value = new Random().Next(1, 100).ToString();
             }
+
+            Application.Refresh();
         }
 
         private static void UpdateStatusMessage(string message)
         {
             Application.MainLoop.Invoke(() => _messageStatusItem.Title = message);
         }
+
+     
         #endregion
     }
 <<<<<<< HEAD

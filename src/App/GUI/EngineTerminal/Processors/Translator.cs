@@ -32,6 +32,7 @@ namespace EngineTerminal.Processors
 
         private View _mainView;
         private MenuBar _menuBar;
+        private List<FrameView> _menuFrames;
 
         public Translator(Toplevel top, ExampleData input, int rows = 5, int cols = 5)
         {
@@ -44,6 +45,7 @@ namespace EngineTerminal.Processors
             _input = input;
 
             _mainView = CreateFrame("Main View");
+            _menuFrames = new List<FrameView>();  
         }
 
         public Dictionary<string, ValueBinding> Translate()
@@ -75,6 +77,9 @@ namespace EngineTerminal.Processors
             Label label = new Label(0, 0, "Value:");
 
             TextField textField = new TextField(15, 0, 20, value?.ToString() ?? string.Empty);
+            
+            textField.Id = route;
+
             ValueBinding binding = new ValueBinding(textField, ref value);
 
             _allBindings[route] = binding;
@@ -85,6 +90,8 @@ namespace EngineTerminal.Processors
                 .Build();
 
             frame.Add(label, textField);
+
+            _menuFrames.Add(frame);
             container.Add(frame);
         }
 
