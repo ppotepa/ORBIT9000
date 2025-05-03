@@ -1,38 +1,40 @@
-﻿using EngineTerminal.Managers;
+﻿using EngineTerminal.Contracts;
+using EngineTerminal.Managers;
+using Microsoft.Extensions.DependencyInjection;
+using ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Engine;
+using System.Threading.Channels;
 
-/// <summary>
-/// This is an experimental terminal project for the Orbit9000 engine.
-/// It is designed with minimal dependencies and libraries to focus on core functionality.
-/// The primary focus is to create pipe communication and generic property change handling for better
-/// display and monitoring.
-/// </summary>
 namespace Orbit9000.EngineTerminal
 {
-    public class Program
+    public static class Program
     {
-        private static void Main(string[] args)
-        {
-            using var cancellationTokenSource = new CancellationTokenSource();
+        public static async Task Main(string[] args)
+        {            
+            var dataChannel = Channel.CreateUnbounded<ExampleData>();
+            var statusChannel = Channel.CreateUnbounded<string>();
+         
+            var services = new ServiceCollection();
 
-            var dataManager = new DataManager();
-            var uiManager = new UIManager();
-            var pipeManager = new NamedPipeManager(".", "OrbitEngine");
+                services.AddSingleton(dataChannel);
+                services.AddSingleton(statusChannel);
 
-            var applicationController = new ApplicationController(
-                dataManager,
-                uiManager,
-                pipeManager,
-                cancellationTokenSource
-            );
+                services.AddSingleton<IDataManager, DataManager>();
+                services.AddSingleton<IUIManager, UIManager>();
+                services.AddSingleton<IPipeManager>(provider =>
+                {
+                    var dataChannel = provider.GetRequiredService<Channel<ExampleData>>();
+                    var propertyChannel = provider.GetRequiredService<Channel<string>>();
 
-            try
-            {
-                applicationController.Run();
-            }
-            finally
-            {
-                applicationController.Shutdown();
-            }
+                    return new NamedPipeManager(dataChannel, propertyChannel,".", nameof(OrbitEngine));
+                });
+
+                services.AddSingleton<ApplicationController>();
+
+            var provider = services.BuildServiceProvider();
+            var app = provider.GetRequiredService<ApplicationController>();
+
+            await app.RunAsync();
         }
     }
 }
