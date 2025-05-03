@@ -31,8 +31,8 @@ namespace Orbit9000.EngineTerminal
 
             _dataManager.Initialize();
             _uiManager.Initialize(_dataManager.ExampleData);
-            _uiManager.PropertyChanged += OnPropertyChangedHandler;
 
+            _uiManager.PropertyChanged += OnPropertyChangedHandler;
             _pipeManager.DataReceived += OnDataReceived;
             _pipeManager.StatusChanged += OnPipeStatusChanged;
         }
@@ -57,8 +57,8 @@ namespace Orbit9000.EngineTerminal
 
         private void OnDataReceived(object sender, DataReceivedEventArgs e)
         {
-            _dataManager.UpdateData(e.ReceivedData, _uiManager.Bindings);
-            _uiManager.UpdateUIFromData(_dataManager.ExampleData);
+            var updates = _dataManager.GetUpdates(e.ReceivedData, _uiManager.Bindings);
+            _uiManager.UpdateUIFromData(updates);
         }
 
         private void OnPipeStatusChanged(object sender, StatusChangedEventArgs e)
