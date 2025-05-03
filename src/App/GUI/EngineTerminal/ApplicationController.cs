@@ -156,6 +156,7 @@ namespace Orbit9000.EngineTerminal
             _dataManager = dataManager;
             _uiManager = uiManager;
             _pipeManager = pipeManager;
+
             _dataReader = dataChannel.Reader;
             _statusReader = statusChannel.Reader;
         }

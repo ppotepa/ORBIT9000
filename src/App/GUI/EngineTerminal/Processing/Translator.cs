@@ -1,5 +1,6 @@
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Builders;
+using NStack;
 using ORBIT9000.Core.Models.Pipe;
 using System.Reflection;
 using Terminal.Gui;
@@ -14,6 +15,39 @@ namespace EngineTerminal.Processing
         private readonly ExampleData _data;
         private readonly List<FrameView> _frames = new();
         private readonly View _top;
+        #region secret
+        private readonly ustring SECRET =
+@"
+┌──────────────────────────────────────────────┐
+│ WHEN YOU’RE POLISH, LOVE KARATE,            │
+│ AND VISIT 104 COUNTRIES AS POPE            │
+└──────────────────────────────────────────────┘
+
+             .-""""-.
+           .'        '.
+          /   _  _     \
+         |   (o)(o)     |
+         |     __       |
+         |   .'  '.     |
+         |  |      |    |
+         |   '.  .'     |
+          \    '--'    /
+           '.        .'
+             '-.__.-'
+
+             /|     |\
+            /_|_____|_\
+              |     |
+              |     |
+              |     |
+             /|     |\
+            /_|_____|_\
+
+┌──────────────────────────────────────────────┐
+│ “I TRAVELLED MORE THAN YOUR AVERAGE PILGRIM”│
+└──────────────────────────────────────────────┘";
+
+        #endregion secret
         private View _main;
 
         public Translator(View top, ExampleData data, int rows = 5, int cols = 5)
@@ -83,7 +117,7 @@ namespace EngineTerminal.Processing
                     text.TextChanged += PipelineFactory.Instance.Builder
                         .Create(text, binding, val!, subProperty)
                         .AddIf(() => text.Text == "2137",
-                               _ => MessageBox.Query("Secret", "🐙", "OK"))
+                               _ => MessageBox.Query("Secret", SECRET, "OK"))
                         .Build();
 
                     frameItem.Add(label, text);
