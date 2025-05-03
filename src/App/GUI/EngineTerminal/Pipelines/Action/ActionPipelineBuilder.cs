@@ -16,7 +16,7 @@ namespace EngineTerminal.Pipelines.Action
         private PropertyInfo? _propertyInfo;
 
         public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
-        {
+        {                        
             _valueField = valueField ?? throw new ArgumentNullException(nameof(valueField));
             _targetBinding = targetBinding ?? throw new ArgumentNullException(nameof(targetBinding));
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
