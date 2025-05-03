@@ -14,6 +14,7 @@ namespace EngineTerminal.Processors
         private readonly ExampleData _input;
         private readonly PropertyInfo[] _properties;
         private readonly int _rows;
+
         private readonly string _secret = @"
               ______
             /        \
@@ -44,8 +45,8 @@ namespace EngineTerminal.Processors
             _cols = cols;
             _input = input;
 
-            _mainView = CreateFrame("Main View");            
-            _menuFrames = new List<FrameView>();  
+            _mainView = CreateFrame("Main View");
+            _menuFrames = new List<FrameView>();
         }
 
         public Dictionary<string, ValueBinding> Translate()
@@ -77,7 +78,7 @@ namespace EngineTerminal.Processors
             Label label = new Label(0, 0, "Value:");
 
             TextField textField = new TextField(15, 0, 20, value?.ToString() ?? string.Empty);
-            
+
             textField.Id = route;
 
             ValueBinding binding = new ValueBinding(textField, ref value);
@@ -124,9 +125,9 @@ namespace EngineTerminal.Processors
 
             return new MenuBarItem(property.Name, string.Empty, () =>
             {
-                _mainView.RemoveAll(); 
-                _mainView.Add(_views[property.Name]); 
-                Application.Refresh(); 
+                _mainView.RemoveAll();
+                _mainView.Add(_views[property.Name]);
+                Application.Refresh();
             });
         }
 
@@ -154,10 +155,10 @@ namespace EngineTerminal.Processors
             }
         }
 
-        private void TraverseMenuItem(PropertyInfo info, 
-            ref object current, 
-            ref object parent, 
-            int depth, string route, 
+        private void TraverseMenuItem(PropertyInfo info,
+            ref object current,
+            ref object parent,
+            int depth, string route,
             View container, int index = 0)
         {
             string baseKey = route.Split('.')[0];
