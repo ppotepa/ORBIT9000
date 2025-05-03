@@ -280,6 +280,8 @@ namespace ORBIT9000.Engine.Strategies.Running
             await server.WaitForConnectionAsync();
             state.Engine.LogInformation($"GUI Connected");
 
+            var random = new Random();
+
             while (state.Engine.IsRunning)
             {
                 var options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(
@@ -291,21 +293,31 @@ namespace ORBIT9000.Engine.Strategies.Running
                 {
                     Frame1 = new SettingsData
                     {
-                        Setting1 = new Random().Next(1, 100),
-                        Setting2 = "Text2",                        
+                        Setting1 = random.Next(1, 100),
+                        Setting2 = "Text2",
                     },
 
                     Frame2 = new EngineData
                     {
-                        Setting1 = new Random().Next(1, 100),
-                        Setting2 = new Random().Next(1, 100)
+                        Setting1 = random.Next(1, 100),
+                        Setting2 = random.Next(1, 100)
                     }
                 };
 
                 byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 
-                await server.WriteAsync(buffer, 0, buffer.Length);
-                await Task.Delay(TimeSpan.FromMilliseconds(50));
+                
+                if (random.NextDouble() > 0.97) 
+                {
+                    await server.WriteAsync(buffer, 0, buffer.Length);
+                    state.Engine.LogDebug("Message sent to GUI.");
+                }
+                else
+                {
+                    state.Engine.LogDebug("Message skipped for this interval.");
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(random.Next(50, 200))); 
             }
 
             state.Engine.LogInformation("PipeThread has completed.");

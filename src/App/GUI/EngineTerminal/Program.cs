@@ -276,11 +276,11 @@ namespace Orbit9000.EngineTerminal
 
             if (_bindings.TryGetValue(propertyPath, out var binding))
             {
-                var propertyValue = sender.GetType().GetProperty(e.PropertyName)?.GetValue(sender);
+                object? propertyValue = sender.GetType().GetProperty(e.PropertyName)?.GetValue(sender);
 
                 Application.MainLoop.Invoke(() =>
                 {
-                    _bindings[propertyPath].Value = new Random().Next(1, 100).ToString();
+                    _bindings[propertyPath].Value = propertyValue;
 
                     binding.View.SetNeedsDisplay();
                     Application.Refresh();
@@ -311,10 +311,6 @@ namespace Orbit9000.EngineTerminal
 
                 var sourceValue = property.GetValue(source);
                 property.SetValue(target, sourceValue);
-
-                string propertyPath = $"Frame1.Setting1";
-
-                _bindings[propertyPath].Value = new Random().Next(1, 100).ToString();
             }
 
             Application.Refresh();

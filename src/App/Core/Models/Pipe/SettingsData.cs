@@ -15,14 +15,14 @@ namespace ORBIT9000.Core.Models.Pipe
             set => this.RaiseAndSetIfChanged(ref _isValid, value);
         }
 
-        [MaxValue(100)]
+        //[MaxValue(100)]
         public int Setting1
         {
             get => _setting1;
             set => this.RaiseAndSetIfChanged(ref _setting1, value);
         }
 
-        [MaxValue(15)]
+        //[MaxValue(15)]
         public int Setting2
         {
             get => _setting2;
