@@ -27,14 +27,14 @@ namespace EngineTerminal.Processors
             \_______/
        ";
 
-        private readonly Toplevel _top;
+        private readonly View _top;
         private readonly Dictionary<string, FrameView> _views = new();
 
         private View _mainView;
         private MenuBar _menuBar;
         private List<FrameView> _menuFrames;
 
-        public Translator(Toplevel top, ExampleData input, int rows = 5, int cols = 5)
+        public Translator(View top, ExampleData input, int rows = 5, int cols = 5)
         {
             _top = top;
 
@@ -44,7 +44,7 @@ namespace EngineTerminal.Processors
             _cols = cols;
             _input = input;
 
-            _mainView = CreateFrame("Main View");
+            _mainView = CreateFrame("Main View");            
             _menuFrames = new List<FrameView>();  
         }
 
@@ -124,8 +124,9 @@ namespace EngineTerminal.Processors
 
             return new MenuBarItem(property.Name, string.Empty, () =>
             {
-                _mainView = _views[property.Name];
-                Redraw();
+                _mainView.RemoveAll(); 
+                _mainView.Add(_views[property.Name]); 
+                Application.Refresh(); 
             });
         }
 
@@ -134,13 +135,6 @@ namespace EngineTerminal.Processors
             return current is not string
                 && current is not int
                 && current is not bool;
-        }
-
-        private void Redraw()
-        {
-            Application.Top.RemoveAll();
-            Application.Top.Add(_menuBar, _mainView);
-            Application.Refresh();
         }
 
         private void Traverse(ref ExampleData input, int depth = 0)

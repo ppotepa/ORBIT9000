@@ -156,21 +156,30 @@ namespace Orbit9000.EngineTerminal
         {
             Application.Init();
 
-            SetupColorScheme();
+            var topLayer = new FrameView("TOP LAYER")
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
+                CanFocus = true
+            };
 
-            var top = Application.Top;
-            var translator = new Translator(top, _exampleData);
+            SetupColorScheme();
+            
+            var translator = new Translator(topLayer, _exampleData);            
 
             _bindings = translator.Translate();
             _messageStatusItem = new StatusItem(Key.Null, "Starting...", null);
 
-            StatusBar statusBar = new StatusBar(new[]
-            {
+            StatusBar statusBar = new StatusBar(
+            [
                 new StatusItem(Key.F1, "~F1~ Help", () => ShowHelp()),
                 _messageStatusItem
-            });
+            ]);
 
-            top.Add(statusBar);
+            Application.Top.Add(topLayer);
+            Application.Top.Add(statusBar);
         }
 
         private static void SetupColorScheme()
@@ -213,8 +222,11 @@ namespace Orbit9000.EngineTerminal
                 UpdateStatusMessage("Connected to engine!");
 
                 byte[] buffer = new byte[4096];
+
+                UpdateStatusMessage("Awaiting data...");
+
                 while (!cancellationToken.IsCancellationRequested)
-                {
+                {                    
                     try
                     {
                         int bytesRead = await _client.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
