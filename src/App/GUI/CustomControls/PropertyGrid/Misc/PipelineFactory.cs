@@ -2,10 +2,22 @@ using System;
 
 namespace Terminal.Gui.CustomViews.Misc
 {
+    /// <summary>
+    /// Factory for creating action pipelines that process UI input events.
+    /// Implements the singleton pattern for global access.
+    /// </summary>
     public class PipelineFactory
     {
         private static readonly Lazy<PipelineFactory> _instance = new Lazy<PipelineFactory>(() => new PipelineFactory());
+
+        /// <summary>
+        /// Gets the singleton instance of the PipelineFactory.
+        /// </summary>
         public static PipelineFactory Instance => _instance.Value;
+
+        /// <summary>
+        /// Gets a new ActionPipelineBuilder for creating action pipelines.
+        /// </summary>
         public ActionPipelineBuilder Builder => new ActionPipelineBuilder();
     }
 }
