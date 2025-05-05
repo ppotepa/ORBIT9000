@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 0.91-alpha
+    paths:
+      - 'src/App/GUI/CustomControls/PropertyGrid/**'
 
 jobs:
   publish:
@@ -17,14 +19,21 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Set dynamic version
+      id: set_version
+      run: |
+        VERSION="0.1.2-exp-${{ github.run_number }}"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Using package version: $VERSION"
+
     - name: Restore dependencies
       run: dotnet restore ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj
 
     - name: Build
-      run: dotnet build ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-restore
+      run: dotnet build ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-restore /p:Version=$VERSION
 
     - name: Pack
-      run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-build --output ./nupkgs
+      run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-build --output ./nupkgs /p:PackageVersion=$VERSION
 
     - name: Push to NuGet
       run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
