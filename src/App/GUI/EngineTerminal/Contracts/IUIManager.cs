@@ -1,4 +1,5 @@
 ﻿using EngineTerminal.Bindings;
+using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 
 namespace EngineTerminal.Contracts
@@ -11,7 +12,7 @@ namespace EngineTerminal.Contracts
 
         void Run();
 
-        void UpdateUIFromData(IReadOnlyList<Action<Dictionary<string, ValueBinding>>> updates);
+        void UpdateUIFromData(IReadOnlyList<BindingAction> updates);
 
         void UpdateStatusMessage(string message);
     }

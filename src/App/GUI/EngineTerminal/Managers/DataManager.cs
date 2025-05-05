@@ -9,9 +9,9 @@ namespace EngineTerminal.Managers
     {
         public ExampleData ExampleData { get; private set; }
 
-        public IReadOnlyList<Action<Dictionary<string, ValueBinding>>> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings)
+        public IReadOnlyList<BindingAction> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings)
         {
-            List<Action<Dictionary<string, ValueBinding>>> list = new List<Action<Dictionary<string, ValueBinding>>>();
+            List<BindingAction> list = new List<BindingAction>();
 
             if (newData.Frame1 != null && newData.Frame1 != ExampleData.Frame1)
                 list.AddRange(GetUpdateActions(newData.Frame1, ExampleData.Frame1, nameof(newData.Frame1)));
@@ -34,7 +34,7 @@ namespace EngineTerminal.Managers
                 Frame2 = new EngineData { Setting1 = 100, Setting2 = 200, IsValid = false }
             };
 
-        private IEnumerable<Action<Dictionary<string, ValueBinding>>> GetUpdateActions(object source, object target, string parentPropertyName)
+        private IEnumerable<BindingAction> GetUpdateActions(object source, object target, string parentPropertyName)
         {
             if (source == null || target == null)
                 yield break;

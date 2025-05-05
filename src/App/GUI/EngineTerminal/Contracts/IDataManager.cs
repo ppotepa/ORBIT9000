@@ -1,4 +1,5 @@
 ﻿using EngineTerminal.Bindings;
+using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 
 namespace EngineTerminal.Contracts
@@ -7,7 +8,7 @@ namespace EngineTerminal.Contracts
     {
         ExampleData ExampleData { get; }
 
-        IReadOnlyList<Action<Dictionary<string, ValueBinding>>> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings);
+        IReadOnlyList<BindingAction> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings);
 
         void Initialize();
     }

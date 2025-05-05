@@ -42,7 +42,7 @@ namespace EngineTerminal.Managers
             
         }
 
-        public void UpdateUIFromData(IReadOnlyList<Action<Dictionary<string, ValueBinding>>> updates)
+        public void UpdateUIFromData(IReadOnlyList<BindingAction> updates)
         {
             Application.MainLoop.Invoke(() =>
             {

@@ -9,13 +9,21 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
+        #region Fields
+
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
 
+        private RuntimeSettings _configuration;
+
+        #endregion Fields
+
+        #region Constructors
+
         public OrbitEngine(
-            ILoggerFactory loggerFactory,
+                    ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
             RuntimeSettings configuration,
             IPluginProvider pluginProvider
@@ -41,17 +49,22 @@ namespace ORBIT9000.Engine
             IsRunning = true;
             _configuration = configuration;
             _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
-
         }
 
+        #endregion Constructors
+
+        #region Properties
+
         public bool IsInitialized { get; }
-
-        private RuntimeSettings _configuration;
-
         public bool IsRunning { get; private set; }
         public IPluginProvider PluginProvider { get => _pluginProvider; }
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
         internal RuntimeSettings Configuration { get => _configuration; set => _configuration = value; }
+
+        #endregion Properties
+
+        #region Methods
+
         public void Start()
         {
             if (!IsInitialized)
@@ -60,10 +73,12 @@ namespace ORBIT9000.Engine
             _logger.LogInformation("Starting engine thread...");
             _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
 
-            while(IsRunning)
+            while (IsRunning)
             {
                 Thread.Sleep(100);
-            }   
+            }
         }
+
+        #endregion Methods
     }
 }
