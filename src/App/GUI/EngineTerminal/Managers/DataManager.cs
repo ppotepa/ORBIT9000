@@ -67,7 +67,13 @@ namespace EngineTerminal.Managers
 {
     public class DataManager : IDataManager
     {
+        #region Properties
+
         public ExampleData ExampleData { get; private set; }
+
+        #endregion Properties
+
+        #region Methods
 
         public IReadOnlyList<BindingAction> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings)
         {
@@ -94,12 +100,22 @@ namespace EngineTerminal.Managers
                 Frame2 = new EngineData { Setting1 = 100, Setting2 = 200, IsValid = false }
             };
 
+        private static readonly Dictionary<Type, PropertyInfo[]> PropertyCache = new();
+
         private IEnumerable<BindingAction> GetUpdateActions(object source, object target, string parentPropertyName)
         {
             if (source == null || target == null)
                 yield break;
 
-            foreach (var property in source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            var sourceType = source.GetType();
+
+            if (!PropertyCache.TryGetValue(sourceType, out var properties))
+            {
+                properties = sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                PropertyCache[sourceType] = properties;
+            }
+
+            foreach (var property in properties)
             {
                 if (!property.CanRead || !property.CanWrite) continue;
 
@@ -116,6 +132,8 @@ namespace EngineTerminal.Managers
                 }
             }
         }
+
+        #endregion Methods
     }
 <<<<<<< HEAD
 }
