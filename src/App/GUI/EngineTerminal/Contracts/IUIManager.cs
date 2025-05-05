@@ -5,7 +5,7 @@ namespace EngineTerminal.Contracts
 {
     public interface IUIManager
     {
-        Dictionary<string, ValueBinding> Bindings { get; }
+        Dictionary<string, ValueBinding> GridBindings { get; }
 
         void Initialize(object data);
 
