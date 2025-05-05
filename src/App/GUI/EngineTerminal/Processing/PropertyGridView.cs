@@ -1,5 +1,4 @@
-﻿using DynamicData;
-using EngineTerminal.Bindings;
+﻿using EngineTerminal.Bindings;
 using EngineTerminal.Builders;
 using NStack;
 using ORBIT9000.Core.Models.Pipe;
@@ -92,14 +91,22 @@ namespace EngineTerminal.Processing
             TranslateView();
             base.Redraw(bounds);
         }
+        private Dictionary<Type, PropertyInfo[]> _propertyInfoCache = new();
+
         public Dictionary<string, ValueBinding> TranslateView()
         {
-            PropertyInfo[] props = _data.GetType().GetProperties(NOT_INHERITED);
-            MenuBarItem[] items = new MenuBarItem[props.Length];
-
-            for (int i = 0; i < props.Length; i++)
+            Type dataType = _data.GetType();
+            if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[] properties))
             {
-                PropertyInfo info = props[i];
+                properties = dataType.GetProperties(NOT_INHERITED);
+                _propertyInfoCache[dataType] = properties;
+            }
+
+            MenuBarItem[] items = new MenuBarItem[properties.Length];
+
+            for (int i = 0; i < properties.Length; i++)
+            {
+                PropertyInfo info = properties[i];
                 FrameView frame = new FrameView(info.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
 
                 items[i] = new MenuBarItem(info.Name, "", () =>
@@ -116,7 +123,7 @@ namespace EngineTerminal.Processing
             var menuBar = Application.Top.Subviews.OfType<MenuBar>()
               .FirstOrDefault();
 
-            if(menuBar is not null)
+            if (menuBar is not null)
             {
                 menuBar.Data = items;
                 _top.Add(_main);

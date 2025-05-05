@@ -9,26 +9,28 @@ namespace EngineTerminal.Managers
 {
     public class UIManager : IUIManager
     {
-        private StatusItem _statusItem;
+        private StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
+
+        public StatusBar StatusBar { get; private set; }
         public Dictionary<string, ValueBinding> Bindings { get; private set; }
+        public View MainView { get; private set; }
         public PropertyGridView Grid { get; private set; }
+        public MenuBar MenuBar { get; private set; }
 
         public void Initialize(ExampleData initialData)
         {
             Application.Init();
 
-            var top = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            Grid = new PropertyGridView(top, initialData);
-            var menuBar = new MenuBar();
+            MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
+            Grid = new PropertyGridView(MainView, initialData);
+            MenuBar = new MenuBar();
 
-            _statusItem = new StatusItem(Key.Null, "Starting...", null);
-
-            StatusBar statusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem])
+            StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), StatusItem])
             {
-                CanFocus = true 
+                CanFocus = true
             };
 
-            Application.Top.Add(menuBar, top, statusBar);
+            Application.Top.Add(MenuBar, MainView, StatusBar);
         }
 
         public void Run() => Application.Run();
@@ -37,7 +39,7 @@ namespace EngineTerminal.Managers
         {
             Application.MainLoop.Invoke(() =>
             {
-                _statusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
+                StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
                 Application.Refresh();
             });
             
