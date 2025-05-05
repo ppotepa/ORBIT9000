@@ -2,6 +2,7 @@
 using EngineTerminal.Builders;
 using NStack;
 using ORBIT9000.Core.Models.Pipe;
+using System.ComponentModel;
 using System.Reflection;
 using Terminal.Gui;
 
@@ -66,28 +67,28 @@ namespace EngineTerminal.Processing
 
             for (int i = 0; i < props.Length; i++)
             {
-                PropertyInfo pi = props[i];
-                FrameView frame = new FrameView(pi.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
+                PropertyInfo info = props[i];
+                FrameView frame = new FrameView(info.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
 
-                items[i] = new MenuBarItem(pi.Name, "", () =>
+                items[i] = new MenuBarItem(info.Name, "", () =>
                 {
                     _main.RemoveAll();
                     _main.Add(frame);
                     Application.Refresh();
                 });
 
-                BuildFrame(frame, pi);
+                GeneratePropertyGrid(frame, info);                
             }
 
             MenuBar menu = new MenuBar(items) { X = 0 };
+
             _top.Add(menu, _main);
             return _bindings;
         }
 
-        private void BuildFrame(FrameView container, PropertyInfo info)
+        private void GeneratePropertyGrid(FrameView container, PropertyInfo info)
         {
             var val = info.GetValue(_data);
-            var index = 0;
 
             if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
             {
@@ -95,19 +96,20 @@ namespace EngineTerminal.Processing
                 {
                     var subValue = subProperty.GetValue(val);
                     var route = $"{info.Name}.{subProperty.Name}";
-                    var row = index / _cols;
-                    var col = index % _cols;
 
-                    var frameItem = new FrameView(route)
+                    var index = container.Subviews[0].Subviews.Count;
+
+                    var frameItem = new View()
                     {
-                        X = col * 30,
-                        Y = row * 5,
-                        Width = Dim.Percent(20),
-                        Height = Dim.Percent(20)
+                        X = Pos.Function(() => (index / 10) * 30),
+                        Y = Pos.Function(() => index % 10),
+
+                        Width = 30,
+                        Height = 1,
                     };
 
-                    var label = new Label(0, 0, "Value:");
-                    var text = new TextField(15, 0, 20, subValue?.ToString() ?? "");
+                    var label = new Label(0, 0, subProperty.Name, true);
+                    var text = new TextField(15, 0, 30, subValue?.ToString() ?? "");
 
                     text.Id = route;
 
@@ -117,14 +119,11 @@ namespace EngineTerminal.Processing
 
                     text.TextChanged += PipelineFactory.Instance.Builder
                         .Create(text, binding, val!, subProperty)
-                        .AddIf(() => text.Text == "2137",
-                               _ => MessageBox.Query("Secret", SECRET, "OK"))
+                        .AddIf(() => text.Text == "2137", _ => MessageBox.Query("Secret", SECRET, "OK"))
                         .Build();
 
                     frameItem.Add(label, text);
                     container.Add(frameItem);
-
-                    index++;
                 }
             }
         }

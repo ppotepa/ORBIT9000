@@ -3,6 +3,7 @@ using MessagePack;
 using ORBIT9000.Engine.Runtime.State;
 using System.IO.Pipes;
 using ORBIT9000.Core.Models.Pipe;
+using TempTools;
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -43,20 +44,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                             StandardResolver.Instance
                         ));
 
-                        var exampleData = new ExampleData
-                        {
-                            Frame1 = new SettingsData
-                            {
-                                Setting1 = random.Next(1, 100),
-                                Setting2 = random.Next(1, 100).ToString(),
-                            },
-
-                            Frame2 = new EngineData
-                            {
-                                Setting1 = random.Next(1, 100),
-                                Setting2 = random.Next(1, 100)
-                            }
-                        };
+                        var exampleData = RandomDataFiller.FillWithRandomData<ExampleData>();
 
                         byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 
