@@ -12,7 +12,7 @@ namespace EngineTerminal.Contracts
 
         void Run();
 
-        void UpdateUIFromData(IReadOnlyList<BindingAction> updates);
+        void UpdateUIFromData(object sender, IReadOnlyList<BindingAction> updates);
 
         void UpdateStatusMessage(string message);
     }

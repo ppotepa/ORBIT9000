@@ -15,6 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\" />
+  </ItemGroup>
   
 
 </Project>
