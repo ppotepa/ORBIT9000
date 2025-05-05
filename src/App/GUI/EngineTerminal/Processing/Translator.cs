@@ -84,16 +84,17 @@ namespace EngineTerminal.Processing
             return _bindings;
         }
 
-        private void BuildFrame(FrameView container, PropertyInfo pi)
+        private void BuildFrame(FrameView container, PropertyInfo info)
         {
-            var val = pi.GetValue(_data);
+            var val = info.GetValue(_data);
             var index = 0;
-            if (pi.PropertyType.IsClass && pi.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
+
+            if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
             {
-                foreach (var subProperty in pi.PropertyType.GetProperties(NOT_INHERITED))
+                foreach (var subProperty in info.PropertyType.GetProperties(NOT_INHERITED))
                 {
                     var subValue = subProperty.GetValue(val);
-                    var route = $"{pi.Name}.{subProperty.Name}";
+                    var route = $"{info.Name}.{subProperty.Name}";
                     var row = index / _cols;
                     var col = index % _cols;
 
