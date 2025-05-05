@@ -1,8 +1,9 @@
-﻿using EngineTerminal.Bindings;
-using EngineTerminal.Contracts;
+﻿using EngineTerminal.Contracts;
 using ORBIT9000.Core.Models.Pipe;
 using System.Reflection;
 using TempTools;
+using Terminal.Gui.CustomViews.Misc;
+using static EngineTerminal.Managers.UIManager;
 
 namespace EngineTerminal.Managers
 {

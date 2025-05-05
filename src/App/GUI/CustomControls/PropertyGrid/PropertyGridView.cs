@@ -1,11 +1,12 @@
-﻿using EngineTerminal.Bindings;
-using EngineTerminal.Builders;
-using NStack;
-using ORBIT9000.Core.Models.Pipe;
+﻿using NStack;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
+using Terminal.Gui.CustomViews.Misc;
 
-namespace EngineTerminal.Processing
+namespace Terminal.Gui.CustomViews
 {
     public class PropertyGridView : View
     {
@@ -32,10 +33,10 @@ namespace EngineTerminal.Processing
         private const BindingFlags NOT_INHERITED = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
 
         private readonly int _cols, _rows;
-        private readonly object _data;        
+        private readonly object _data;
         private readonly View _top;
 
-     
+
         private readonly ustring SECRET =
 @"
 ┌──────────────────────────────────────────────┐
@@ -68,7 +69,7 @@ namespace EngineTerminal.Processing
 └──────────────────────────────────────────────┘";
         public readonly Dictionary<string, ValueBinding> Bindings = new Dictionary<string, ValueBinding>();
 
-      
+
         private View _main;
 
         public PropertyGridView(View top, object data, int rows = 5, int cols = 5)
@@ -78,9 +79,12 @@ namespace EngineTerminal.Processing
             _rows = rows;
             _cols = cols;
 
-            _main = new FrameView("Main") 
+            _main = new FrameView("Main")
             {
-                X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() 
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill()
             };
 
             this.Bindings = TranslateView();

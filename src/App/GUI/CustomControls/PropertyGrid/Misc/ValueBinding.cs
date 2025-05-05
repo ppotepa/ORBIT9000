@@ -1,12 +1,9 @@
-﻿namespace EngineTerminal.Bindings
+namespace Terminal.Gui.CustomViews.Misc
 {
-    using Terminal.Gui;
-
     public class ValueBinding
     {
         public View View { get; }
         private object _value;
-
         public object Value
         {
             get => _value;
@@ -15,9 +12,15 @@
                 _value = value;
                 switch (View)
                 {
-                    case Label label: label.Text = value?.ToString(); break;
-                    case TextView textView: textView.Text = value?.ToString(); break;
-                    case TextField textView: textView.Text = value?.ToString(); break;
+                    case Label label:
+                        label.Text = value?.ToString();
+                        break;
+                    case TextView textView:
+                        textView.Text = value?.ToString();
+                        break;
+                    case TextField textField:
+                        textField.Text = value?.ToString();
+                        break;
                 }
             }
         }

@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Terminal.Gui.CustomViews</AssemblyName>
+    <RootNamespace>Terminal.Gui.CustomViews</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="1.18.1" />
+  </ItemGroup>
+</Project>

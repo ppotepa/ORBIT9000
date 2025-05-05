@@ -1,5 +1,5 @@
-﻿using EngineTerminal.Bindings;
-using EngineTerminal.Managers;
+﻿using Terminal.Gui.CustomViews.Misc;
+using static EngineTerminal.Managers.UIManager;
 
 namespace EngineTerminal.Contracts
 {

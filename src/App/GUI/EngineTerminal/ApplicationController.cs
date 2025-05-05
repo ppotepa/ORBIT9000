@@ -3,6 +3,7 @@ using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
+using static EngineTerminal.Managers.UIManager;
 
 namespace Orbit9000.EngineTerminal
 {

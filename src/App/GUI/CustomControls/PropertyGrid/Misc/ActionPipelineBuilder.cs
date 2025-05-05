@@ -1,11 +1,11 @@
-﻿using EngineTerminal.Bindings;
 using NStack;
-using ORBIT9000.Core.Attributes.UI;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
-using Terminal.Gui;
 
-namespace EngineTerminal.Builders.Pipeline
+namespace Terminal.Gui.CustomViews.Misc
 {
     public class ActionPipelineBuilder
     {
@@ -100,7 +100,7 @@ namespace EngineTerminal.Builders.Pipeline
                 ValidationResult? res = attr.GetValidationResult(value, context);
                 if (res != ValidationResult.Success)
                 {
-                    HandleFailure(attr, prop, parent, ref value);
+                    //HandleFailure(attr, prop, parent, ref value);
                     return false;
                 }
             }
@@ -108,19 +108,19 @@ namespace EngineTerminal.Builders.Pipeline
             return true;
         }
 
-        private void HandleFailure(ValidationAttribute attr, PropertyInfo prop, object parent, ref object value)
-        {
-            if (attr is MaxValueAttribute max)
-            {
-                value = max.MaxValue;
-                prop.SetValue(parent, value);
-                MessageBox.ErrorQuery("Validation Error", $"Reset to max: {max.MaxValue}", "OK");
-                _valueField!.Text = value.ToString();
-            }
-            else
-            {
-                MessageBox.ErrorQuery("Validation Error", attr.ErrorMessage ?? "Invalid", "OK");
-            }
-        }
+        //private void HandleFailure(ValidationAttribute attr, PropertyInfo prop, object parent, ref object value)
+        //{
+        //    if (attr is MaxValueAttribute max)
+        //    {
+        //        value = max.MaxValue;
+        //        prop.SetValue(parent, value);
+        //        MessageBox.ErrorQuery("Validation Error", $"Reset to max: {max.MaxValue}", "OK");
+        //        _valueField!.Text = value.ToString();
+        //    }
+        //    else
+        //    {
+        //        MessageBox.ErrorQuery("Validation Error", attr.ErrorMessage ?? "Invalid", "OK");
+        //    }
+        //}
     }
 }
