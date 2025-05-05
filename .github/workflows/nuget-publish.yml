@@ -1,0 +1,30 @@
+﻿name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - 0.91-alpha
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore ./src/App/GUI/CustomControls/PropertyGrid/PropertyGrid.csproj
+
+    - name: Build
+      run: dotnet build ./src/App/GUI/CustomControls/PropertyGrid/PropertyGrid.csproj --configuration Release --no-restore
+
+    - name: Pack
+      run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/PropertyGrid.csproj --configuration Release --no-build --output ./nupkgs
+
+    - name: Push to NuGet
+      run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
