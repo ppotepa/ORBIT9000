@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Extensions.IO.Files;
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
@@ -10,9 +10,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
     {
         private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
-        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger, 
-            RawEngineConfiguration config, 
-            IAssemblyLoader loader) 
+        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger,
+            RawEngineConfiguration config,
+            IAssemblyLoader loader)
             : base(logger, loader)
         {
         }
@@ -20,7 +20,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
             source = FindSrcFolder(source)!;
-            
+
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
                 this._logger.LogInformation("Source directory {Name} contains subdirectories. " +
@@ -28,7 +28,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
                 DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));
                 FileInfo[] files = [.. newSource.GetFilesExcept("*.dll", SKIP_FOLDERS)];
-                  
+
                 if (files.Length == 0)
                 {
                     this._logger.LogWarning("No plugins found in {Name}", newSource.FullName);

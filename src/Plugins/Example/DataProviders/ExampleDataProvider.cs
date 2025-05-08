@@ -9,12 +9,12 @@ using ORBIT9000.Core.Attributes.Engine;
 namespace ORBIT9000.Plugins.Example.DataProviders
 {
     [DataProvider]
-    [DefaultProject("Example")]    
+    [DefaultProject("Example")]
     public class ExampleDataProvider : IDataProvider<WeatherResponse>, IAuthenticate
     {
-        #pragma warning disable S1075 // URIs should not be hardcoded
+#pragma warning disable S1075 // URIs should not be hardcoded
         private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";
-        #pragma warning restore S1075 // URIs should not be hardcoded
+#pragma warning restore S1075 // URIs should not be hardcoded
 
         private readonly ILogger<ExampleDataProvider> _logger;
 
@@ -23,7 +23,7 @@ namespace ORBIT9000.Plugins.Example.DataProviders
             ArgumentNullException.ThrowIfNull(logger);
 
             this._logger = logger;
-            this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());    
+            this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());
         }
 
         public bool AllowAnonymous => true;
@@ -39,7 +39,7 @@ namespace ORBIT9000.Plugins.Example.DataProviders
         {
             _logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
 
-            var query = new 
+            var query = new
             {
                 latitude = 52.52,
                 longitude = 13.41,

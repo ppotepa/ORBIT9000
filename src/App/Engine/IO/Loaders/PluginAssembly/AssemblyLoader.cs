@@ -37,7 +37,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             {
                 var contextualMessage = $"Failed to load assembly from {info.FullName}.";
                 _logger.LogError(ex, contextualMessage);
-                throw new InvalidOperationException(contextualMessage, ex); 
+                throw new InvalidOperationException(contextualMessage, ex);
             }
         }
 

@@ -9,7 +9,7 @@ namespace ORBIT9000.Plugins.Example
     {
         private readonly ILogger<ExamplePlugin2> _logger;
         private readonly RandomNumberService _numbers;
- 
+
 
         // we should not be able to get data from the ExampleDataProvider here
         // Accessing data from the ExampleDataProvider here is not allowed

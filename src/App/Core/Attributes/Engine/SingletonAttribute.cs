@@ -3,7 +3,7 @@
 namespace ORBIT9000.Core.Attributes.Engine
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    
+
     public class SingletonAttribute : Attribute
     {
         public SingletonAttribute(Type targetType)

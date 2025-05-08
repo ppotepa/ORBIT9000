@@ -1,6 +1,4 @@
 ﻿using EngineTerminal.Contracts;
-using EngineTerminal.Managers;
-using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
@@ -71,7 +69,7 @@ namespace Orbit9000.EngineTerminal
         {
             _uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
 
-           PipeDataReceived?.Invoke(this, actions);
+            PipeDataReceived?.Invoke(this, actions);
         }
 
         private async Task GetData()
@@ -83,7 +81,7 @@ namespace Orbit9000.EngineTerminal
                 var stopwatch = new Stopwatch();
                 {
                     stopwatch.Start();
-                    
+
                     var updates = _dataManager.GetUpdates(newData, _uiManager.GridBindings ?? new Dictionary<string, Terminal.Gui.CustomViews.Misc.ValueBinding>());
 
                     if (updates.Any())
@@ -95,7 +93,7 @@ namespace Orbit9000.EngineTerminal
 
                     stopwatch.Stop();
 
-                    _uiManager.UpdateStatusMessage(null, $"Last Update took : { stopwatch.ElapsedMilliseconds}ms");
+                    _uiManager.UpdateStatusMessage(null, $"Last Update took : {stopwatch.ElapsedMilliseconds}ms");
                     await Task.Delay(100);
                 }
             }

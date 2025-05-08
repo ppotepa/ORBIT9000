@@ -68,7 +68,7 @@ namespace EngineTerminal.Managers
             Application.MainLoop.Invoke(() =>
             {
                 foreach (var update in updates)
-                {                    
+                {
                     update(Grid.Bindings);
                 }
 

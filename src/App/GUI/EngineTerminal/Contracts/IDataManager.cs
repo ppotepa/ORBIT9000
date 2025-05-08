@@ -3,7 +3,7 @@ using static EngineTerminal.Managers.UIManager;
 
 namespace EngineTerminal.Contracts
 {
-    public interface IDataManager 
+    public interface IDataManager
     {
         object Data { get; }
 

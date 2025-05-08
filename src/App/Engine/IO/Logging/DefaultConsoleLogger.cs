@@ -12,7 +12,7 @@ namespace ORBIT9000.Engine.IO.Logging
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             Console.WriteLine
-            ( 
+            (
                 $"[{DateTime.Now.Date.ToShortDateString()}][{DateTime.UtcNow.TimeOfDay}]ID:{eventId}, {logLevel}, {(dynamic)state!}"
             );
         }

@@ -3,7 +3,7 @@
 namespace ORBIT9000.Core.Abstractions
 {
     public interface IOrbitPlugin
-    {        
+    {
         Task OnLoad();
         Task OnUnload();
 

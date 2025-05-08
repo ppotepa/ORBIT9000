@@ -19,7 +19,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
-        {            
+        {
             Assembly? loadedAssembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(assembly => assembly.FullName == assemblyName.FullName);
 

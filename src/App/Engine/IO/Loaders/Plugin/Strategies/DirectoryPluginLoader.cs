@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
@@ -25,7 +24,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             else
             {
                 foreach (FileInfo file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
-                {                    
+                {
                     yield return LoadSingle(file.FullName);
                 }
             }

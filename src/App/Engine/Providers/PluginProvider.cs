@@ -85,7 +85,7 @@ namespace ORBIT9000.Engine.Providers
         public Task<IOrbitPlugin> Activate(Type plugin)
         {
             //NOTE: fix this temporary solution
-            return Activate(plugin.Name);   
+            return Activate(plugin.Name);
         }
 
         public void Unload(object plugin)
@@ -152,7 +152,7 @@ namespace ORBIT9000.Engine.Providers
             }
 
             _logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
-            
+
             return instance!;
         }
 

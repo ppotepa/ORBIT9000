@@ -6,11 +6,11 @@
 
         static AppEnvironment()
         {
-            #if DEBUG
+#if DEBUG
             IsDebug = true;
-            #else
+#else
             IsDebug = false;
-            #endif
+#endif
         }
 
         public static void SetDebug(bool value)

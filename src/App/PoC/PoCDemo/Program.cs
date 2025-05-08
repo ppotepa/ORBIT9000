@@ -11,7 +11,7 @@ namespace ORBIT9000.PoCDemo
             "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] [{SourceContext}]{Scope} {Message:lj}{NewLine}{Exception}";
 
         private static void Main(string[] args)
-        {            
+        {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: _outputTemplate)
@@ -26,8 +26,8 @@ namespace ORBIT9000.PoCDemo
             OrbitEngine engine = new OrbitEngineBuilder(loggerFactory)
                 .UseConfiguration()
                 .Build();
-            
+
             engine.Start();
-       }
+        }
     }
 }

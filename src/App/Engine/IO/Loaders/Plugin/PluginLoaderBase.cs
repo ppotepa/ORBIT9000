@@ -11,7 +11,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected readonly ILogger _logger;
         protected bool _abortOnError = false;
         private readonly IAssemblyLoader _assemblyLoader;
-     
+
         protected PluginLoaderBase(ILogger logger, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
@@ -22,7 +22,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
         }
-  
+
         public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
 
         public IEnumerable<PluginInfo> LoadPlugins(object source)

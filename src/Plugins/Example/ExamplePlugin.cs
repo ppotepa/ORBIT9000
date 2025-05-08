@@ -17,14 +17,14 @@ namespace ORBIT9000.Plugins.Example
             this._logger = logger;
             this._dataProvider = dataProvider;
         }
-       
+
         public Task OnLoad()
         {
-            #pragma warning disable S1481 
+#pragma warning disable S1481
             IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
-            #pragma warning restore S1481 
+#pragma warning restore S1481
 
-            _logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());  
+            _logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
             return Task.CompletedTask;
         }
 
