@@ -4,7 +4,7 @@ using ORBIT9000.Core.Attributes.Engine;
 
 namespace LinkedIn.JobApplier
 {
-    [SchedulableService("run every 10 seconds")]
+    [SchedulableService("run every 1 second")]
     public class LinkedInJobApplier : IOrbitPlugin
     {
         private ILogger<LinkedInJobApplier> logger;

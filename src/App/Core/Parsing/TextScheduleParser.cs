@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.Parsing
 {
-    public class TextScheduleParser : IParser<Schedule>
+    public class TextScheduleParser : IParser<ISchedule>
     {
         private static readonly Regex _rx = new Regex(
             @"run every\s+(?<i>\d*)\s*(?<iu>second|minute|hour|day)s?" +
@@ -12,7 +12,7 @@ namespace ORBIT9000.Core.Parsing
             @"(?:\s+on\s+(?<days>(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)(?:\s*,\s*(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday))*))?",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public Schedule Parse(string text)
+        public ISchedule Parse(string text)
         {
             var match = _rx.Match(text);
             if (!match.Success) throw new FormatException($"Cannot parse “{text}”");
@@ -23,6 +23,7 @@ namespace ORBIT9000.Core.Parsing
             TimeSpan MakeSpan(int count, string unit) => unit.ToLower() switch
             {
                 "second" => TimeSpan.FromSeconds(count),
+                "seconds" => TimeSpan.FromSeconds(count),
                 "minute" => TimeSpan.FromMinutes(count),
                 "hour" => TimeSpan.FromHours(count),
                 "day" => TimeSpan.FromDays(count),

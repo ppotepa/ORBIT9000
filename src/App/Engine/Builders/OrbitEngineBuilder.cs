@@ -1,13 +1,10 @@
 ﻿using Autofac;
-using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Abstractions.Runtime;
-using ORBIT9000.Core.Abstractions.Scheduling;
-using ORBIT9000.Core.Parsing;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
@@ -15,7 +12,6 @@ using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 using ORBIT9000.Engine.Providers;
 using ORBIT9000.Engine.Runtime.State;
-using ORBIT9000.Engine.Scheduling;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,6 +21,8 @@ namespace ORBIT9000.Engine.Builders
 {
     public class OrbitEngineBuilder
     {
+        #region Fields
+
         private static readonly MethodInfo _createLoggerMethod = typeof(LoggerFactoryExtensions)
                     .GetMethod(nameof(ILoggerFactory.CreateLogger), [typeof(ILoggerFactory)])!;
 
@@ -35,12 +33,20 @@ namespace ORBIT9000.Engine.Builders
         private IConfiguration? _configuration;
         private RawEngineConfiguration? _rawConfiguration;
 
+        #endregion Fields
+
+        #region Constructors
+
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
             _containerBuilder = new ContainerBuilder();
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         public OrbitEngine Build()
         {
@@ -166,5 +172,7 @@ namespace ORBIT9000.Engine.Builders
                 return lambda.Compile();
             });
         }
+
+        #endregion Methods
     }
 }

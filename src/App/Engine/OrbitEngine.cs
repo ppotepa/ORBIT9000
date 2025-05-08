@@ -91,6 +91,8 @@ namespace ORBIT9000.Engine
             _logger.LogInformation("Starting engine thread...");
             _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
 
+            Scheduler.StartAsync();
+
             while (IsRunning)
             {
                 Thread.Sleep(100);
