@@ -235,7 +235,6 @@ namespace Terminal.Gui.CustomViews
 
                     frameItem.Add(label, text);
                     container.Add(frameItem);
-
                     index++;
                 }
             }
