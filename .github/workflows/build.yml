@@ -1,3 +1,4 @@
+
 name: Build
 
 on:
@@ -6,12 +7,10 @@ on:
       - master
       - 0.91-alpha
 
-
 jobs:
   build:
     name: Build and analyze
-    runs-on: windows-latest
-    
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,3 +45,5 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ORBIT9000" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+            
