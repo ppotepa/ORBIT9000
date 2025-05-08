@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Abstractions.Runtime;
+using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Core.Parsing;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
@@ -13,6 +15,7 @@ using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 using ORBIT9000.Engine.Providers;
 using ORBIT9000.Engine.Runtime.State;
+using ORBIT9000.Engine.Scheduling;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -88,7 +91,11 @@ namespace ORBIT9000.Engine.Builders
 
             _containerBuilder.RegisterType<EngineState>()
                .AsSelf()
-               .SingleInstance();
+            .SingleInstance();
+
+            _containerBuilder.RegisterType<SimpleScheduler>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
 
             _containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
                 .As<IServiceProvider>()

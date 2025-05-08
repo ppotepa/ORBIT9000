@@ -63,6 +63,9 @@ namespace ORBIT9000.Engine.Providers
         }
 
         private ILifetimeScope PluginScope => _pluginScope ??= CreateSharedScope();
+
+        public IEnumerable<Type> Plugins => _validPlugins.Select(plugin => plugin.PluginType);
+
         public async Task<IOrbitPlugin> Activate(object plugin)
         {
             if (plugin is string pluginName)
@@ -81,7 +84,8 @@ namespace ORBIT9000.Engine.Providers
 
         public Task<IOrbitPlugin> Activate(Type plugin)
         {
-            throw new NotImplementedException();
+            //NOTE: fix this temporary solution
+            return Activate(plugin.Name);   
         }
 
         public void Unload(object plugin)
