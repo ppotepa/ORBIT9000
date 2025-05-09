@@ -51,7 +51,7 @@ namespace ORBIT9000.Engine.Strategies.Running
 
                         byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 
-                        if (random.NextDouble() > 0.91)
+                        if (random.NextDouble() > 0.91 && server.IsConnected)
                         {
                             await server.WriteAsync(buffer, 0, buffer.Length);
                             _state.Engine.LogInformation("Message sent to GUI. {A}", exampleData);
@@ -63,10 +63,17 @@ namespace ORBIT9000.Engine.Strategies.Running
 
                         await Task.Delay(TimeSpan.FromMilliseconds(random.Next(50, 200)));
                     }
-                    catch (Exception ex)
+                    catch (System.IO.IOException ex)
+                    {
+                        _state.Engine.LogError("An error occurred while writing to the pipe: {Message}, Disposing...", ex.Message);
+                        server.Disconnect();
+                        await server.DisposeAsync();
+                    }
+                    catch (ObjectDisposedException ex)
                     {
                         _state.Engine.LogError("An error occurred during the pipe thread loop: {Message}", ex.Message);
                     }
+
                 }
             }
             catch (Exception ex)

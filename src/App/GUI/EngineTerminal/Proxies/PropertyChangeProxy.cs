@@ -29,7 +29,7 @@ namespace EngineTerminal.Proxies
             if (targetMethod == null || _target == null)
                 throw new InvalidOperationException("Proxy not properly initialized");
 
-            if (args == null || args.Length == 0)
+            if (args == null)
                 throw new ArgumentException("Arguments cannot be null or empty", nameof(args));
 
             string methodName = targetMethod.Name;
