@@ -10,8 +10,7 @@ namespace EngineTerminal.Managers
     public class DataManager : IDataManager
     {
         #region Properties
-
-        public object Data { get; private set; }
+        public object? Data { get; private set; }
         private readonly ChangeTracker<IPipeData> _changeTracker = new();
 
         #endregion Properties

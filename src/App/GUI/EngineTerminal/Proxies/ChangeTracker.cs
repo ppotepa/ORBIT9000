@@ -11,17 +11,28 @@ namespace EngineTerminal.Proxies
     {
         #region Fields
 
-        private TTargetType _originalData;
-        private TTargetType _proxyData;
+        private TTargetType? _originalData;
+        private TTargetType? _proxyData;
 
         private readonly List<PropertyChangeRecord> _changes = new();
-        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+        private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
 
         #endregion Fields
 
         #region Properties
 
-        public TTargetType ProxyData => _proxyData;
+        public TTargetType ProxyData
+        {
+            get
+            {
+                if (_proxyData == null)
+                {
+                    throw new InvalidOperationException("Proxy data not initialized.");
+                }
+
+                return _proxyData;
+            }
+        }
 
         #endregion Properties
 
@@ -109,9 +120,14 @@ namespace EngineTerminal.Proxies
 
         private TTargetType CreateProxy(TTargetType target)
         {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+            }
+
             if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
             {
-                return proxy.SetTarget(target, _changes) as TTargetType;
+                return proxy.SetTarget(target, _changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
             }
             else
             {

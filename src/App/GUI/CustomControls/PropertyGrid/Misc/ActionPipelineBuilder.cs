@@ -116,26 +116,26 @@ namespace Terminal.Gui.CustomViews.Misc
             switch (Type.GetTypeCode(_propertyInfo.PropertyType))
             {
                 case TypeCode.String:
-                    ApplyValue(text, text); break;
+                    ApplyValue(text!); break;
                 case TypeCode.Int32:
-                    if (int.TryParse(text, out var i)) ApplyValue(i, text);
+                    if (int.TryParse(text, out var i)) ApplyValue(i);
                     break;
 
                 case TypeCode.Boolean:
-                    if (bool.TryParse(text, out var b)) ApplyValue(b, text);
+                    if (bool.TryParse(text, out var b)) ApplyValue(b);
                     break;
             }
         }
 
         /// <summary>
+        /// TODO: THERE IS SOMETHING WRONG WITH THIS METHOD
         /// Applies the validated value to the target property and binding.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="value">The value to apply.</param>
-        /// <param name="original">The original string representation of the value.</param>
-        private void ApplyValue<T>(T value, string original)
+        /// <param name="value">The value to apply.</param>        
+        private void ApplyValue<T>(T value)
         {
-            if (_propertyInfo == null || _parent == null || _targetBinding == null) return;
+            if (_propertyInfo == null || _parent == null || _targetBinding == null || value == null) return;
             if (Validate(_propertyInfo, _parent, value))
             {
                 _targetBinding.Value = value!;

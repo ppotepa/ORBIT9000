@@ -5,8 +5,8 @@
     /// </summary>
     public class PropertyChangeRecord
     {
-        public string PropertyPath { get; set; }
-        public object OldValue { get; set; }
-        public object NewValue { get; set; }
+        public required string PropertyPath { get; set; }
+        public required object? OldValue { get; set; }
+        public required object? NewValue { get; set; }
     }
 }

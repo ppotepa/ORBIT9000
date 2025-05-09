@@ -1,5 +1,5 @@
 ﻿using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Core.Parsing;
+using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Runtime.State;
 
 namespace ORBIT9000.Engine.Strategies.Running
@@ -8,33 +8,35 @@ namespace ORBIT9000.Engine.Strategies.Running
     {
         public static void EngineStartupStrategy(object? obj)
         {
-            if (obj is not EngineState state || state.Engine is null)
+            if (obj is not EngineState { Engine: { } engine })
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
 
-            state.Engine.LogInformation("Starting EngineStartupStrategy.");
+            var state = obj as EngineState;
 
-            if (state.Engine.Configuration.EnableTerminal)
+            engine.LogInformation("Starting EngineStartupStrategy.");
+
+            if (engine.Configuration.EnableTerminal)
             {
-                Task.Run(() => new PipeThreadHandler(state).StartAsync());
+                Task.Run(() => new PipeThreadHandler(state!).StartAsync());
             }
 
-            state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
+            engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
 
-            Initialize(state.Engine);
+            Initialize(engine);
 
-            while (state.Engine?.IsRunning == true)
+            while (engine.IsRunning)
             {
-                state.Engine.LogDebug("Engine loop iteration started.");
+                engine.LogDebug("Engine loop iteration started.");
 
-                Execute(state.Engine);
+                Execute(engine);
 
-                state.Engine.LogDebug("Engine loop iteration completed.");
+                engine.LogDebug("Engine loop iteration completed.");
                 Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             }
 
-            state.Engine.LogInformation("EngineStartupStrategy has completed.");
+            engine.LogInformation("EngineStartupStrategy has completed.");
         }
 
         private static void Execute(OrbitEngine engine)

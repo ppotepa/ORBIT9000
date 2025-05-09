@@ -2,12 +2,12 @@
 {
     public class Schedule : ISchedule
     {
-        public DateTime Start { get; }
-        public TimeSpan Interval { get; }
-        public DateTime? End { get; }
+        public DateTime Start { get; set; }
+        public TimeSpan Interval { get; set; }
+        public DateTime? End { get; set; }
 
         /// <summary> If non‐empty, only fire when the current day is in this set. </summary>
-        public IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; }
+        public IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; set; }
     }
 
     public interface ISchedule

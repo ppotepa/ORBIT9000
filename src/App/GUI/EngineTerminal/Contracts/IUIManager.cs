@@ -11,9 +11,9 @@ namespace EngineTerminal.Contracts
 
         void Run();
 
-        void UpdateUIFromData(object sender, IReadOnlyList<BindingAction> updates);
+        void UpdateUIFromData(object? sender, IReadOnlyList<BindingAction> updates);
 
-        void UpdateStatusMessage(string message, string additionalInfo = null);
-        void UpdateCurrentMethod(string message);
+        void UpdateStatusMessage(string? message, string? additionalInfo = null);
+        void UpdateCurrentMethod(string? message);
     }
 }

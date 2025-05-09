@@ -23,6 +23,9 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         public async Task StartAsync()
         {
+            ArgumentNullException.ThrowIfNull(_state);
+            ArgumentNullException.ThrowIfNull(_state.Engine);
+
             _state.Engine.LogInformation("Starting PipeThread.");
 
             try

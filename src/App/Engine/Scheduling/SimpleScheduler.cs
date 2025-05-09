@@ -1,6 +1,8 @@
 ﻿using ORBIT9000.Core.Abstractions.Scheduling;
 using ORBIT9000.Core.Attributes.Engine;
 
+namespace ORBIT9000.Engine.Scheduling;
+
 public class SimpleScheduler : IScheduler
 {
     private readonly List<(ISchedule schedule, Func<Task> job)> _jobs = new();

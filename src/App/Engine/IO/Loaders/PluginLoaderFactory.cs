@@ -17,9 +17,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
         public IPluginLoader Create()
         {
-            if (_rawConfig == null)
-                throw new ArgumentNullException(nameof(_rawConfig));
-
+            ArgumentNullException.ThrowIfNull(_rawConfig);
 
             return _rawConfig.Plugins.ActivePlugins.Length switch
             {

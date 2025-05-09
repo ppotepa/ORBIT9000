@@ -26,7 +26,7 @@ namespace ORBIT9000.Plugins.Example
         public async Task OnLoad()
         {
             IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
-            _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count());
+            _logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
         }
 
         public Task OnUnload()

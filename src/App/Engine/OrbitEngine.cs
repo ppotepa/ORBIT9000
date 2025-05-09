@@ -18,16 +18,7 @@ namespace ORBIT9000.Engine
         private readonly IServiceProvider _serviceProvider;
         private IScheduler _scheduler;
 
-        public IScheduler Scheduler
-        {
-            get => _scheduler;
-            private set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value), "Scheduler instance cannot be null.");
-                _scheduler = value;
-            }
-        }
+        public IScheduler Scheduler => _scheduler;
 
         private RuntimeSettings _configuration;
 
@@ -36,7 +27,7 @@ namespace ORBIT9000.Engine
         #region Constructors
 
         public OrbitEngine(
-                    ILoggerFactory loggerFactory,
+            ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
             RuntimeSettings configuration,
             IPluginProvider pluginProvider,
@@ -60,7 +51,7 @@ namespace ORBIT9000.Engine
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 
-            Scheduler = scheduler;
+            _scheduler = scheduler;
 
             IsInitialized = true;
             IsRunning = true;
