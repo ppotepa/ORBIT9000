@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CustomControls", "CustomCon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terminal.Gui.CustomViews", "src\App\GUI\CustomControls\PropertyGrid\Terminal.Gui.CustomViews.csproj", "{F304A796-1821-BA2F-9817-862F837AC00F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkedIn.JobApplier", "src\Plugins\LinkedIn.JobApplier\LinkedIn.JobApplier.csproj", "{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner.AutomatedSeleniumRunner", "src\Plugins\AutomatedSeleniumRunner\Runner.AutomatedSeleniumRunner.csproj", "{ECFF3625-A1A8-3D0A-E870-BC887D57A443}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +65,10 @@ Global
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,7 +83,7 @@ Global
 		{F26D9D68-6E14-4030-914D-9B1D0DC84107} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
 		{0C471927-5E4B-4073-AFAB-1EEF240A79FA} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
 		{F304A796-1821-BA2F-9817-862F837AC00F} = {0C471927-5E4B-4073-AFAB-1EEF240A79FA}
-		{68A0FDAC-FE38-3451-B50E-D99F5E9B0A51} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{ECFF3625-A1A8-3D0A-E870-BC887D57A443} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7C1FD45-B625-41CA-9EA3-8BC7CDA6B514}

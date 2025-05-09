@@ -4,12 +4,12 @@ using ORBIT9000.Core.Attributes.Engine;
 
 namespace LinkedIn.JobApplier
 {
-    [SchedulableService("run every 1 second")]
-    public class LinkedInJobApplier : IOrbitPlugin
+    [SchedulableService("run every 5 seconds")]
+    public class AutomatedSeleniumRunner : IOrbitPlugin
     {
-        private readonly ILogger<LinkedInJobApplier> logger;
+        private readonly ILogger<AutomatedSeleniumRunner> logger;
 
-        public LinkedInJobApplier(ILogger<LinkedInJobApplier> logger)
+        public AutomatedSeleniumRunner(ILogger<AutomatedSeleniumRunner> logger)
         {
             this.logger = logger;
         }
