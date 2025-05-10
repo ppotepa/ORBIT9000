@@ -60,10 +60,9 @@ jobs:
       - name: Test with merged coverage
         run: |
           dotnet test ORBIT9000.sln --configuration Debug `
-            "/p:CollectCoverage=true" `
-            "/p:CoverletOutputFormat=json,opencover" `
-            "/p:CoverletOutput=coverage/" `
-            "/p:MergeWith=coverage/coverage.json"
+            --collect:"XPlat Code Coverage" `
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover `
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.OutputDirectory=./coverage
 
       - name: Show coverage file
         run: |
