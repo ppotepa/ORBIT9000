@@ -1,6 +1,6 @@
 ﻿using ORBIT9000.Core.Abstractions.Providers.Data;
 
-namespace ORBIT9000.Plugins.Example.Response
+namespace ORBIT9000.Plugins.ScheduleExample4.Response
 {
     public class HourlyData
     {

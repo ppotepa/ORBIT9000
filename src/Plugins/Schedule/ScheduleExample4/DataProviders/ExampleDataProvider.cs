@@ -7,7 +7,7 @@ using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.Example.Response;
 
-namespace ORBIT9000.Plugins.Example.DataProviders
+namespace ORBIT9000.Plugins.ScheduleExample4.DataProviders
 {
     [DataProvider]
     [DefaultProject("Example")]

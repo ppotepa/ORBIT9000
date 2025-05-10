@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.Example.DataProviders;
+using ORBIT9000.Plugins.ScheduleExample4.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {

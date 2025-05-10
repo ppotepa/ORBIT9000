@@ -1,5 +1,5 @@
 ﻿#nullable disable
-namespace ORBIT9000.Plugins.Example.Query
+namespace ORBIT9000.Plugins.ScheduleExample3.Query
 {
     internal class WeatherQuery
     {
