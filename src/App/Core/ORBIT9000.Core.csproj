@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Abstractions\Plugin\**" />
     <Compile Remove="UI\**" />
+    <EmbeddedResource Remove="Abstractions\Plugin\**" />
     <EmbeddedResource Remove="UI\**" />
+    <None Remove="Abstractions\Plugin\**" />
     <None Remove="UI\**" />
   </ItemGroup>
 
@@ -22,10 +25,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
     <PackageReference Include="ReactiveUI" Version="20.2.45" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Abstractions\Plugin\" />
   </ItemGroup>
 
   <ItemGroup>
