@@ -9,8 +9,6 @@
 
         /// <summary> If non‐empty, only fire when the current day is in this set. </summary>
         public IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; set; }
-
-        //public Func<CancellationToken, Task> Action { get; } = action;
     }
 
     public interface IScheduleJob
@@ -20,6 +18,5 @@
         DateTime? End { get; }
         DateTime NextRun { get; set; }
         IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; }
-        //Func<CancellationToken, Task> Action { get; }
     }
 }

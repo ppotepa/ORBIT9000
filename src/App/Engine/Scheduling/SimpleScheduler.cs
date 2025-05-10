@@ -89,7 +89,7 @@ namespace ORBIT9000.Engine.Scheduling
 
         private async Task HandleDueJobsAsync(List<ScheduleJobWithAction> dueJobs, CancellationToken token)
         {
-            List<Task> jobTasks = dueJobs.Select(dueJob => this.RunJobAsync(dueJob, token)).ToList();
+            List<Task> jobTasks = dueJobs.ConvertAll(dueJob => this.RunJobAsync(dueJob, token));
 
             _ = Task.Run(async () =>
             {
@@ -112,10 +112,8 @@ namespace ORBIT9000.Engine.Scheduling
         {
             lock (this._lock)
             {
-                foreach (ScheduleJobWithAction dueJob in dueJobs)
-                {
-                    dueJob.Job.NextRun = this._calculator.GetNextOccurrence(dueJob.Job, dueJob.Job.NextRun);
-                }
+                dueJobs.ForEach(dueJob =>
+                    dueJob.Job.NextRun = this._calculator.GetNextOccurrence(dueJob.Job, dueJob.Job.NextRun));
             }
         }
 
@@ -182,7 +180,7 @@ namespace ORBIT9000.Engine.Scheduling
             ObjectDisposedException.ThrowIf(this.disposed, nameof(SimpleScheduler));
         }
 
-        private class ScheduleJobWithAction(IScheduleJob job, Action? action)
+        private sealed class ScheduleJobWithAction(IScheduleJob job, Action? action)
         {
             public IScheduleJob Job { get; } = job;
             public Action? Action { get; } = action;
