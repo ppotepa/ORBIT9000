@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self‑hosted, windows]
+    runs-on: [self-hosted, windows]
     defaults:
       run:
         shell: powershell
