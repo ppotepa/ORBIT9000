@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, windows]
+    runs-on: [self‑hosted, windows]
     defaults:
       run:
         shell: powershell
@@ -55,10 +55,10 @@ jobs:
       - name: Test with merged coverage
         run: |
           dotnet test ORBIT9000.sln --configuration Debug `
-            /p:CollectCoverage=true `
-            /p:CoverletOutputFormat="json,opencover" `
-            /p:CoverletOutput="./coverage/" `
-            /p:MergeWith="./coverage/coverage.json"
+            "/p:CollectCoverage=true" `
+            "/p:CoverletOutputFormat=json,opencover" `
+            "/p:CoverletOutput=coverage/" `
+            "/p:MergeWith=coverage/coverage.json"
 
       - name: Show coverage file
         run: |
