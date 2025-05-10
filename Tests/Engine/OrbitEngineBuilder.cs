@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using NUnit.Framework.Internal;
 using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Core.Abstractions.Scheduling;
-using ORBIT9000.Engine.Builders;
 using ORBIT9000.Engine.Configuration.Raw;
 using System.Reflection;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -13,7 +12,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 namespace ORBIT9000.Engine.Tests
 {
     [TestFixture]
-    public class OrbitEngineBuilderTests
+    public class OrbitEngineBuilder
     {
         #region Fields
 
@@ -27,13 +26,13 @@ namespace ORBIT9000.Engine.Tests
         public void Build_RegistersAllExpectedDependencies()
         {
             CreateTestConfigFile();
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             builder.UseConfiguration("test_appsettings.json");
 
-            OrbitEngine engine = builder.Build();
+            Engine.OrbitEngine engine = builder.Build();
 
             Assert.That(engine, Is.Not.Null);
-            Assert.That(engine, Is.InstanceOf<OrbitEngine>());
+            Assert.That(engine, Is.InstanceOf<Engine.OrbitEngine>());
 
             File.Delete("test_appsettings.json");
         }
@@ -42,14 +41,14 @@ namespace ORBIT9000.Engine.Tests
         public void Build_RegistersLoggerFactory()
         {
             CreateTestConfigFile();
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             builder.UseConfiguration("test_appsettings.json");
 
-            OrbitEngine engine = builder.Build();
+            Engine.OrbitEngine engine = builder.Build();
 
             Assert.That(engine, Is.Not.Null);
 
-            FieldInfo? field = typeof(OrbitEngine).GetField("_logger", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo? field = typeof(Engine.OrbitEngine).GetField("_logger", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.That(field, Is.Not.Null, "Field '_logger' not found.");
             object? logger = field?.GetValue(engine);
             Assert.That(logger, Is.InstanceOf<ILogger>());
@@ -61,10 +60,10 @@ namespace ORBIT9000.Engine.Tests
         public void Build_RegistersPluginProviderAndScheduler()
         {
             CreateTestConfigFile();
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             builder.UseConfiguration("test_appsettings.json");
 
-            OrbitEngine engine = builder.Build();
+            Engine.OrbitEngine engine = builder.Build();
 
             Assert.Multiple(() =>
             {
@@ -82,10 +81,10 @@ namespace ORBIT9000.Engine.Tests
         public void Build_RegistersSingletonDependencies()
         {
             CreateTestConfigFile();
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             builder.UseConfiguration("test_appsettings.json");
 
-            OrbitEngine engine = builder.Build();
+            Engine.OrbitEngine engine = builder.Build();
 
             Assert.That(engine, Is.Not.Null);
 
@@ -107,24 +106,24 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void Build_WithoutConfiguration_ThrowsArgumentNullException()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             Assert.Throws<ArgumentNullException>(() => builder.Build());
         }
 
         [Test]
         public void Configure_WithNullConfiguration_ThrowsArgumentNullException()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             Assert.Throws<ArgumentNullException>(() => builder.Configure(null!));
         }
 
         [Test]
         public void Configure_WithValidConfiguration_ReturnsBuilder()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             IConfiguration mockConfiguration = new Mock<IConfiguration>().Object;
 
-            OrbitEngineBuilder result = builder.Configure(mockConfiguration);
+            Builders.OrbitEngineBuilder result = builder.Configure(mockConfiguration);
 
             Assert.That(result, Is.EqualTo(builder));
         }
@@ -132,17 +131,17 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void Constructor_WithNullLoggerFactory_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new OrbitEngineBuilder(null!));
+            Assert.Throws<ArgumentNullException>(() => new Builders.OrbitEngineBuilder(null!));
         }
 
         [Test]
         public void CreateLoggerFactory_GeneratesFactory_ForDifferentTypes()
         {
             CreateTestConfigFile();
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             builder.UseConfiguration("test_appsettings.json");
 
-            OrbitEngine engine = builder.Build();
+            Engine.OrbitEngine engine = builder.Build();
 
             Assert.That(engine, Is.Not.Null);
 
@@ -184,7 +183,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void UseConfiguration_WhenConfigurationAlreadySet_ThrowsInvalidOperationException()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             IConfiguration mockConfiguration = new Mock<IConfiguration>().Object;
             builder.Configure(mockConfiguration);
 
@@ -195,7 +194,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void UseConfiguration_WithNonExistentFile_ThrowsFileNotFoundException()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             const string nonExistentFile = "nonexistent_settings.json";
 
             Assert.Throws<FileNotFoundException>(() =>
@@ -205,7 +204,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void UseConfiguration_WithRawConfiguration_CreatesConfiguration()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             RawEngineConfiguration rawConfig = new()
             {
                 EnableTerminal = true,
@@ -218,7 +217,7 @@ namespace ORBIT9000.Engine.Tests
                 }
             };
 
-            OrbitEngineBuilder result = builder.UseConfiguration(rawConfig);
+            Builders.OrbitEngineBuilder result = builder.UseConfiguration(rawConfig);
 
             Assert.That(result, Is.EqualTo(builder));
         }
@@ -226,7 +225,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public void UseConfiguration_WithRawConfiguration_ThrowsWhenConfigurationAlreadySet()
         {
-            OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
+            Builders.OrbitEngineBuilder builder = new(this._mockLoggerFactory.Object);
             IConfiguration mockConfiguration = new Mock<IConfiguration>().Object;
             builder.Configure(mockConfiguration);
 
