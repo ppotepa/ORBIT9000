@@ -89,7 +89,7 @@ public class WeatherQuery : IOrbitPlugin
 - **Plugins** – Example and test plugins
 
 [![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)
-[![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)
+[![Publish NuGet Package](https://github.com/ppotepa/ORBIT9000/actions/workflows/nuget-publish.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/nuget-publish.yml)
 
 ---
 
