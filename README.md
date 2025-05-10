@@ -88,6 +88,9 @@ public class WeatherQuery : IOrbitPlugin
 - **PoCDemo** – Example consumer app
 - **Plugins** – Example and test plugins
 
+[![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)
+[![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)
+
 ---
 
 ## 📜 License & Status
