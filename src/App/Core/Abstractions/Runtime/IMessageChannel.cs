@@ -5,6 +5,7 @@ namespace ORBIT9000.Core.Abstractions.Runtime
     public interface IMessageChannel<T>
     {
         ValueTask PublishAsync(T message);
+
         IAsyncEnumerable<T> ReadAllAsync(CancellationToken cancellationToken = default);
     }
 
@@ -14,18 +15,17 @@ namespace ORBIT9000.Core.Abstractions.Runtime
 
         public GlobalMessageChannel()
         {
-            _channel = Channel.CreateUnbounded<T>();
+            this._channel = Channel.CreateUnbounded<T>();
         }
 
         public async ValueTask PublishAsync(T message)
         {
-            await _channel.Writer.WriteAsync(message);
+            await this._channel.Writer.WriteAsync(message);
         }
 
         public IAsyncEnumerable<T> ReadAllAsync(CancellationToken cancellationToken = default)
         {
-            return _channel.Reader.ReadAllAsync(cancellationToken);
+            return this._channel.Reader.ReadAllAsync(cancellationToken);
         }
     }
-
 }

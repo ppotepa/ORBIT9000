@@ -7,30 +7,25 @@ using ORBIT9000.Plugins.Example.DataProviders;
 namespace ORBIT9000.Plugins.Example
 {
     [Singleton(typeof(ExamplePlugin))]
-    public class ExamplePlugin : IOrbitPlugin
+    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
     {
-        private readonly ExampleDataProvider _dataProvider;
-        private readonly ILogger<ExamplePlugin> _logger;
-
-        public ExamplePlugin(IServiceProvider provider, ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider)
-        {
-            this._logger = logger;
-            this._dataProvider = dataProvider;
-        }
+        private readonly ExampleDataProvider _dataProvider = dataProvider;
+        private readonly ILogger<ExamplePlugin> _logger = logger;
 
         public Task OnLoad()
         {
-#pragma warning disable S1481
-            IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
-#pragma warning restore S1481
+            foreach (Response.WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
+            {
+                this._logger.LogInformation("Weather data: {@Response}", response);
+            }
 
-            _logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
+            this._logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
             return Task.CompletedTask;
         }
 
         public Task OnUnload()
         {
-            _logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
+            this._logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
         }
 

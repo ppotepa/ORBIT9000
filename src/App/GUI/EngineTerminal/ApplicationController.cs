@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using static EngineTerminal.Managers.UIManager;
 
-namespace Orbit9000.EngineTerminal
+namespace EngineTerminal
 {
     public class ApplicationController : Disposable
     {
@@ -25,23 +25,20 @@ namespace Orbit9000.EngineTerminal
             Channel<ExampleData> dataChannel,
             Channel<string> statusChannel)
         {
-            if (dataManager == null) throw new ArgumentNullException(nameof(dataManager));
-            if (uiManager == null) throw new ArgumentNullException(nameof(uiManager));
-            if (pipeManager == null) throw new ArgumentNullException(nameof(pipeManager));
-            if (dataChannel == null) throw new ArgumentNullException(nameof(dataChannel));
-            if (statusChannel == null) throw new ArgumentNullException(nameof(statusChannel));
+            ArgumentNullException.ThrowIfNull(dataChannel);
+            ArgumentNullException.ThrowIfNull(statusChannel);
 
-            _dataManager = dataManager;
-            _uiManager = uiManager;
-            _pipeManager = pipeManager;
+            this._dataManager = dataManager ?? throw new ArgumentNullException(nameof(dataManager));
+            this._uiManager = uiManager ?? throw new ArgumentNullException(nameof(uiManager));
+            this._pipeManager = pipeManager ?? throw new ArgumentNullException(nameof(pipeManager));
 
-            _dataReader = dataChannel.Reader;
-            _statusReader = statusChannel.Reader;
+            this._dataReader = dataChannel.Reader;
+            this._statusReader = statusChannel.Reader;
 
-            this.PipeDataReceived += _uiManager.UpdateUIFromData;
+            PipeDataReceived += this._uiManager.UpdateUIFromData;
         }
 
-        #endregion Constructors
+        #endregion Fields
 
         #region Events
 
@@ -53,59 +50,63 @@ namespace Orbit9000.EngineTerminal
 
         public async Task RunAsync()
         {
-            _dataManager.Initialize();
-            _uiManager.Initialize(_dataManager.Data);
+            this._dataManager.Initialize();
+            this._uiManager.Initialize(this._dataManager.Data!);
 
-            var pipeTask = _pipeManager.StartProcessingAsync(_tokenSource.Token);
+            Task pipeTask = this._pipeManager.StartProcessingAsync(this._tokenSource.Token);
 
-            var dataTask = Task.Run(GetData, _tokenSource.Token);
-            var statusTask = Task.Run(GetStatus, _tokenSource.Token);
+            Task dataTask = Task.Run(this.GetData, this._tokenSource.Token);
+            Task statusTask = Task.Run(this.GetStatus, this._tokenSource.Token);
 
-            _uiManager.Run();
+            this._uiManager.Run();
 
-            _uiManager.UpdateStatusMessage("Initializing UI");
+            this._uiManager.UpdateStatusMessage("Initializing UI");
             await Task.WhenAll(pipeTask, dataTask, statusTask);
-            await _tokenSource.CancelAsync();
+            await this._tokenSource.CancelAsync();
         }
 
         protected virtual void OnDataReceived(IReadOnlyList<BindingAction> actions)
         {
-            _uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
+            this._uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
 
             PipeDataReceived?.Invoke(this, actions);
         }
 
         private async Task GetData()
         {
-            await foreach (var newData in _dataReader.ReadAllAsync(_tokenSource.Token))
+            await foreach (ExampleData newData in this._dataReader.ReadAllAsync(this._tokenSource.Token))
             {
-                _uiManager.UpdateCurrentMethod("Obtaining data");
-
-                var stopwatch = new Stopwatch();
-                {
-                    stopwatch.Start();
-
-                    var updates = _dataManager.GetUpdates(newData, _uiManager.GridBindings ?? new Dictionary<string, Terminal.Gui.CustomViews.Misc.ValueBinding>());
-
-                    if (updates.Any())
-                    {
-                        _uiManager.UpdateCurrentMethod($"Processing updates {updates.Count}.");
-                        _uiManager.UpdateUIFromData(this, updates);
-                        OnDataReceived(updates);
-                    }
-
-                    stopwatch.Stop();
-
-                    _uiManager.UpdateStatusMessage(null, $"Last Update took : {stopwatch.ElapsedMilliseconds}ms");
-                    await Task.Delay(100);
-                }
+                this._uiManager.UpdateCurrentMethod("Obtaining data");
+                await this.Process(newData);
             }
         }
+
+        private async Task Process(ExampleData newData)
+        {
+            Stopwatch stopwatch = new();
+
+            stopwatch.Start();
+
+            IReadOnlyList<BindingAction> updates = this._dataManager.GetUpdates(newData, this._uiManager.GridBindings ?? []);
+
+            if (updates.Any())
+            {
+                this._uiManager.UpdateCurrentMethod($"Processing updates {updates.Count}.");
+                this._uiManager.UpdateUIFromData(this, updates);
+                this.OnDataReceived(updates);
+            }
+
+            stopwatch.Stop();
+
+            this._uiManager.UpdateStatusMessage(null, $"Last Update took : {stopwatch.ElapsedMilliseconds}ms");
+            await Task.Delay(100);
+        }
+
         private async Task GetStatus()
         {
-            await foreach (var status in _statusReader.ReadAllAsync(_tokenSource.Token))
+            await foreach (string status in this._statusReader.ReadAllAsync(this._tokenSource.Token))
             {
-                _uiManager.UpdateStatusMessage(status);
+                this._uiManager.UpdateStatusMessage(status);
             }
         }
 
@@ -113,12 +114,13 @@ namespace Orbit9000.EngineTerminal
         {
             if (disposing)
             {
-                _tokenSource.Cancel();
-                _tokenSource.Dispose();
+                this._tokenSource.Cancel();
+                this._tokenSource.Dispose();
             }
 
             base.Dispose(disposing);
         }
+
         #endregion Methods
     }
 }

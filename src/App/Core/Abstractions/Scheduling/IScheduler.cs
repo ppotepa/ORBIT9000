@@ -6,7 +6,7 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
     {
         #region Methods
 
-        void Schedule(IScheduleJob schedule);
+        void Schedule(IScheduleJob job);
         Task StartAsync(CancellationToken cancellationToken = default);
 
         #endregion Methods

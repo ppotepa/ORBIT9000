@@ -19,14 +19,14 @@ namespace EngineTerminal.Proxies
 
         public PropertyChangeProxy<TTargetType> SetTarget(TTargetType target, List<PropertyChangeRecord> changes)
         {
-            _target = target;
-            _changes = changes;
+            this._target = target;
+            this._changes = changes;
             return this;
         }
 
         protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
         {
-            if (targetMethod == null || _target == null)
+            if (targetMethod == null || this._target == null)
                 throw new InvalidOperationException("Proxy not properly initialized");
 
             if (args == null)
@@ -38,18 +38,18 @@ namespace EngineTerminal.Proxies
             {
                 if (targetMethod.IsSpecialName && methodName.StartsWith("set_"))
                 {
-                    string propertyName = methodName.Substring(4);
-                    var propertyInfo = typeof(TTargetType).GetProperty(propertyName);
+                    string propertyName = methodName[4..];
+                    PropertyInfo? propertyInfo = typeof(TTargetType).GetProperty(propertyName);
 
                     if (propertyInfo != null)
                     {
-                        object? oldValue = propertyInfo.GetValue(_target);
-                        object? result = targetMethod.Invoke(_target, args);
+                        object? oldValue = propertyInfo.GetValue(this._target);
+                        object? result = targetMethod.Invoke(this._target, args);
                         object? newValue = args[0];
 
                         if (!Equals(oldValue, newValue))
                         {
-                            _changes?.Add(new PropertyChangeRecord
+                            this._changes?.Add(new PropertyChangeRecord
                             {
                                 PropertyPath = propertyName,
                                 OldValue = oldValue,
@@ -61,7 +61,7 @@ namespace EngineTerminal.Proxies
                     }
                 }
 
-                return targetMethod.Invoke(_target, args);
+                return targetMethod.Invoke(this._target, args);
             }
             catch (TargetInvocationException ex)
             {

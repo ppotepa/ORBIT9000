@@ -1,22 +1,12 @@
-﻿
-namespace ORBIT9000.Engine
+﻿namespace ORBIT9000.Engine
 {
-    public class PluginActivationInfo
+    public class PluginActivationInfo(bool registered)
     {
-        #region Constructors
-
-        public PluginActivationInfo(bool registered)
-        {
-            this.Registered = registered;
-        }
-
-        #endregion Constructors
-
         #region Properties
 
         public bool AllowMultiple { get; internal set; } = false;
-        public List<Task> Instances { get; set; } = new List<Task>();
-        public bool Registered { get; set; }
+        public List<Task> Instances { get; set; } = [];
+        public bool Registered { get; set; } = registered;
 
         #endregion Properties
     }

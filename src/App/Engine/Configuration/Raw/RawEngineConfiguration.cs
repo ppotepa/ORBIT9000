@@ -3,7 +3,7 @@
     public class PluginsConfiguration
     {
         public required bool AbortOnError { get; set; }
-        public required string[] ActivePlugins { get; set; } = Array.Empty<string>();
+        public required string[] ActivePlugins { get; set; } = [];
         public required bool LoadAsBinary { get; set; }
     }
 

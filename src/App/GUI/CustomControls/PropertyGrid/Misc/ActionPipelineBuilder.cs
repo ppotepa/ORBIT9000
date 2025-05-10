@@ -15,7 +15,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <summary>
         /// Stores the sequence of actions to be executed in the pipeline.
         /// </summary>
-        private readonly List<Action<ustring>> _pipeline = new();
+        private readonly List<Action<ustring>> _pipeline = [];
 
         /// <summary>
         /// The input field from which the value is retrieved.
@@ -47,12 +47,12 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
         {
-            _valueField = valueField;
-            _targetBinding = targetBinding;
-            _parent = parent;
-            _propertyInfo = propertyInfo;
-            _pipeline.Clear();
-            _pipeline.Add(_ => ProcessInputValue());
+            this._valueField = valueField;
+            this._targetBinding = targetBinding;
+            this._parent = parent;
+            this._propertyInfo = propertyInfo;
+            this._pipeline.Clear();
+            this._pipeline.Add(_ => this.ProcessInputValue());
             return this;
         }
 
@@ -64,10 +64,10 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
-            _pipeline.Add(_ =>
+            this._pipeline.Add(_ =>
             {
                 if (condition())
-                    action(_targetBinding!);
+                    action(this._targetBinding!);
             });
             return this;
         }
@@ -79,7 +79,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
-            _pipeline.Insert(0, action);
+            this._pipeline.Insert(0, action);
             return this;
         }
 
@@ -90,7 +90,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
-            _pipeline.Add(action);
+            this._pipeline.Add(action);
             return this;
         }
 
@@ -100,7 +100,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>An action that executes all steps in the pipeline.</returns>
         public Action<ustring> Build() => input =>
         {
-            foreach (var step in _pipeline)
+            foreach (Action<ustring> step in this._pipeline)
                 step(input);
         };
 
@@ -109,20 +109,20 @@ namespace Terminal.Gui.CustomViews.Misc
         /// </summary>
         private void ProcessInputValue()
         {
-            if (_valueField == null || _targetBinding == null || _parent == null || _propertyInfo == null)
+            if (this._valueField == null || this._targetBinding == null || this._parent == null || this._propertyInfo == null)
                 return;
 
-            var text = _valueField.Text.ToString();
-            switch (Type.GetTypeCode(_propertyInfo.PropertyType))
+            string? text = this._valueField.Text.ToString();
+            switch (Type.GetTypeCode(this._propertyInfo.PropertyType))
             {
                 case TypeCode.String:
-                    ApplyValue(text!); break;
+                    this.ApplyValue(text!); break;
                 case TypeCode.Int32:
-                    if (int.TryParse(text, out var i)) ApplyValue(i);
+                    if (int.TryParse(text, out int i)) this.ApplyValue(i);
                     break;
 
                 case TypeCode.Boolean:
-                    if (bool.TryParse(text, out var b)) ApplyValue(b);
+                    if (bool.TryParse(text, out bool b)) this.ApplyValue(b);
                     break;
             }
         }
@@ -131,15 +131,14 @@ namespace Terminal.Gui.CustomViews.Misc
         /// TODO: THERE IS SOMETHING WRONG WITH THIS METHOD
         /// Applies the validated value to the target property and binding.
         /// </summary>
-        /// <typeparam name="T">The type of the value.</typeparam>
-        /// <param name="value">The value to apply.</param>        
-        private void ApplyValue<T>(T value)
+        /// <param name="value">The value to apply.</param>
+        private void ApplyValue(object value)
         {
-            if (_propertyInfo == null || _parent == null || _targetBinding == null || value == null) return;
-            if (Validate(_propertyInfo, _parent, value))
+            if (this._propertyInfo == null || this._parent == null || this._targetBinding == null || value == null) return;
+            if (Validate(this._propertyInfo, this._parent, value))
             {
-                _targetBinding.Value = value!;
-                _propertyInfo.SetValue(_parent, value);
+                this._targetBinding.Value = value!;
+                this._propertyInfo.SetValue(this._parent, value);
             }
         }
 
@@ -150,18 +149,18 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="parent">The parent object containing the property.</param>
         /// <param name="value">The value to validate.</param>
         /// <returns>True if the value is valid; otherwise, false.</returns>
-        private bool Validate(PropertyInfo prop, object parent, object value)
+        private static bool Validate(PropertyInfo prop, object parent, object value)
         {
-            var attributes = prop.GetCustomAttributes<ValidationAttribute>();
+            IEnumerable<ValidationAttribute> attributes = prop.GetCustomAttributes<ValidationAttribute>();
 
             if (!attributes.Any())
             {
                 return true;
             }
 
-            var context = new ValidationContext(parent) { MemberName = prop.Name };
+            ValidationContext context = new(parent) { MemberName = prop.Name };
 
-            foreach (var attr in attributes)
+            foreach (ValidationAttribute attr in attributes)
             {
                 ValidationResult? res = attr.GetValidationResult(value, context);
                 if (res != ValidationResult.Success)

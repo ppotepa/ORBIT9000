@@ -1,10 +1,9 @@
-﻿using ORBIT9000.Core.Abstractions.Parsing;
-using ORBIT9000.Core.Attributes.Engine;
+﻿using ORBIT9000.Core.Attributes.Engine;
 using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.TempTools
 {
-    public class TextScheduleParser : IParser<IScheduleJob>
+    public class TextScheduleParser : ITextScheduleParser
     {
         private const string IntervalPattern = @"run every\s+(?<i>\d*)\s*(?<iu>second|minute|hour|day)s?";
         private const string DurationPattern = @"(?:\s+for\s+(?<d>\d+)\s*(?<du>second|minute|hour|day)s?)?";
@@ -22,17 +21,17 @@ namespace ORBIT9000.Core.TempTools
         private const string UnitHour = "hour";
         private const string UnitDay = "day";
 
-        private static readonly Regex _rx = new Regex(FullPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _rx = new(FullPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, matchTimeout: TimeSpan.FromSeconds(1));
 
         public IScheduleJob Parse(string input)
         {
-            var match = _rx.Match(input);
+            Match match = _rx.Match(input);
             if (!match.Success) throw new FormatException($"Cannot parse “{input}”");
 
-            var intervalCount = string.IsNullOrEmpty(match.Groups[GroupIntervalCount].Value) ? 1 : int.Parse(match.Groups[GroupIntervalCount].Value);
-            var intervalUnit = match.Groups[GroupIntervalUnit].Value;
+            int intervalCount = string.IsNullOrEmpty(match.Groups[GroupIntervalCount].Value) ? 1 : int.Parse(match.Groups[GroupIntervalCount].Value);
+            string intervalUnit = match.Groups[GroupIntervalUnit].Value;
 
-            TimeSpan MakeSpan(int count, string unit) => unit.ToLower() switch
+            static TimeSpan MakeSpan(int count, string unit) => unit.ToLower() switch
             {
                 UnitSecond => TimeSpan.FromSeconds(count),
                 UnitMinute => TimeSpan.FromMinutes(count),
@@ -41,26 +40,25 @@ namespace ORBIT9000.Core.TempTools
                 _ => throw new ArgumentException($"Unknown unit “{unit}”")
             };
 
-            var interval = MakeSpan(intervalCount, intervalUnit);
+            TimeSpan interval = MakeSpan(intervalCount, intervalUnit);
 
             DateTime? end = null;
             if (match.Groups[GroupDurationCount].Success)
             {
-                var durationCount = int.Parse(match.Groups[GroupDurationCount].Value);
-                var durationUnit = match.Groups[GroupDurationUnit].Value;
+                int durationCount = int.Parse(match.Groups[GroupDurationCount].Value);
+                string durationUnit = match.Groups[GroupDurationUnit].Value;
                 end = DateTime.UtcNow + MakeSpan(durationCount, durationUnit);
             }
 
             IReadOnlyCollection<DayOfWeek>? days = null;
             if (match.Groups[GroupDays].Success)
             {
-                days = match.Groups[GroupDays].Value
+                days = [.. match.Groups[GroupDays].Value
                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                           .Select(dayString => Enum.Parse<DayOfWeek>(dayString.Trim(), ignoreCase: true))
-                           .ToArray();
+                           .Select(dayString => Enum.Parse<DayOfWeek>(dayString.Trim(), ignoreCase: true))];
             }
 
-            return new Schedule(async (x) => { Console.Title = DateTime.Now.ToString(); await Task.CompletedTask; })
+            return new Schedule(async (token) => { Console.Title = DateTime.Now.ToString(); await Task.Delay(0, token); })
             {
                 Start = DateTime.UtcNow,
                 Interval = interval,

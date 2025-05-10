@@ -1,21 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Extensions.IO.Files;
+using ORBIT9000.Core.Extensions.IO;
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
-    internal class DebugDirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
+    internal class DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger,
+        IAssemblyLoader loader) : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
-        private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
-
-        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger,
-            RawEngineConfiguration config,
-            IAssemblyLoader loader)
-            : base(logger, loader)
-        {
-        }
+        private static readonly string[] SKIP_FOLDERS = ["obj", "ref", "Release"];
 
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
@@ -24,9 +17,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
                 this._logger.LogInformation("Source directory {Name} contains subdirectories. " +
-                    $"Only the top-level directory will be used.", source.FullName);
+                    "Only the top-level directory will be used.", source.FullName);
 
-                DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));
+                DirectoryInfo newSource = new(Path.Combine(source.FullName, "Plugins"));
                 FileInfo[] files = [.. newSource.GetFilesExcept("*.dll", SKIP_FOLDERS)];
 
                 if (files.Length == 0)
@@ -37,15 +30,15 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
                 {
                     foreach (FileInfo file in files)
                     {
-                        yield return LoadSingle(file.FullName);
+                        yield return this.LoadSingle(file.FullName);
                     }
                 }
             }
         }
 
-        private DirectoryInfo? FindSrcFolder(DirectoryInfo currentDirectory)
+        private static DirectoryInfo? FindSrcFolder(DirectoryInfo currentDirectory)
         {
-            if (currentDirectory == null || !currentDirectory.Exists)
+            if (currentDirectory?.Exists != true)
             {
                 return null;
             }

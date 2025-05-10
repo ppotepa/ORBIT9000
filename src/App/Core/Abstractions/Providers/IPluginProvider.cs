@@ -1,6 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions;
-
-namespace ORBIT9000.Abstractions
+﻿namespace ORBIT9000.Core.Abstractions.Providers
 {
     public interface IPluginProvider
     {

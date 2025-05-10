@@ -3,19 +3,15 @@ using System.Runtime.Loader;
 
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
 {
-    internal class PluginLoadContext : AssemblyLoadContext
+    internal class PluginLoadContext(string pluginPath) : AssemblyLoadContext(isCollectible: true)
     {
-        private readonly AssemblyDependencyResolver _resolver;
-
-        public PluginLoadContext(string pluginPath) : base(isCollectible: true)
-        {
-            _resolver = new AssemblyDependencyResolver(pluginPath);
-        }
+        private readonly AssemblyDependencyResolver _resolver = new(pluginPath);
 
         public Assembly LoadFromAssemblyBytes(byte[] assemblyBytes)
         {
-            using var stream = new MemoryStream(assemblyBytes);
-            return LoadFromStream(stream);
+            MemoryStream memoryStream = new(assemblyBytes);
+            using MemoryStream stream = memoryStream;
+            return this.LoadFromStream(stream);
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -28,11 +24,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
                 return loadedAssembly;
             }
 
-            string? assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
+            string? assemblyPath = this._resolver.ResolveAssemblyToPath(assemblyName);
 
             if (assemblyPath != null)
             {
-                return LoadFromAssemblyPath(assemblyPath);
+                return this.LoadFromAssemblyPath(assemblyPath);
             }
 
             return null!;
@@ -40,11 +36,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
 
         protected override nint LoadUnmanagedDll(string unmanagedDllName)
         {
-            string? libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+            string? libraryPath = this._resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
 
             if (libraryPath != null)
             {
-                return LoadUnmanagedDllFromPath(libraryPath);
+                return this.LoadUnmanagedDllFromPath(libraryPath);
             }
             return nint.Zero;
         }

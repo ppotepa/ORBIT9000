@@ -2,21 +2,16 @@
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
 
-namespace LinkedIn.JobApplier
+namespace Runner.AutomatedSeleniumRunner
 {
     [SchedulableService("run every 5 seconds")]
-    public class AutomatedSeleniumRunner : IOrbitPlugin
+    public class AutomatedSeleniumRunner(ILogger<AutomatedSeleniumRunner> logger) : IOrbitPlugin
     {
-        private readonly ILogger<AutomatedSeleniumRunner> logger;
-
-        public AutomatedSeleniumRunner(ILogger<AutomatedSeleniumRunner> logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger<AutomatedSeleniumRunner> logger = logger;
 
         public Task OnLoad()
         {
-            logger.LogInformation("LinkedIn Job Applier plugin loaded.");
+            this.logger.LogInformation("LinkedIn Job Applier plugin loaded.");
             return Task.CompletedTask;
         }
 

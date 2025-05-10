@@ -19,7 +19,7 @@ namespace ORBIT9000.Engine.Configuration
         public Assembly Assembly { get; internal set; }
 
         [Key(2)]
-        public bool ContainsPlugins => PluginType is not null;
+        public bool ContainsPlugins => this.PluginType is not null;
 
         [IgnoreMember]
         public FileInfo FileInfo { get; internal set; }
@@ -29,8 +29,8 @@ namespace ORBIT9000.Engine.Configuration
         {
             get
             {
-                _isSingleton ??= PluginType?.IsDefined(typeof(SingletonAttribute), true) ?? false;
-                return _isSingleton.Value;
+                this._isSingleton ??= this.PluginType?.IsDefined(typeof(SingletonAttribute), true) ?? false;
+                return this._isSingleton.Value;
             }
         }
 

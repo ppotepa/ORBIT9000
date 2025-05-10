@@ -11,22 +11,22 @@ namespace ORBIT9000.Engine.Configuration
     public class RuntimeSettings
     {
         private readonly RawEngineConfiguration _config;
-        private readonly IPluginLoader _loader;
+
+        public RuntimeSettings() { }
 
         public RuntimeSettings(ILogger<RuntimeSettings> logger, RawEngineConfiguration config, IPluginLoader loader)
         {
             this._config = config;
-            this._loader = loader;
 
             ArgumentNullException.ThrowIfNull(config);
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
             {
-                var loaded = _loader.LoadPlugins(PluginSource).ToArray();
-                Plugins = loaded.ToArray();
-                SharePluginScopes = config.SharePluginScopes;
-                EnableTerminal = config.EnableTerminal;
+                PluginInfo[] loaded = [.. loader.LoadPlugins(this.PluginSource)];
+                this.Plugins = [.. loaded];
+                this.SharePluginScopes = config.SharePluginScopes;
+                this.EnableTerminal = config.EnableTerminal;
             }
             catch (Exception ex)
             {
@@ -48,7 +48,7 @@ namespace ORBIT9000.Engine.Configuration
             get
             {
                 //TODO: Fix Active Plugins Source
-                if (_config.Plugins.ActivePlugins.Any()) return _config.Plugins.ActivePlugins;
+                if (this._config.Plugins.ActivePlugins.Length != 0) return this._config.Plugins.ActivePlugins;
                 else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
         }

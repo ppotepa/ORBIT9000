@@ -17,28 +17,28 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(assemblyLoader);
 
-            _logger = logger;
-            _assemblyLoader = assemblyLoader;
+            this._logger = logger;
+            this._assemblyLoader = assemblyLoader;
 
-            _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
+            this._logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
         }
 
         public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
 
         public IEnumerable<PluginInfo> LoadPlugins(object source)
         {
-            return LoadPlugins((TSource)source);
+            return this.LoadPlugins((TSource)source);
         }
 
         protected PluginInfo LoadSingle(string path)
         {
-            FileInfo fileInfo = new FileInfo(path);
+            FileInfo fileInfo = new(path);
 
-            using (_logger.BeginScope($"{fileInfo.Name}"))
+            using (this._logger.BeginScope($"{fileInfo.Name}"))
             {
-                _logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
+                this._logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
-                PluginInfo result = TryLoadSingleFile(fileInfo);
+                PluginInfo result = this.TryLoadSingleFile(fileInfo);
 
                 return result;
             }
@@ -46,7 +46,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
-            var assemblyLoadResult = _assemblyLoader.Load(info);
+            System.Reflection.Assembly? assemblyLoadResult = this._assemblyLoader.Load(info);
 
             if (assemblyLoadResult is null)
             {
@@ -57,7 +57,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
                 };
             }
 
-            var pluginType = assemblyLoadResult.GetTypes()
+            Type? pluginType = assemblyLoadResult.GetTypes()
                 .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)));
 
             return new PluginInfo

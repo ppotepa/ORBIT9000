@@ -14,8 +14,8 @@ namespace EngineTerminal.Proxies
         private TTargetType? _originalData;
         private TTargetType? _proxyData;
 
-        private readonly List<PropertyChangeRecord> _changes = new();
-        private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+        private readonly List<PropertyChangeRecord> _changes = [];
+        private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
 
         #endregion Fields
 
@@ -25,12 +25,12 @@ namespace EngineTerminal.Proxies
         {
             get
             {
-                if (_proxyData == null)
+                if (this._proxyData == null)
                 {
                     throw new InvalidOperationException("Proxy data not initialized.");
                 }
 
-                return _proxyData;
+                return this._proxyData;
             }
         }
 
@@ -40,40 +40,40 @@ namespace EngineTerminal.Proxies
 
         public void Initialize(TTargetType data)
         {
-            _originalData = data;
-            _proxyData = CreateProxy(data);
+            this._originalData = data;
+            this._proxyData = this.CreateProxy(data);
         }
 
         public void UpdateData<TSource>(TSource newData) where TSource : class
         {
-            if (newData == null || _originalData == null)
+            if (newData == null || this._originalData == null)
                 return;
 
-            _changes.Clear();
+            this._changes.Clear();
 
-            if (_originalData is IPipeData originalPipeData && newData is IPipeData newPipeData)
+            if (this._originalData is IPipeData originalPipeData && newData is IPipeData newPipeData)
             {
                 if (newPipeData.Frame1 != null && originalPipeData.Frame1 != null)
                 {
-                    UpdateProperties(
+                    this.UpdateProperties(
                         newPipeData.Frame1,
                         originalPipeData.Frame1,
                         "Frame1",
-                        _changes);
+                        this._changes);
                 }
 
                 if (newPipeData.Frame2 != null && originalPipeData.Frame2 != null)
                 {
-                    UpdateProperties(
+                    this.UpdateProperties(
                         newPipeData.Frame2,
                         originalPipeData.Frame2,
                         "Frame2",
-                        _changes);
+                        this._changes);
                 }
             }
         }
 
-        public IReadOnlyList<PropertyChangeRecord> GetChanges() => _changes;
+        public IReadOnlyList<PropertyChangeRecord> GetChanges() => this._changes;
 
         private void UpdateProperties<TProperty>(
             TProperty source,
@@ -84,15 +84,15 @@ namespace EngineTerminal.Proxies
             if (source == null || target == null)
                 return;
 
-            var properties = GetCachedProperties(source.GetType());
+            PropertyInfo[] properties = this.GetCachedProperties(source.GetType());
 
-            foreach (var property in properties)
+            foreach (PropertyInfo property in properties)
             {
                 if (!property.CanRead || !property.CanWrite)
                     continue;
 
-                var sourceValue = property.GetValue(source);
-                var targetValue = property.GetValue(target);
+                object? sourceValue = property.GetValue(source);
+                object? targetValue = property.GetValue(target);
 
                 string propertyPath = string.IsNullOrEmpty(parentPath)
                     ? property.Name
@@ -113,7 +113,7 @@ namespace EngineTerminal.Proxies
                 if (IsComplexType(property.PropertyType) &&
                     sourceValue != null && targetValue != null)
                 {
-                    UpdateProperties(sourceValue, targetValue, propertyPath, changes);
+                    this.UpdateProperties(sourceValue, targetValue, propertyPath, changes);
                 }
             }
         }
@@ -127,7 +127,7 @@ namespace EngineTerminal.Proxies
 
             if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
             {
-                return proxy.SetTarget(target, _changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
+                return proxy.SetTarget(target, this._changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
             }
             else
             {
@@ -135,7 +135,7 @@ namespace EngineTerminal.Proxies
             }
         }
 
-        private bool IsComplexType(Type type)
+        private static bool IsComplexType(Type type)
         {
             return !type.IsPrimitive &&
                    type != typeof(string) &&
@@ -145,10 +145,10 @@ namespace EngineTerminal.Proxies
 
         private PropertyInfo[] GetCachedProperties(Type type)
         {
-            if (!_propertyCache.TryGetValue(type, out var properties))
+            if (!this._propertyCache.TryGetValue(type, out PropertyInfo[]? properties))
             {
                 properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                _propertyCache[type] = properties;
+                this._propertyCache[type] = properties;
             }
             return properties;
         }

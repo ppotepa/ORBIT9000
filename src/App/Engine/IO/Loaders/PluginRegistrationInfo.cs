@@ -1,17 +1,12 @@
 ﻿#nullable disable
 namespace ORBIT9000.Engine.IO.Loaders
 {
-    public class PluginRegistrationInfo
+    public class PluginRegistrationInfo(bool registered)
     {
-        public PluginRegistrationInfo(bool registered)
-        {
-            this.Registered = registered;
-        }
-
         public bool AllowMultiple { get; internal set; } = false;
         public bool IsLoaded { get; internal set; }
-        public bool Registered { get; set; }
-        public List<Task> Tasks { get; set; } = new List<Task>();
+        public bool Registered { get; set; } = registered;
+        public List<Task> Tasks { get; set; } = [];
         public Type Type { get; internal set; }
     }
 }

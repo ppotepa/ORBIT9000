@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace TempTools;
+namespace ORBIT9000.Core.TempTools;
 
 public static class RandomDataFiller
 {
@@ -44,7 +44,7 @@ public static class RandomDataFiller
 
         if (type == typeof(string))
         {
-            value = "Str_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            value = "Str_" + Guid.NewGuid().ToString("N")[..8];
             return true;
         }
 

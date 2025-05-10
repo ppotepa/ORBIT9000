@@ -17,13 +17,13 @@ namespace Terminal.Gui.CustomViews.Misc
         /// Gets or sets the value bound to the view.
         /// When set, automatically updates the view content based on the value type.
         /// </summary>
-        public object Value
+        public object? Value
         {
-            get => _value;
+            get => this._value;
             set
             {
-                _value = value;
-                switch (View)
+                this._value = value!;
+                switch (this.View)
                 {
                     case Label label:
                         label.Text = value?.ToString();
@@ -45,8 +45,8 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="value">Reference to the value being bound</param>
         public ValueBinding(View view, ref object value)
         {
-            View = view;
-            _value = value;
+            this.View = view;
+            this._value = value;
         }
     }
 }

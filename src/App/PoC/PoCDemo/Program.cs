@@ -12,6 +12,8 @@ namespace ORBIT9000.PoCDemo
 
         private static void Main(string[] args)
         {
+            ArgumentNullException.ThrowIfNull(args);
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: _outputTemplate)

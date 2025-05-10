@@ -1,10 +1,11 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Core.Abstractions.Scheduling;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Runtime.State;
+using ORBIT9000.Engine.Runtime.Strategies.Running;
 
 namespace ORBIT9000.Engine
 {
@@ -14,13 +15,8 @@ namespace ORBIT9000.Engine
 
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
-        private readonly IPluginProvider _pluginProvider;
-        private readonly IServiceProvider _serviceProvider;
-        private IScheduler _scheduler;
 
-        public IScheduler Scheduler => _scheduler;
-
-        private RuntimeSettings _configuration;
+        public IScheduler Scheduler { get; }
 
         #endregion Fields
 
@@ -40,24 +36,26 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(pluginProvider);
             ArgumentNullException.ThrowIfNull(scheduler);
 
-            _logger = loggerFactory.CreateLogger<OrbitEngine>()
+            this._logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
-            _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
-            _mainThread.IsBackground = true;
+            this._mainThread = new Thread(Default.EngineStartupStrategy)
+            {
+                IsBackground = true,
 
-            _mainThread.Name = "MainEngineThread";
+                Name = "MainEngineThread"
+            };
 
-            _pluginProvider = pluginProvider;
-            _serviceProvider = serviceProvider;
+            this.PluginProvider = pluginProvider;
+            this.ServiceProvider = serviceProvider;
 
-            _scheduler = scheduler;
+            this.Scheduler = scheduler;
 
-            IsInitialized = true;
-            IsRunning = true;
+            this.IsInitialized = true;
+            this.IsRunning = true;
 
-            _configuration = configuration;
-            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
+            this.Configuration = configuration;
+            this._logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
         }
 
         #endregion Constructors
@@ -65,26 +63,27 @@ namespace ORBIT9000.Engine
         #region Properties
 
         public bool IsInitialized { get; }
-        public bool IsRunning { get; private set; }
-        public IPluginProvider PluginProvider { get => _pluginProvider; }
-        public IServiceProvider ServiceProvider { get => _serviceProvider; }
-        internal RuntimeSettings Configuration { get => _configuration; set => _configuration = value; }
-
-        #endregion Properties
-
-        #region Methods
+        public bool IsRunning { get; internal set; }
+        public IPluginProvider PluginProvider { get; }
+        public IServiceProvider ServiceProvider { get; }
+        internal RuntimeSettings Configuration { get; set; }
 
         public void Start()
         {
-            if (!IsInitialized)
+            if (!this.IsInitialized)
+            {
                 throw new InvalidOperationException("Engine has not been initialized.");
+            }
 
-            _logger.LogInformation("Starting engine thread...");
-            _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
+            ILifetimeScope root = this.ServiceProvider.GetAutofacRoot();
+            EngineState state = root.Resolve<EngineState>();
 
-            Scheduler.StartAsync();
+            this._logger.LogInformation("Starting engine thread...");
+            this._mainThread.Start(state);
 
-            while (IsRunning)
+            this.Scheduler.StartAsync();
+
+            while (this.IsRunning)
             {
                 Thread.Sleep(100);
             }

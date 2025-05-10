@@ -4,12 +4,9 @@ using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
-    internal class DirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
+    internal class DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, IAssemblyLoader loader)
+        : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
-        public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, IAssemblyLoader loader) : base(logger, loader)
-        {
-        }
-
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
             if (!source.Exists)
@@ -25,10 +22,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             {
                 foreach (FileInfo file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
                 {
-                    yield return LoadSingle(file.FullName);
+                    yield return this.LoadSingle(file.FullName);
                 }
             }
         }
     }
-
 }

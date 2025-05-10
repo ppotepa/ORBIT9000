@@ -1,5 +1,4 @@
-﻿
-namespace ORBIT9000.Core.Models.Pipe
+﻿namespace ORBIT9000.Core.Models.Pipe
 {
     namespace ORBIT9000.Core.Models.Pipe
     {
@@ -7,7 +6,6 @@ namespace ORBIT9000.Core.Models.Pipe
         {
             public ExampleData()
             {
-
             }
 
             public ExampleData(SettingsData frame1, EngineData frame2)

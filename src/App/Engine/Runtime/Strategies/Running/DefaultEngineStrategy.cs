@@ -1,8 +1,10 @@
-﻿using ORBIT9000.Core.Attributes.Engine;
+﻿using Microsoft.Extensions.DependencyInjection;
+using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Core.TempTools;
+using ORBIT9000.Engine.Runtime.Pipe;
 using ORBIT9000.Engine.Runtime.State;
 
-namespace ORBIT9000.Engine.Strategies.Running
+namespace ORBIT9000.Engine.Runtime.Strategies.Running
 {
     internal static class Default
     {
@@ -13,7 +15,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                 throw new InvalidOperationException("Engine state is null.");
             }
 
-            var state = obj as EngineState;
+            EngineState? state = obj as EngineState;
 
             engine.LogInformation("Starting EngineStartupStrategy.");
 
@@ -43,7 +45,7 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             try
             {
-                foreach (var plugin in engine.PluginProvider.Plugins)
+                foreach (Type plugin in engine.PluginProvider.Plugins)
                 {
                     engine.PluginProvider.Activate(plugin);
                 }
@@ -56,19 +58,20 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static void Initialize(OrbitEngine engine)
         {
-            var parser = new TextScheduleParser();
+            ITextScheduleParser parser = engine.ServiceProvider.GetService<ITextScheduleParser>()
+                ?? throw new InvalidOperationException("Job parser is not available.");
 
             try
             {
                 engine.LogInformation("Initializing plugins with scheduled jobs.");
 
-                foreach (var pluginType in engine.PluginProvider.Plugins)
+                foreach (Type pluginType in engine.PluginProvider.Plugins)
                 {
-                    var scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableService), inherit: true).FirstOrDefault();
+                    object? scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableServiceAttribute), inherit: true).FirstOrDefault();
 
-                    if (scheduleJobAttribute is SchedulableService jobAttribute)
+                    if (scheduleJobAttribute is SchedulableServiceAttribute jobAttribute)
                     {
-                        var job = parser.Parse(jobAttribute.ScheduleExpression);
+                        IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
                         engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
                         engine.Scheduler.Schedule(job);
                     }

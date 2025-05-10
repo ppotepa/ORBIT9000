@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IO\Loaders\PluginAssembly\Result\**" />
+    <EmbeddedResource Remove="IO\Loaders\PluginAssembly\Result\**" />
+    <None Remove="IO\Loaders\PluginAssembly\Result\**" />
+  </ItemGroup>
   
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
@@ -25,10 +31,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 
   <ItemGroup>

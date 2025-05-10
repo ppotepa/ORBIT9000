@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Extensions.IO.Files
+﻿namespace ORBIT9000.Core.Extensions.IO
 {
     public static class DirectoryInfoExtensions
     {
@@ -13,12 +13,12 @@
         public static IEnumerable<FileInfo> GetFilesExcept(this DirectoryInfo directory, string searchPattern, string[] skipFolders)
         {
             // Stack to manage directories for processing
-            Stack<DirectoryInfo> directoriesToProcess = new Stack<DirectoryInfo>();
+            Stack<DirectoryInfo> directoriesToProcess = [];
             directoriesToProcess.Push(directory);
 
             while (directoriesToProcess.Count > 0)
             {
-                var currentDirectory = directoriesToProcess.Pop();
+                DirectoryInfo currentDirectory = directoriesToProcess.Pop();
 
                 // Skip the directory if its name matches any in the skipFolders array
                 if (skipFolders.Contains(currentDirectory.Name, StringComparer.OrdinalIgnoreCase))
@@ -39,7 +39,7 @@
                 }
 
                 // Yield each file found in the current directory
-                foreach (var file in filesInCurrentDirectory)
+                foreach (FileInfo file in filesInCurrentDirectory)
                 {
                     yield return file;
                 }
@@ -57,7 +57,7 @@
                 }
 
                 // Add subdirectories to the stack for processing
-                foreach (var subdirectory in subdirectories)
+                foreach (DirectoryInfo subdirectory in subdirectories)
                 {
                     directoriesToProcess.Push(subdirectory);
                 }

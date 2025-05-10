@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terminal.Gui.CustomViews", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner.AutomatedSeleniumRunner", "src\Plugins\AutomatedSeleniumRunner\Runner.AutomatedSeleniumRunner.csproj", "{ECFF3625-A1A8-3D0A-E870-BC887D57A443}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Engine.Tests", "Tests\Engine\ORBIT9000.Engine.Tests.csproj", "{0BFE354F-3D2F-1989-BFBD-FA73304DC168}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECFF3625-A1A8-3D0A-E870-BC887D57A443}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BFE354F-3D2F-1989-BFBD-FA73304DC168}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BFE354F-3D2F-1989-BFBD-FA73304DC168}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BFE354F-3D2F-1989-BFBD-FA73304DC168}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BFE354F-3D2F-1989-BFBD-FA73304DC168}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

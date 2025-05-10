@@ -20,4 +20,8 @@
     <PackageReference Include="ReactiveUI" Version="20.2.45" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\Plugin\" />
+  </ItemGroup>
+
 </Project>

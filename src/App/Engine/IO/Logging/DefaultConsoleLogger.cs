@@ -6,7 +6,6 @@ namespace ORBIT9000.Engine.IO.Logging
     {
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
-
         public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)

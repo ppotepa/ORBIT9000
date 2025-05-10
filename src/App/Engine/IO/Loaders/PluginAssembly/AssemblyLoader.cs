@@ -4,23 +4,18 @@ using System.Reflection;
 
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 {
-    internal sealed class AssemblyLoader : IAssemblyLoader
+    internal sealed class AssemblyLoader(ILogger<AssemblyLoader> logger) : IAssemblyLoader
     {
         private static readonly Dictionary<string, PluginLoadContext> _loadContexts
-            = new Dictionary<string, PluginLoadContext>();
+            = [];
 
-        private readonly ILogger<AssemblyLoader> _logger;
-
-        public AssemblyLoader(ILogger<AssemblyLoader> logger)
-        {
-            this._logger = logger;
-        }
+        private readonly ILogger<AssemblyLoader> _logger = logger;
 
         public Assembly Load(FileInfo info, bool loadAsBinary = false)
         {
             try
             {
-                PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
+                PluginLoadContext loadContext = new(info.FullName);
                 _loadContexts[info.FullName] = loadContext;
 
                 if (loadAsBinary)
@@ -35,23 +30,23 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             }
             catch (Exception ex)
             {
-                var contextualMessage = $"Failed to load assembly from {info.FullName}.";
-                _logger.LogError(ex, contextualMessage);
+                string contextualMessage = $"Failed to load assembly from {info.FullName}.";
+                this._logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
                 throw new InvalidOperationException(contextualMessage, ex);
             }
         }
 
         public void UnloadAssembly(string assemblyPath)
         {
-            if (_loadContexts.TryGetValue(assemblyPath, out var loadContext))
+            if (_loadContexts.TryGetValue(assemblyPath, out PluginLoadContext? loadContext))
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
+                this._logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 
         public void UnloadAssembly(FileInfo info)
-            => UnloadAssembly(info.FullName);
+            => this.UnloadAssembly(info.FullName);
     }
 }

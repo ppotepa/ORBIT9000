@@ -3,11 +3,12 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Core.Abstractions.Runtime;
-using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.IO.Loaders;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
@@ -41,9 +42,9 @@ namespace ORBIT9000.Engine.Builders
 
         public OrbitEngineBuilder(ILoggerFactory loggerFactory)
         {
-            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
-            _logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
-            _containerBuilder = new ContainerBuilder();
+            this._loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+            this._logger = this._loggerFactory.CreateLogger<OrbitEngineBuilder>();
+            this._containerBuilder = new ContainerBuilder();
         }
 
         #endregion Constructors
@@ -52,40 +53,40 @@ namespace ORBIT9000.Engine.Builders
 
         public OrbitEngine Build()
         {
-            _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
+            this._containerBuilder.RegisterInstance(this._loggerFactory).As<ILoggerFactory>();
 
-            _ = _containerBuilder.RegisterGeneric((context, genericArguments, parameters) =>
+            _ = this._containerBuilder.RegisterGeneric((context, genericArguments, _) =>
             {
                 Type categoryType = genericArguments[0];
-                _logger!.LogDebug("Creating Logger for {Type}", categoryType.Name);
+                this._logger!.LogDebug("Creating Logger for {Type}", categoryType.Name);
 
                 ILoggerFactory loggerFactory = context.Resolve<ILoggerFactory>();
 
-                var factory = CreateLoggerFactory(categoryType);
+                Func<ILoggerFactory, object> factory = CreateLoggerFactory(categoryType);
                 return factory(loggerFactory);
             })
             .As(typeof(ILogger<>)).InstancePerDependency();
 
-            _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>().SingleInstance();
-            _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf().SingleInstance();
+            this._containerBuilder.RegisterInstance(this._configuration!).As<IConfiguration>().SingleInstance();
+            this._containerBuilder.RegisterInstance(this._rawConfiguration!).AsSelf().SingleInstance();
 
-            _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf().InstancePerDependency();
-            _containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf().InstancePerDependency();
-            _containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf().InstancePerDependency();
-            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().InstancePerDependency();
+            this._containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf().InstancePerDependency();
+            this._containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf().InstancePerDependency();
+            this._containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf().InstancePerDependency();
+            this._containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().InstancePerDependency();
 
-            _containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
+            this._containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
 
-            _containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
-            _containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
-            _containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
+            this._containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
+            this._containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
+            this._containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
                                .As(typeof(GlobalMessageChannel<>))
                                .As(typeof(IMessageChannel<>))
                                .SingleInstance();
 
-            _containerBuilder.Register(ctx => _loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
+            this._containerBuilder.Register(_ => this._loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
 
-            _containerBuilder.Register(ctx =>
+            this._containerBuilder.Register(ctx =>
             {
                 PluginLoaderFactory factory = ctx.Resolve<PluginLoaderFactory>();
                 return factory.Create();
@@ -93,52 +94,55 @@ namespace ORBIT9000.Engine.Builders
             .As<IPluginLoader>()
             .SingleInstance();
 
-            _containerBuilder.RegisterType<OrbitEngine>()
+            this._containerBuilder.RegisterType<OrbitEngine>()
                 .AsSelf()
                 .SingleInstance();
 
-            _containerBuilder.RegisterType<EngineState>()
+            this._containerBuilder.RegisterType<EngineState>()
                .AsSelf()
             .SingleInstance();
 
-            _containerBuilder.RegisterType<ScheduleCalculator>()
+            this._containerBuilder.RegisterType<ScheduleCalculator>()
                .AsImplementedInterfaces()
                .SingleInstance();
 
-            _containerBuilder.RegisterType<SimpleScheduler>()
+            this._containerBuilder.RegisterType<SimpleScheduler>()
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-            _containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
+            this._containerBuilder.RegisterType<TextScheduleParser>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
+
+            this._containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
                 .As<IServiceProvider>()
                 .SingleInstance();
 
-            var container = _containerBuilder.Build();
-            var engine = container.Resolve<OrbitEngine>();
-            return engine;
+            IContainer container = this._containerBuilder.Build();
+            return container.Resolve<OrbitEngine>();
         }
 
         public OrbitEngineBuilder Configure(IConfiguration configuration)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this._configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             return this;
         }
 
         public OrbitEngineBuilder UseConfiguration(string settingsPath = "appsettings.json")
         {
-            if (_configuration is null)
+            if (this._configuration is null)
             {
                 if (!File.Exists(settingsPath))
                 {
                     throw new FileNotFoundException($"Configuration file not found: {settingsPath}", settingsPath);
                 }
 
-                _configuration = new ConfigurationBuilder()
+                this._configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile(settingsPath, optional: false, reloadOnChange: false)
                     .Build();
 
-                _rawConfiguration = _configuration.GetSection("OrbitEngine").Get<RawEngineConfiguration>()!;
+                this._rawConfiguration = this._configuration.GetSection("OrbitEngine").Get<RawEngineConfiguration>()!;
             }
             else { throw new InvalidOperationException("Configuration has already been set."); }
 
@@ -149,11 +153,11 @@ namespace ORBIT9000.Engine.Builders
         {
             string json = JsonConvert.SerializeObject(rawConfiguration);
 
-            if (_configuration is null)
+            if (this._configuration is null)
             {
-                using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                using MemoryStream stream = new(Encoding.UTF8.GetBytes(json));
 
-                _configuration = new ConfigurationBuilder()
+                this._configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonStream(stream)
                     .Build();

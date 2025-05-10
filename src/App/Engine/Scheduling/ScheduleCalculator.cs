@@ -11,7 +11,7 @@ namespace ORBIT9000.Engine.Scheduling
                 return schedule.Start;
 
             DateTime next = after + schedule.Interval;
-            if (schedule.DaysOfWeek != null && schedule.DaysOfWeek.Any())
+            if (schedule.DaysOfWeek?.Count is 0)
             {
                 int safety = 0;
 

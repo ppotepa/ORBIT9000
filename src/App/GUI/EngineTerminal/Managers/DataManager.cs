@@ -1,7 +1,7 @@
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Proxies;
 using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
-using TempTools;
+using ORBIT9000.Core.TempTools;
 using Terminal.Gui.CustomViews.Misc;
 using static EngineTerminal.Managers.UIManager;
 
@@ -19,22 +19,22 @@ namespace EngineTerminal.Managers
 
         public IReadOnlyList<BindingAction> GetUpdates<TData>(TData newData, Dictionary<string, ValueBinding> bindings)
         {
-            if (newData == null || Data == null)
-                return new List<BindingAction>();
+            if (EqualityComparer<TData?>.Default.Equals(newData, default) || this.Data == null)
+                return [];
 
             if (newData is ExampleData typedNewData)
             {
-                _changeTracker.UpdateData(typedNewData);
+                this._changeTracker.UpdateData(typedNewData);
             }
 
-            var changes = _changeTracker.GetChanges();
-            var actions = new List<BindingAction>();
+            IReadOnlyList<PropertyChangeRecord> changes = this._changeTracker.GetChanges();
+            List<BindingAction> actions = [];
 
-            foreach (var change in changes)
+            foreach (PropertyChangeRecord change in changes)
             {
-                if (bindings.TryGetValue(change.PropertyPath, out var binding))
+                if (bindings.TryGetValue(change.PropertyPath, out ValueBinding? _))
                 {
-                    var value = change.NewValue;
+                    object? value = change.NewValue;
                     actions.Add(b => b[change.PropertyPath].Value = value);
                 }
             }
@@ -44,12 +44,12 @@ namespace EngineTerminal.Managers
 
         public void Initialize()
         {
-            var initialData = CreateInitialData();
-            _changeTracker.Initialize(initialData);
-            Data = _changeTracker.ProxyData;
+            ExampleData initialData = CreateInitialData();
+            this._changeTracker.Initialize(initialData);
+            this.Data = this._changeTracker.ProxyData;
         }
 
-        private ExampleData CreateInitialData()
+        private static ExampleData CreateInitialData()
             => RandomDataFiller.FillWithRandomData<ExampleData>();
 
         #endregion Methods
