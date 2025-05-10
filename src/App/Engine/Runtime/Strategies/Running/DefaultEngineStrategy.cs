@@ -1,13 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Models;
 using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Runtime.Pipe;
 using ORBIT9000.Engine.Runtime.State;
+using System.Reflection;
 
 namespace ORBIT9000.Engine.Runtime.Strategies.Running
 {
     internal static class Default
     {
+        #region Methods
+
         public static void EngineStartupStrategy(object? obj)
         {
             if (obj is not EngineState { Engine: { } engine })
@@ -67,13 +71,25 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
 
                 foreach (Type pluginType in engine.PluginProvider.Plugins)
                 {
-                    object? scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableServiceAttribute), inherit: true).FirstOrDefault();
+                    List<IEngineAttribute> engineAttributes =
+                        [.. pluginType.GetCustomAttributes().OfType<IEngineAttribute>()];
 
-                    if (scheduleJobAttribute is SchedulableServiceAttribute jobAttribute)
+                    if (engineAttributes.Count != 0)
                     {
-                        IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
-                        engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
-                        engine.Scheduler.Schedule(job);
+                        engine.LogInformation("Found valid engine attributes in plugin: {PluginType}", pluginType.Name);
+
+                        foreach (IEngineAttribute? attribute in engineAttributes)
+                        {
+                            if (attribute is SchedulableServiceAttribute jobAttribute)
+                            {
+                                IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
+
+                                engine.LogInformation("Scheduled job in plugin: {PluginType}, Schedule: {Schedule}",
+                                    pluginType.Name, jobAttribute.ScheduleExpression);
+
+                                engine.Scheduler.Schedule(job, () => engine.PluginProvider.Activate(pluginType, true));
+                            }
+                        }
                     }
                 }
 
@@ -84,5 +100,7 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
                 engine.LogError("An error occurred during plugin initialization: {Message}", ex.Message);
             }
         }
+
+        #endregion Methods
     }
 }

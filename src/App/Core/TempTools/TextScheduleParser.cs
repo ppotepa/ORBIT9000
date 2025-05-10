@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Attributes.Engine;
+﻿using ORBIT9000.Core.Models;
 using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.TempTools
@@ -21,7 +21,8 @@ namespace ORBIT9000.Core.TempTools
         private const string UnitHour = "hour";
         private const string UnitDay = "day";
 
-        private static readonly Regex _rx = new(FullPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, matchTimeout: TimeSpan.FromSeconds(1));
+        private static readonly Regex _rx = new(FullPattern, RegexOptions.IgnoreCase
+            | RegexOptions.Compiled, matchTimeout: TimeSpan.FromSeconds(1));
 
         public IScheduleJob Parse(string input)
         {
@@ -58,7 +59,7 @@ namespace ORBIT9000.Core.TempTools
                            .Select(dayString => Enum.Parse<DayOfWeek>(dayString.Trim(), ignoreCase: true))];
             }
 
-            return new Schedule(async (token) => { Console.Title = DateTime.Now.ToString(); await Task.Delay(0, token); })
+            return new Schedule()
             {
                 Start = DateTime.UtcNow,
                 Interval = interval,

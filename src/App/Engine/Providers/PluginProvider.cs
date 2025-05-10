@@ -66,7 +66,7 @@ namespace ORBIT9000.Engine.Providers
 
         public IEnumerable<Type> Plugins => this._validPlugins.Select(plugin => plugin.PluginType);
 
-        public async Task<IOrbitPlugin> Activate(object plugin)
+        public async Task<IOrbitPlugin> Activate(object plugin, bool executeOnLoad = false)
         {
             if (plugin is string pluginName)
             {
@@ -74,7 +74,7 @@ namespace ORBIT9000.Engine.Providers
 
                 if (target != null)
                 {
-                    return await this.ActivatePlugin(target);
+                    return await this.__activatePlugin(target, executeOnLoad);
                 }
             }
 
@@ -82,10 +82,10 @@ namespace ORBIT9000.Engine.Providers
             throw new ArgumentException("Invalid plugin identifier.", nameof(plugin));
         }
 
-        public Task<IOrbitPlugin> Activate(Type plugin)
+        public Task<IOrbitPlugin> Activate(Type plugin, bool executeOnLoad = false)
         {
             //NOTE: fix this temporary solution
-            return this.Activate(plugin.Name);
+            return this.Activate(plugin.Name, executeOnLoad);
         }
 
         public void Unload(object plugin)
@@ -128,7 +128,7 @@ namespace ORBIT9000.Engine.Providers
             dummy.RegisterServices(services);
         }
 
-        private async Task<IOrbitPlugin> ActivatePlugin(PluginInfo target)
+        private async Task<IOrbitPlugin> __activatePlugin(PluginInfo target, bool exectueOnLoad = false)
         {
             if (target.IsSingleton && this._activePlugins.TryGetValue(target.PluginType, out IOrbitPlugin? existingInstance))
             {
@@ -152,6 +152,11 @@ namespace ORBIT9000.Engine.Providers
             }
 
             this._logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
+
+            if (exectueOnLoad)
+            {
+                await instance!.OnLoad();
+            }
 
             return instance!;
         }

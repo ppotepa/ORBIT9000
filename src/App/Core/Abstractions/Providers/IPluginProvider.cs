@@ -4,8 +4,8 @@
     {
         IEnumerable<Type> Plugins { get; }
 
-        Task<IOrbitPlugin> Activate(Type plugin);
-        Task<IOrbitPlugin> Activate(object plugin);
+        Task<IOrbitPlugin> Activate(Type plugin, bool executeOnLoad = false);
+        Task<IOrbitPlugin> Activate(object plugin, bool executeOnLoad = false);
 
         void Unload(object plugin);
     }

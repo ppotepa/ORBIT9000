@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Attributes.Engine;
+﻿using ORBIT9000.Core.Models;
 
 namespace ORBIT9000.Core.Abstractions.Scheduling
 {
@@ -6,7 +6,7 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
     {
         #region Methods
 
-        void Schedule(IScheduleJob job);
+        void Schedule(IScheduleJob job, Action action);
         Task StartAsync(CancellationToken cancellationToken = default);
 
         #endregion Methods

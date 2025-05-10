@@ -1,27 +1,38 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Scheduling;
-using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Models;
 
 namespace ORBIT9000.Engine.Scheduling
 {
     public class SimpleScheduler(IScheduleCalculator calculator,
                            ILogger<SimpleScheduler> logger) : IScheduler
     {
-        private readonly List<IScheduleJob> _jobs = [];
+        private readonly List<ScheduleJobWithAction> _jobs = [];
         private readonly object _lock = new();
         private readonly IScheduleCalculator _calculator = calculator;
         private readonly ILogger<SimpleScheduler> _logger = logger;
 
         public void Schedule(IScheduleJob job)
         {
-            lock (this._lock) { this._jobs.Add(job); }
+            lock (this._lock)
+            {
+                this._jobs.Add(new ScheduleJobWithAction(job, null));
+            }
+        }
+
+        public void Schedule(IScheduleJob job, Action action)
+        {
+            lock (this._lock)
+            {
+                this._jobs.Add(new ScheduleJobWithAction(job, action));
+            }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken = default)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                IScheduleJob? due = null;
+                ScheduleJobWithAction? due = null;
                 DateTime now = DateTime.UtcNow;
 
                 if (this._jobs.Count == 0)
@@ -32,20 +43,20 @@ namespace ORBIT9000.Engine.Scheduling
 
                 lock (this._lock)
                 {
-                    due = this._jobs.Where(job => job.NextRun <= now).OrderBy(j => j.NextRun).FirstOrDefault();
+                    due = this._jobs.Where(job => job.Job.NextRun <= now).OrderBy(j => j.Job.NextRun).FirstOrDefault();
                 }
 
                 if (due != null)
                 {
                     _ = this.RunJobAsync(due, cancellationToken);
-                    due.NextRun = this._calculator.GetNextOccurrence(due, due.NextRun);
+                    due.Job.NextRun = this._calculator.GetNextOccurrence(due.Job, due.Job.NextRun);
                     continue;
                 }
 
                 DateTime next;
                 lock (this._lock)
                 {
-                    next = this._jobs.Min(j => j.NextRun);
+                    next = this._jobs.Min(j => j.Job.NextRun);
                 }
                 TimeSpan delay = next - now;
                 if (delay > TimeSpan.Zero)
@@ -53,10 +64,31 @@ namespace ORBIT9000.Engine.Scheduling
             }
         }
 
-        private async Task RunJobAsync(IScheduleJob job, CancellationToken token)
+        private async Task RunJobAsync(ScheduleJobWithAction job, CancellationToken token = default)
         {
-            try { await job.Action(token); }
-            catch (Exception ex) { this._logger.LogError(ex, "Job error"); }
+            try
+            {
+                if (job.Job is IScheduleJob scheduleJob)
+                {
+                    await Task.Run(job.Action!, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex, "Job error");
+            }
+        }
+
+        private class ScheduleJobWithAction
+        {
+            public ScheduleJobWithAction(IScheduleJob job, Action? action)
+            {
+                this.Job = job;
+                this.Action = action;
+            }
+
+            public IScheduleJob Job { get; }
+            public Action? Action { get; }
         }
     }
 }

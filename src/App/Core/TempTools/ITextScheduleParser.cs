@@ -1,7 +1,10 @@
 ﻿using ORBIT9000.Core.Abstractions.Parsing;
-using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Models;
 
 namespace ORBIT9000.Core.TempTools
 {
-    public interface ITextScheduleParser : IParser<IScheduleJob>;
+    public interface ITextScheduleParser : IParser<IScheduleJob>
+    {
+        new IScheduleJob Parse(string input);
+    }
 }
