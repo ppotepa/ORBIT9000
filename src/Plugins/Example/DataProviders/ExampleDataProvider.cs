@@ -54,5 +54,31 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
             return Task.FromResult<IEnumerable<WeatherResponse>>([result]);
         }
+        public async Task<IEnumerable<WeatherResponse>> GetDataAsync()
+        {
+            this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
+
+            var query = new
+            {
+                latitude = 52.52,
+                longitude = 13.41,
+                hourly = "temperature_2m",
+                timezone = "Europe/Warsaw"
+            };
+
+            try
+            {
+                Url url = ForecastURL.SetQueryParams(query);
+
+                WeatherResponse result = await url.GetJsonAsync<WeatherResponse>();
+
+                return [result];
+            }
+            catch (FlurlHttpException ex)
+            {
+                this._logger.LogError(ex, "Error occurred while fetching data from weather API.");
+                return [];
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.ScheduleExample3.Response;
 
-namespace ORBIT9000.Plugins.ScheduleExample2.DataProviders
+namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
 {
     [DataProvider]
     [DefaultProject("Example")]
@@ -46,6 +46,24 @@ namespace ORBIT9000.Plugins.ScheduleExample2.DataProviders
                 longitude = 13.41,
                 hourly = "temperature_2m",
                 imezone = "Europe/Warsaw"
+            };
+
+            Url url = ForecastURL.SetQueryParams(query);
+
+            WeatherResponse result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
+
+            return Task.FromResult<IEnumerable<WeatherResponse>>([result]);
+        }
+        public Task<IEnumerable<WeatherResponse>> GetAlternativeData()
+        {
+            this._logger.LogInformation("Fetching alternative data from weather API: {@Data}", this.GetHashCode());
+
+            var query = new
+            {
+                latitude = 40.71, // New York City coordinates
+                longitude = -74.01,
+                hourly = "precipitation",
+                timezone = "America/New_York"
             };
 
             Url url = ForecastURL.SetQueryParams(query);

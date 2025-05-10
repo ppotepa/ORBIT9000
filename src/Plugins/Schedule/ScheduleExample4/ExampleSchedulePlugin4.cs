@@ -3,8 +3,9 @@ using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.ScheduleExample4.DataProviders;
+using ORBIT9000.Plugins.ScheduleExample4.Response;
 
-namespace ORBIT9000.Plugins.Example
+namespace ORBIT9000.Plugins.ScheduleExample4
 {
     [SchedulableService("run every 5 seconds")]
     public class ExampleSchedulePlugin4(ILogger<ExampleSchedulePlugin4> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
@@ -14,7 +15,7 @@ namespace ORBIT9000.Plugins.Example
 
         public Task OnLoad()
         {
-            foreach (Response.WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
+            foreach (WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
             {
                 this._logger.LogInformation("Weather data: {@Response}", response);
             }

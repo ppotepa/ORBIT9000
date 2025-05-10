@@ -19,7 +19,6 @@ namespace ORBIT9000.Engine.Tests
 
         #endregion Fields
 
-
         #region Methods
 
         [SetUp]
@@ -45,8 +44,11 @@ namespace ORBIT9000.Engine.Tests
 
             Task completedTask = await Task.WhenAny(schedulerTask, Task.Delay(1000));
 
-            Assert.That(schedulerTask, Is.EqualTo(completedTask));
-            Assert.That(jobExecuted, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(schedulerTask, Is.EqualTo(completedTask));
+                Assert.That(jobExecuted, Is.False);
+            });
         }
 
         [Test]
@@ -196,6 +198,7 @@ namespace ORBIT9000.Engine.Tests
 
             Assert.That(executedJobCount, Is.EqualTo(2), "Not all overdue jobs were executed");
         }
+
         [Test]
         public async Task StartAsync_UpdatesNextRunTime()
         {
@@ -210,6 +213,7 @@ namespace ORBIT9000.Engine.Tests
 
             Assert.That(nextRunTime, Is.EqualTo(scheduleJob.NextRun));
         }
+
         [Test]
         public async Task StartAsync_WaitsUntilNextJob()
         {
