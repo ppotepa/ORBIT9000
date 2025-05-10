@@ -4,13 +4,14 @@ namespace ORBIT9000.Engine
 {
     public partial class OrbitEngine
     {
+        private const string Template = "{Message} {Args}";
         #region Methods
 
         public void LogCritical(string message, params object[] args)
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogCritical("{Message} {Args}", message, args);
+                this._logger.LogCritical(Template, message, args);
             }
         }
 
@@ -18,7 +19,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogDebug("{Message} {Args}", message, args);
+                this._logger.LogDebug(Template, message, args);
             }
         }
 
@@ -26,7 +27,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogError("{Message} {Args}", message, args);
+                this._logger.LogError(Template, message, args);
             }
         }
 
@@ -34,7 +35,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogInformation("{Message} {Args}", message, args);
+                this._logger.LogInformation(Template, message, args);
             }
         }
 
@@ -42,7 +43,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogTrace("{Message} {Args}", message, args);
+                this._logger.LogTrace(Template, message, args);
             }
         }
 
@@ -50,7 +51,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogWarning("{Message} {Args}", message, args);
+                this._logger.LogWarning(Template, message, args);
             }
         }
 

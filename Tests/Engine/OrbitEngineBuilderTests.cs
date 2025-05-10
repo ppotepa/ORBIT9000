@@ -66,11 +66,14 @@ namespace ORBIT9000.Engine.Tests
 
             OrbitEngine engine = builder.Build();
 
-            Assert.That(engine, Is.Not.Null);
-            Assert.That(engine.PluginProvider, Is.InstanceOf<IPluginProvider>());
+            Assert.Multiple(() =>
+            {
+                Assert.That(engine, Is.Not.Null);
+                Assert.That(engine.PluginProvider, Is.InstanceOf<IPluginProvider>());
 
-            Assert.That(engine.Scheduler, Is.Not.Null, "Scheduler property is null.");
-            Assert.That(engine.Scheduler, Is.InstanceOf<IScheduler>());
+                Assert.That(engine.Scheduler, Is.Not.Null, "Scheduler property is null.");
+                Assert.That(engine.Scheduler, Is.InstanceOf<IScheduler>());
+            });
 
             File.Delete("test_appsettings.json");
         }
