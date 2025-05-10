@@ -6,11 +6,11 @@ using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
-    [Singleton]
-    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
+    [SchedulableService("run every 10 seconds")]
+    public class ExampleSchedulePlugin3(ILogger<ExampleSchedulePlugin3> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider = dataProvider;
-        private readonly ILogger<ExamplePlugin> _logger = logger;
+        private readonly ILogger<ExampleSchedulePlugin3> _logger = logger;
 
         public Task OnLoad()
         {
