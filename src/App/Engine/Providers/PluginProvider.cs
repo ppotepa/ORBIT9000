@@ -74,7 +74,7 @@ namespace ORBIT9000.Engine.Providers
 
                 if (target != null)
                 {
-                    return await this.__activatePlugin(target, executeOnLoad);
+                    return await this.ActivatePrivate(target, executeOnLoad);
                 }
             }
 
@@ -128,7 +128,7 @@ namespace ORBIT9000.Engine.Providers
             dummy.RegisterServices(services);
         }
 
-        private async Task<IOrbitPlugin> __activatePlugin(PluginInfo target, bool exectueOnLoad = false)
+        private async Task<IOrbitPlugin> ActivatePrivate(PluginInfo target, bool exectueOnLoad = false)
         {
             if (target.IsSingleton && this._activePlugins.TryGetValue(target.PluginType, out IOrbitPlugin? existingInstance))
             {

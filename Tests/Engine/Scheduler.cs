@@ -55,8 +55,6 @@ namespace ORBIT9000.Engine.Tests
             Assert.That(executedJobCount, Is.EqualTo(2), "Not all overdue jobs were executed");
         }
 
-
-
         [Test]
         public async Task StartAsync_JobsRunInCorrectOrder()
         {
@@ -75,7 +73,7 @@ namespace ORBIT9000.Engine.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.That(executionOrder.Count, Is.EqualTo(2));
+                Assert.That(executionOrder, Has.Count.EqualTo(2));
                 Assert.That(executionOrder[0], Is.EqualTo(2));
                 Assert.That(executionOrder[1], Is.EqualTo(1));
             });
@@ -111,8 +109,11 @@ namespace ORBIT9000.Engine.Tests
 
             Task completedTask = await Task.WhenAny(schedulerTask, Task.Delay(1000));
 
-            Assert.That(schedulerTask, Is.EqualTo(completedTask));
-            Assert.IsFalse(jobExecuted);
+            Assert.Multiple(() =>
+            {
+                Assert.That(schedulerTask, Is.EqualTo(completedTask));
+                Assert.That(jobExecuted, Is.False);
+            });
         }
 
         [Test]
@@ -130,7 +131,7 @@ namespace ORBIT9000.Engine.Tests
                 logger => logger.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((objectValue, type) => true),
+                    It.Is<It.IsAnyType>((_, _) => true),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
