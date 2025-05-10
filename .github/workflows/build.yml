@@ -1,83 +1,85 @@
 ﻿name: Build
 
 on:
- push:
-   branches: [master, 0.91-alpha]
+  push:
+    branches: [ master, 0.91-alpha ]
 
 jobs:
- build:
-   runs-on: [self-hosted, windows]
-   defaults:
-     run:
-       shell: powershell
+  build:
+    runs-on: [self-hosted, windows]
+    defaults:
+      run:
+        shell: powershell
 
-   steps:
-     - name: Checkout
-       uses: actions/checkout@v4
-       with:
-         fetch-depth: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-     - name: Allow unsigned scripts
-       run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+      - name: Allow unsigned scripts
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
-     - name: Verify .NET SDK
-       run: |
-         dotnet --info
-         dotnet --list-sdks
+      - name: Verify .NET SDK
+        run: |
+          dotnet --info
+          dotnet --list-sdks
 
-     - name: Cache SonarScanner
-       uses: actions/cache@v4
-       with:
-         path: ${{ github.workspace }}\.sonar\scanner
-         key: ${{ runner.os }}-sonar-scanner
+      - name: Cache SonarScanner
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
 
-     - if: steps.cache.outputs.cache-hit != 'true'
-       run: |
-         New-Item -Path .\.sonar\scanner -ItemType Directory -Force
-         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory -Force
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-     - name: SonarQube Begin
-       env:
-         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-       run: |
-         .\.sonar\scanner\dotnet-sonarscanner begin `
-           /k:"ORBIT9000" `
-           /d:sonar.host.url="$Env:SONAR_HOST_URL" `
-           /d:sonar.login="$Env:SONAR_TOKEN" `           
-           /d:sonar.cs.opencover.reportsPaths="coverage/*.opencover.xml"
+      - name: SonarQube Begin
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN:     ${{ secrets.SONAR_TOKEN }}
+        run: |
+          & ".\.sonar\scanner\dotnet-sonarscanner" begin `
+            "/k:ORBIT9000" `
+            "/d:sonar.host.url=$Env:SONAR_HOST_URL" `
+            "/d:sonar.login=$Env:SONAR_TOKEN" `
+            "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml"
 
-     - name: Restore & Build
-       run: |
-         dotnet restore ORBIT9000.sln
-         dotnet build ORBIT9000.sln --configuration Debug
+      - name: Restore & Build
+        run: |
+          dotnet restore ORBIT9000.sln
+          dotnet build ORBIT9000.sln --configuration Debug
 
-     - name: Test with merged coverage
-       run: |
-         dotnet test ORBIT9000.sln --configuration Debug `
-           /p:CollectCoverage=true `
-           /p:CoverletOutputFormat="json,opencover" `
-           /p:CoverletOutput="./coverage/" `
-           /p:MergeWith="./coverage/coverage.json"
+      - name: Test with merged coverage
+        run: |
+          dotnet test ORBIT9000.sln --configuration Debug `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat="json,opencover" `
+            /p:CoverletOutput="./coverage/" `
+            /p:MergeWith="./coverage/coverage.json"
 
-     - name: Show coverage file
-       run: |
-         Write-Host "Coverage file produced:"
-         ls coverage\coverage.opencover.xml
+      - name: Show coverage file
+        run: |
+          Write-Host "Coverage file produced:"
+          Get-ChildItem coverage\*.opencover.xml
 
-     - name: SonarQube End
-       env:
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-       run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="$Env:SONAR_TOKEN"
+      - name: SonarQube End
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          & ".\.sonar\scanner\dotnet-sonarscanner" end `
+            "/d:sonar.login=$Env:SONAR_TOKEN"
 
-     - name: Setup Python & Upload to Codecov
-       uses: actions/setup-python@v4
-       with:
-         python-version: '3.x'
+      - name: Setup Python & Upload to Codecov
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-     - run: pip install codecov-cli
+      - run: pip install codecov-cli
 
-     - name: Upload to Codecov
-       env:
-         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-       run: codecov
+      - name: Upload to Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: codecov
