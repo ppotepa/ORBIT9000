@@ -31,8 +31,4 @@
     <None Include="Attributes\Engine\IEngineAttribute.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
 </Project>

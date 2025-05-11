@@ -22,6 +22,11 @@ namespace ORBIT9000.Plugins.Example2
             _logger.LogInformation("ExamplePlugin2 created");
         }
 
+        public Task<object> Execute()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task OnLoad()
         {
             IEnumerable<int> data = await this._numbers.GenerateRandomNumbers();
