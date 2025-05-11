@@ -256,7 +256,7 @@ namespace ORBIT9000.Engine.Tests
                     Plugins = new PluginsConfiguration()
                     {
                         AbortOnError = true,
-                        ActivePlugins = ["./Binaries/ExamplePlugin.dll"],
+                        ActivePlugins = ["./Binaries/ORBIT9000.Plugins.Example.dll"],
                         LoadAsBinary = true
                     }
                 }
