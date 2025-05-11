@@ -12,6 +12,11 @@ namespace ORBIT9000.Plugins.Example
         private readonly ExampleDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExamplePlugin> _logger = logger;
 
+        public Task<object> Execute()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task OnLoad()
         {
             foreach (Response.WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
