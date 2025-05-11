@@ -15,7 +15,7 @@ namespace ORBIT9000.Engine.Tests
             base.DisposeManagedObjects();
         }
 
-        private static MockScheduleJob CreateMockJob(DateTime nextRun)
+        private MockScheduleJob CreateMockJob(DateTime nextRun)
         {
             return new MockScheduleJob { NextRun = nextRun };
         }

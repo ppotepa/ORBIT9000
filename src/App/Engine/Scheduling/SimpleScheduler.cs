@@ -15,16 +15,6 @@ namespace ORBIT9000.Engine.Scheduling
         private readonly ILogger<SimpleScheduler> _logger = logger;
         private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-        public void Schedule(IScheduleJob job)
-        {
-            this.ThrowIfDisposed();
-
-            lock (this._lock)
-            {
-                this._jobs.Add(new ScheduleJobWithAction(job, null));
-            }
-        }
-
         public void Schedule(IScheduleJob job, Action action)
         {
             this.ThrowIfDisposed();
