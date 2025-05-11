@@ -45,8 +45,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Plugins.ScheduleE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{83074B7F-FB5A-4943-99C2-4D63CCAF0EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Data", "D:\Git\Private\ORBIT9000\src\Data\ORBIT9000.Data.csproj", "{0F2D86F2-5052-B19E-1D57-CF0AEE01A81F}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
