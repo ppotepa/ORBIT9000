@@ -2,12 +2,15 @@
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Data.Context;
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
     [SchedulableService("run every 10 seconds")]
-    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
+    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider,
+        ReflectiveInMemoryContext context
+        ) : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExamplePlugin> _logger = logger;

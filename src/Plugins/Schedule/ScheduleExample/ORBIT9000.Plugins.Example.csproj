@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\App\Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\..\Data\ORBIT9000.Data.csproj" />
   </ItemGroup>
 
 </Project>

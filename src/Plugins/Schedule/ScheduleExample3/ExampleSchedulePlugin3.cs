@@ -7,7 +7,7 @@ using ORBIT9000.Plugins.ScheduleExample3.Response;
 
 namespace ORBIT9000.Plugins.ScheduleExample3
 {
-    [SchedulableService("run every 10 seconds")]
+    [SchedulableService("run every 3 seconds")]
     public class ExampleSchedulePlugin3(ILogger<ExampleSchedulePlugin3> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider = dataProvider;

@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions.Providers.Data;
+﻿using ORBIT9000.Core.Abstractions.Data.Entities;
 
 namespace ORBIT9000.Plugins.ScheduleExample2.Response
 {
@@ -14,7 +14,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2.Response
         public string? Time { get; set; }
     }
 
-    public class WeatherResponse : IResult
+    public class WeatherResponse : ExtendedEntity<Guid>
     {
         public float Elevation { get; set; }
         public float GenerationTimeMs { get; set; }

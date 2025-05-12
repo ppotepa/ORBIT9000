@@ -2,7 +2,6 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
-using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.ScheduleExample4.Response;
@@ -11,7 +10,7 @@ namespace ORBIT9000.Plugins.ScheduleExample4.DataProviders
 {
     [DataProvider]
     [DefaultProject("Example")]
-    public class ExampleDataProvider : IDataProvider<WeatherResponse>, IAuthenticate
+    public class ExampleDataProvider : IAuthenticate
     {
 #pragma warning disable S1075 // URIs should not be hardcoded
         private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";

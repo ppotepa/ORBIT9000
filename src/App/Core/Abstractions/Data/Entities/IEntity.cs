@@ -16,8 +16,7 @@
         {
             get
             {
-                return (TIdentityType)this.GetType().GetProperty("Id")?.GetValue(this
-                ?? throw new InvalidOperationException("Id was null"));
+                return (TIdentityType)this.GetType().GetProperty("Id")?.GetValue(this)!;
             }
 
             set => this.GetType().GetProperty("Id")?.SetValue(this, value);
