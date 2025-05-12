@@ -74,17 +74,17 @@ namespace ORBIT9000.Engine.Scheduling
             lock (this._lock)
             {
                 List<ScheduleJobWithAction> dueJobs = [.. this._jobs
-                            .Where(job => job.Job.NextRun <= now && !this._runningJobs.Contains(job.Job))
-                            .OrderBy(j => j.Job.NextRun)];
+                    .Where(job => job.Job.NextRun <= now && !this._runningJobs.Contains(job.Job))
+                    .OrderBy(j => j.Job.NextRun)];
 
-                foreach (ScheduleJobWithAction? job in dueJobs)
+                dueJobs.ForEach(job =>
                 {
                     this._runningJobs.Add(job.Job);
                     this._logger.LogInformation(
                         "Job due: {JobName}, NextRun: {NextRun}",
                         job.Job.Name,
                         job.Job.NextRun);
-                }
+                });
 
                 return dueJobs;
             }

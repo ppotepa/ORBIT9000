@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Extensions.IO.Files;
+using ORBIT9000.Core.Extensions.IO;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
-
     internal class DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger, IAssemblyLoader loader)
         : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
@@ -13,7 +12,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
-            ArgumentNullException.ThrowIfNull(source);
+            ValidateSourceArgument(source);
 
             source = FindSrcFolder(source)!;
 
@@ -43,6 +42,11 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             {
                 yield return this.LoadSingle(file.FullName);
             }
+        }
+
+        private static void ValidateSourceArgument(DirectoryInfo source)
+        {
+            ArgumentNullException.ThrowIfNull(source);
         }
 
         private static DirectoryInfo? FindSrcFolder(DirectoryInfo? currentDirectory)

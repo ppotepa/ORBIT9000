@@ -8,6 +8,7 @@
     public interface IParser<out TTarget> : IParser
     {
         new TTarget Parse(string input);
+
         object IParser.Parse(string input) => this.Parse(input)!;
     }
 }

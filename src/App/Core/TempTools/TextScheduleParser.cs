@@ -25,7 +25,7 @@ namespace ORBIT9000.Core.TempTools
         private static readonly Regex _rx = new(FullPattern, RegexOptions.IgnoreCase
             | RegexOptions.Compiled, matchTimeout: TimeSpan.FromSeconds(1));
 
-        public IScheduleJob Parse(string input, string jobName = "")
+        public IScheduleJob Parse(string input, string jobName = "[Unnamed]")
         {
             Match match = _rx.Match(input);
             if (!match.Success) throw new FormatException($"Cannot parse “{input}”");
@@ -66,7 +66,8 @@ namespace ORBIT9000.Core.TempTools
                 Interval = interval,
                 End = end,
                 DaysOfWeek = days,
-                OriginalExpression = input
+                OriginalExpression = input,
+                Name = jobName
             };
         }
 

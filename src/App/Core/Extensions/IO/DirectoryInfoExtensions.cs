@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Extensions.IO.Files
+﻿namespace ORBIT9000.Core.Extensions.IO
 {
     public static class DirectoryInfoExtensions
     {

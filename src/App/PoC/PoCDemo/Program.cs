@@ -2,6 +2,7 @@
 using ORBIT9000.Engine;
 using ORBIT9000.Engine.Builders;
 using Serilog;
+using System.Globalization;
 
 namespace ORBIT9000.PoCDemo
 {
@@ -16,10 +17,10 @@ namespace ORBIT9000.PoCDemo
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: _outputTemplate)
+                .WriteTo.Console(outputTemplate: _outputTemplate, formatProvider: CultureInfo.InvariantCulture)
                 .CreateLogger();
 
-            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.ClearProviders();
                 builder.AddSerilog(Log.Logger);

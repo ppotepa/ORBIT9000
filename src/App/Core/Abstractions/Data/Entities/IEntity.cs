@@ -4,12 +4,12 @@
         where TIdentityType : struct
     {
         public TIdentityType Id { get; init; } = default;
-        dynamic IEntity.Id { get; set; }
+        dynamic? IEntity.Id { get; set; }
     }
 
     public interface IEntity
     {
-        object Id { get; set; }
+        object? Id { get; set; }
 
         object this[string index]
         {
@@ -20,7 +20,8 @@
     public interface IEntity<TIdentityType> : IEntity
         where TIdentityType : struct
     {
-        new TIdentityType Id
+        //HACK
+        new TIdentityType? Id
         {
             get
             {

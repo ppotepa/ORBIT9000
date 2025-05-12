@@ -11,7 +11,7 @@
         public DateTime? ModifiedOn { get; } = default;
         public TIdentityType ModifiedBy { get; } = default;
 
-        object IEntity.Id
+        object? IEntity.Id
         {
             get => this.Id;
             set => ((IEntity)this).Id = value;

@@ -135,7 +135,6 @@ namespace ORBIT9000.Engine.Providers
             catch (Exception ex)
             {
                 this._logger.LogError(ex, "Failed to register services for plugin: {PluginType}", info.PluginType.FullName);
-                throw;
             }
         }
 
