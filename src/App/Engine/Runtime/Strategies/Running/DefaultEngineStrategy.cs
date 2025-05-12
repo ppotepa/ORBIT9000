@@ -71,6 +71,42 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
 
                 foreach (Type pluginType in engine.PluginProvider.Plugins)
                 {
+                    List<Type> entities = pluginType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic)
+                        .Where(t => typeof(ORBIT9000.Core.Abstractions.Data.Entities.IEntity).IsAssignableFrom(t))
+                        .ToList();
+
+                    if (entities.Any())
+                    {
+                        engine.LogInformation("Plugin {PluginType} contains IEntity entities.", pluginType.Name);
+
+                        // Log direct implementation
+                        if (typeof(ORBIT9000.Core.Abstractions.Data.Entities.IEntity).IsAssignableFrom(pluginType))
+                        {
+                            engine.LogInformation("IEntity type: {EntityType}", pluginType.FullName);
+                        }
+
+                        // Log nested types implementing IEntity
+                        foreach (Type? nested in pluginType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(t => typeof(ORBIT9000.Core.Abstractions.Data.Entities.IEntity).IsAssignableFrom(t)))
+                        {
+                            engine.LogInformation("IEntity nested type: {EntityType}", nested.FullName);
+                        }
+
+                        // Log properties of type IEntity
+                        foreach (PropertyInfo? prop in pluginType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(p => typeof(ORBIT9000.Core.Abstractions.Data.Entities.IEntity).IsAssignableFrom(p.PropertyType)))
+                        {
+                            engine.LogInformation("IEntity property: {PropertyName} ({PropertyType})", prop.Name, prop.PropertyType.FullName);
+                        }
+
+                        // Log fields of type IEntity
+                        foreach (FieldInfo? field in pluginType.GetFields(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(f => typeof(ORBIT9000.Core.Abstractions.Data.Entities.IEntity).IsAssignableFrom(f.FieldType)))
+                        {
+                            engine.LogInformation("IEntity field: {FieldName} ({FieldType})", field.Name, field.FieldType.FullName);
+                        }
+                    }
+
                     List<IEngineAttribute> engineAttributes =
                         [.. pluginType.GetCustomAttributes().OfType<IEngineAttribute>()];
 

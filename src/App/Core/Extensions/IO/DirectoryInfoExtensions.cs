@@ -9,11 +9,12 @@
         /// <param name="directory">The root directory to search in.</param>
         /// <param name="searchPattern">The file search pattern (e.g., "*.dll").</param>
         /// <param name="skipFolders">An array of folder names to exclude from the search.</param>
+        /// <param name="skipFiles">An array of file name prefixes to exclude from the search.</param>
         /// <returns>An enumerable collection of FileInfo objects representing the matching files.</returns>
-        public static IEnumerable<FileInfo> GetFilesExcept(this DirectoryInfo directory, string searchPattern, string[] skipFolders)
+        public static IEnumerable<FileInfo> GetFilesExcept(this DirectoryInfo directory, string searchPattern, string[] skipFolders, string[] skipFiles)
         {
             // Stack to manage directories for processing
-            Stack<DirectoryInfo> directoriesToProcess = [];
+            Stack<DirectoryInfo> directoriesToProcess = new();
             directoriesToProcess.Push(directory);
 
             while (directoriesToProcess.Count > 0)
@@ -26,42 +27,54 @@
                     continue;
                 }
 
-                // Attempt to retrieve files in the current directory
-                FileInfo[] filesInCurrentDirectory;
-                try
+                // Process files in the current directory
+                foreach (FileInfo file in GetSafeDirectoryFiles(currentDirectory, searchPattern))
                 {
-                    filesInCurrentDirectory = currentDirectory.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
-                }
-                catch
-                {
-                    // Skip directories that cannot be accessed
-                    continue;
+                    if (!ShouldSkipFile(file, skipFiles))
+                    {
+                        yield return file;
+                    }
                 }
 
-                // Yield each file found in the current directory
-                foreach (FileInfo file in filesInCurrentDirectory)
-                {
-                    yield return file;
-                }
-
-                // Attempt to retrieve subdirectories for further processing
-                DirectoryInfo[] subdirectories;
-                try
-                {
-                    subdirectories = currentDirectory.GetDirectories();
-                }
-                catch
-                {
-                    // Skip subdirectories that cannot be accessed
-                    continue;
-                }
-
-                // Add subdirectories to the stack for processing
-                foreach (DirectoryInfo subdirectory in subdirectories)
+                // Process subdirectories
+                foreach (DirectoryInfo subdirectory in GetSafeSubdirectories(currentDirectory))
                 {
                     directoriesToProcess.Push(subdirectory);
                 }
             }
+        }
+
+        private static FileInfo[] GetSafeDirectoryFiles(DirectoryInfo directory, string searchPattern)
+        {
+            try
+            {
+                return directory.GetFiles(searchPattern, SearchOption.TopDirectoryOnly);
+            }
+            catch
+            {
+                // Return empty array for inaccessible directories
+                return Array.Empty<FileInfo>();
+            }
+        }
+
+        private static DirectoryInfo[] GetSafeSubdirectories(DirectoryInfo directory)
+        {
+            try
+            {
+                return directory.GetDirectories();
+            }
+            catch
+            {
+                // Return empty array for inaccessible directories
+                return Array.Empty<DirectoryInfo>();
+            }
+        }
+
+        private static bool ShouldSkipFile(FileInfo file, string[] skipFilePrefixes)
+        {
+            return skipFilePrefixes.Any(prefix =>
+                !string.IsNullOrEmpty(prefix) &&
+                file.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -58,7 +58,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             }
 
             Type? pluginType = assemblyLoadResult.GetTypes()
-                .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Any(x => x == typeof(IOrbitPlugin)));
+                .FirstOrDefault(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type));
 
             if (pluginType is null)
             {
