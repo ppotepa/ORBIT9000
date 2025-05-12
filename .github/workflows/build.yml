@@ -18,6 +18,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install gzip (via Chocolatey)
+        run: |
+          if (-Not (Get-Command gzip -ErrorAction SilentlyContinue)) {
+            choco install gzip -y
+          }
+
       - name: Allow unsigned scripts
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 
