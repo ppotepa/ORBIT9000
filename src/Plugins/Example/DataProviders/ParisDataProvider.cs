@@ -2,12 +2,10 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
-using ORBIT9000.Core.Attributes;
-using ORBIT9000.Plugins.Example.Response;
+using ORBIT9000.Plugins.Example.Common;
 
 namespace ORBIT9000.Plugins.Example.DataProviders
 {
-    [DefaultProject("Example")]
     public class ParisDataProvider : IAuthenticate
     {
 #pragma warning disable S1075 // URIs should not be hardcoded

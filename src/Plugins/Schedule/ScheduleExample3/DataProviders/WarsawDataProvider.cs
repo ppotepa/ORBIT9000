@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.ScheduleExample3.Response;
+using ORBIT9000.Plugins.Example.Common;
 
 namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
 {

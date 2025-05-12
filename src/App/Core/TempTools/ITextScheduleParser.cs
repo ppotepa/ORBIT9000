@@ -5,6 +5,7 @@ namespace ORBIT9000.Core.TempTools
 {
     public interface ITextScheduleParser : IParser<IScheduleJob>
     {
-        new IScheduleJob Parse(string input);
+        IScheduleJob Parse(string input, string jobName = "");
+
     }
 }

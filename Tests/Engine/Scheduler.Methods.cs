@@ -49,6 +49,8 @@ namespace ORBIT9000.Engine.Tests
             public TimeSpan Interval { get; set; } = TimeSpan.FromHours(1);
             public DateTime NextRun { get; set; }
             public DateTime Start { get; set; } = DateTime.UtcNow;
+            public string? Name { get; set; }
+            public string? OriginalExpression { get; set; }
 
             #endregion Properties
         }

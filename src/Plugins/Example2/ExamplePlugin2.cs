@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Attributes;
 using ORBIT9000.Plugins.Example2.Services;
 
 namespace ORBIT9000.Plugins.Example2
 {
+    [DefaultProject("Example")]
     public class ExamplePlugin2 : IOrbitPlugin
     {
         private readonly ILogger<ExamplePlugin2> _logger;

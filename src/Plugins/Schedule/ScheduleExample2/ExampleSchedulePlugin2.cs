@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
-using ORBIT9000.Plugins.ScheduleExample2.Response;
 
 namespace ORBIT9000.Plugins.ScheduleExample2
 {
+    [DefaultProject("Example")]
     [SchedulableService("run every 5 seconds")]
     public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger, LondonDataProvider dataProvider) :
         IOrbitPlugin

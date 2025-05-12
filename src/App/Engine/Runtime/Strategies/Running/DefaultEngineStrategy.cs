@@ -114,7 +114,7 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
                             if (attribute is SchedulableServiceAttribute jobAttribute)
                             {
                                 IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
-
+                                job.Name = pluginType.Name;
                                 engine.LogInformation("Scheduled job in plugin: {PluginType}, Schedule: {Schedule}",
                                     pluginType.Name, jobAttribute.ScheduleExpression);
 
