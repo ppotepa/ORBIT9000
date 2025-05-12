@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Core.Abstractions.Runtime;
 using ORBIT9000.Core.TempTools;
+using ORBIT9000.Data.Context;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders;
@@ -117,6 +118,8 @@ namespace ORBIT9000.Engine.Builders
             this._containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
                 .As<IServiceProvider>()
                 .SingleInstance();
+
+            this._containerBuilder.RegisterType<ReflectiveInMemoryContext>().AsSelf().InstancePerLifetimeScope();
 
             IContainer container = this._containerBuilder.Build();
             return container.Resolve<OrbitEngine>();

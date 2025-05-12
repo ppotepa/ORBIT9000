@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Data.Context;
 using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
 
@@ -10,7 +11,9 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 {
     [DefaultProject("Example")]
     [SchedulableService("run every 5 seconds")]
-    public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger, LondonDataProvider dataProvider) :
+    public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger,
+        LondonDataProvider dataProvider,
+        ReflectiveInMemoryContext context) :
         IOrbitPlugin
     {
         private readonly LondonDataProvider _dataProvider = dataProvider;
@@ -39,6 +42,10 @@ namespace ORBIT9000.Plugins.ScheduleExample2
                 }
 
                 this._logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
+
+                context.AddRange(data);
+                await context.SaveChangesAsync();
+
                 return await Task.FromResult(data);
             }
             catch (Exception ex)
