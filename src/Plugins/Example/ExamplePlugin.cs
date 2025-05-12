@@ -7,9 +7,9 @@ using ORBIT9000.Plugins.Example.DataProviders;
 namespace ORBIT9000.Plugins.Example
 {
     [Singleton]
-    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
+    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ParisDataProvider dataProvider) : IOrbitPlugin
     {
-        private readonly ExampleDataProvider _dataProvider = dataProvider;
+        private readonly ParisDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExamplePlugin> _logger = logger;
 
         public Task<object> Execute()
@@ -36,7 +36,7 @@ namespace ORBIT9000.Plugins.Example
 
         public void RegisterServices(IServiceCollection collection)
         {
-            collection.AddTransient<ExampleDataProvider>();
+            collection.AddTransient<ParisDataProvider>();
         }
     }
 }

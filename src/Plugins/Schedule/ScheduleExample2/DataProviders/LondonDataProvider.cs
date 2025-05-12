@@ -3,20 +3,20 @@ using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Attributes;
-using ORBIT9000.Plugins.Example.Response;
+using ORBIT9000.Plugins.ScheduleExample2.Response;
 
-namespace ORBIT9000.Plugins.Example.DataProviders
+namespace ORBIT9000.Plugins.ScheduleExample2.DataProviders
 {
     [DefaultProject("Example")]
-    public class ExampleDataProvider : IAuthenticate
+    public class LondonDataProvider : IAuthenticate
     {
 #pragma warning disable S1075 // URIs should not be hardcoded
         private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";
 #pragma warning restore S1075 // URIs should not be hardcoded
 
-        private readonly ILogger<ExampleDataProvider> _logger;
+        private readonly ILogger<LondonDataProvider> _logger;
 
-        public ExampleDataProvider(ILogger<ExampleDataProvider> logger)
+        public LondonDataProvider(ILogger<LondonDataProvider> logger)
         {
             ArgumentNullException.ThrowIfNull(logger);
 
@@ -39,10 +39,10 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
             var query = new
             {
-                latitude = 52.52,
-                longitude = 13.41,
+                latitude = 51.5074,
+                longitude = -0.1278,
                 hourly = "temperature_2m",
-                imezone = "Europe/Warsaw"
+                imezone = "Europe/London"
             };
 
             Url url = ForecastURL.SetQueryParams(query);
@@ -50,32 +50,6 @@ namespace ORBIT9000.Plugins.Example.DataProviders
             WeatherResponse result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
 
             return Task.FromResult<IEnumerable<WeatherResponse>>([result]);
-        }
-        public async Task<IEnumerable<WeatherResponse>> GetDataAsync()
-        {
-            this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
-
-            var query = new
-            {
-                latitude = 52.52,
-                longitude = 13.41,
-                hourly = "temperature_2m",
-                timezone = "Europe/Warsaw"
-            };
-
-            try
-            {
-                Url url = ForecastURL.SetQueryParams(query);
-
-                WeatherResponse result = await url.GetJsonAsync<WeatherResponse>();
-
-                return [result];
-            }
-            catch (FlurlHttpException ex)
-            {
-                this._logger.LogError(ex, "Error occurred while fetching data from weather API.");
-                return [];
-            }
         }
     }
 }

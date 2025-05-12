@@ -8,10 +8,10 @@ using ORBIT9000.Plugins.ScheduleExample2.Response;
 namespace ORBIT9000.Plugins.ScheduleExample2
 {
     [SchedulableService("run every 5 seconds")]
-    public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger, ExampleDataProvider dataProvider) :
+    public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger, LondonDataProvider dataProvider) :
         IOrbitPlugin
     {
-        private readonly ExampleDataProvider _dataProvider = dataProvider;
+        private readonly LondonDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExampleSchedulePlugin2> _logger = logger;
 
         public Task OnLoad()
@@ -49,7 +49,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 
         public void RegisterServices(IServiceCollection collection)
         {
-            collection.AddTransient<ExampleDataProvider>();
+            collection.AddTransient<LondonDataProvider>();
         }
     }
 }
