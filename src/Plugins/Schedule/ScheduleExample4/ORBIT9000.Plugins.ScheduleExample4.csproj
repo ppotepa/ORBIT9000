@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TargetExt>.odll</TargetExt>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\App\Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\Common\ORBIT9000.Plugins.Example.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,26 +1,35 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
+    [DefaultProject("Example")]
     [Singleton]
-    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider) : IOrbitPlugin
+    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ParisDataProvider dataProvider) : IOrbitPlugin
     {
-        private readonly ExampleDataProvider _dataProvider = dataProvider;
+        private readonly ParisDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExamplePlugin> _logger = logger;
 
-        public Task OnLoad()
+        public Task<object> Execute()
         {
-            foreach (Response.WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
+            throw new NotImplementedException();
+        }
+
+        public async Task OnLoad()
+        {
+            IEnumerable<WeatherResponse> data = await this._dataProvider.GetData();
+
+            foreach (WeatherResponse response in data)
             {
                 this._logger.LogInformation("Weather data: {@Response}", response);
             }
 
-            this._logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
-            return Task.CompletedTask;
+            this._logger.LogInformation("Fetched data from weather.");
         }
 
         public Task OnUnload()
@@ -31,7 +40,7 @@ namespace ORBIT9000.Plugins.Example
 
         public void RegisterServices(IServiceCollection collection)
         {
-            collection.AddTransient<ExampleDataProvider>();
+            collection.AddTransient<ParisDataProvider>();
         }
     }
 }

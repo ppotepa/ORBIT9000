@@ -2,24 +2,21 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
-using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
-using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.Example.Response;
+using ORBIT9000.Plugins.Example.Common;
 
-namespace ORBIT9000.Plugins.Example.DataProviders
+namespace ORBIT9000.Plugins.ScheduleExample2.DataProviders
 {
-    [DataProvider]
     [DefaultProject("Example")]
-    public class ExampleDataProvider : IAuthenticate
+    public class LondonDataProvider : IAuthenticate
     {
 #pragma warning disable S1075 // URIs should not be hardcoded
         private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";
 #pragma warning restore S1075 // URIs should not be hardcoded
 
-        private readonly ILogger<ExampleDataProvider> _logger;
+        private readonly ILogger<LondonDataProvider> _logger;
 
-        public ExampleDataProvider(ILogger<ExampleDataProvider> logger)
+        public LondonDataProvider(ILogger<LondonDataProvider> logger)
         {
             ArgumentNullException.ThrowIfNull(logger);
 
@@ -42,10 +39,10 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
             var query = new
             {
-                latitude = 52.52,
-                longitude = 13.41,
+                latitude = 51.5074,
+                longitude = -0.1278,
                 hourly = "temperature_2m",
-                imezone = "Europe/Warsaw"
+                imezone = "Europe/London"
             };
 
             Url url = ForecastURL.SetQueryParams(query);

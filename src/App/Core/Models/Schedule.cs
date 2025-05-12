@@ -9,6 +9,9 @@
 
         /// <summary> If non‐empty, only fire when the current day is in this set. </summary>
         public IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; set; }
+
+        public string? Name { get; set; }
+        public string? OriginalExpression { get; set; }
     }
 
     public interface IScheduleJob
@@ -18,5 +21,7 @@
         DateTime? End { get; }
         DateTime NextRun { get; set; }
         IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; }
+        string? Name { get; set; }
+        string? OriginalExpression { get; set; }
     }
 }

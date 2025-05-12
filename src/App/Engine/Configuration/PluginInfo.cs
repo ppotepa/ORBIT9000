@@ -1,7 +1,9 @@
 ﻿#nullable disable
 
 using MessagePack;
+using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Reflection;
 
 namespace ORBIT9000.Engine.Configuration
@@ -18,8 +20,19 @@ namespace ORBIT9000.Engine.Configuration
         [IgnoreMember]
         public Assembly Assembly { get; internal set; }
 
+        [IgnoreMember]
+        private bool? _containsPlugins;
+
         [Key(2)]
-        public bool ContainsPlugins => this.PluginType is not null;
+        public bool ContainsPlugins
+        {
+            get
+            {
+                return this._containsPlugins ??= this.PluginType is not null &&
+                                       this.PluginType is not VoidType &&
+                                       typeof(IOrbitPlugin).IsAssignableFrom(this.PluginType);
+            }
+        }
 
         [IgnoreMember]
         public FileInfo FileInfo { get; internal set; }

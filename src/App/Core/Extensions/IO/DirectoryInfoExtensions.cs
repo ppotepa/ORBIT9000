@@ -13,7 +13,7 @@
         public static IEnumerable<FileInfo> GetFilesExcept(this DirectoryInfo directory, string searchPattern, string[] skipFolders)
         {
             // Stack to manage directories for processing
-            Stack<DirectoryInfo> directoriesToProcess = [];
+            Stack<DirectoryInfo> directoriesToProcess = new();
             directoriesToProcess.Push(directory);
 
             while (directoriesToProcess.Count > 0)

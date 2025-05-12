@@ -58,13 +58,18 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             }
 
             Type? pluginType = assemblyLoadResult.GetTypes()
-                .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)));
+                .FirstOrDefault(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type));
+
+            if (pluginType is null)
+            {
+                this._logger.LogWarning("No plugin type found in assembly {Assembly}", info.Name);
+            }
 
             return new PluginInfo
             {
                 Assembly = assemblyLoadResult,
                 FileInfo = info,
-                PluginType = pluginType!,
+                PluginType = pluginType is not null ? pluginType : typeof(VoidType),
             };
         }
 

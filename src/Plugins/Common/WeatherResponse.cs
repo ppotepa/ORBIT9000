@@ -1,6 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions.Providers.Data;
-
-namespace ORBIT9000.Plugins.Example.Response
+﻿namespace ORBIT9000.Plugins.Example.Common
 {
     public class HourlyData
     {
@@ -14,7 +12,7 @@ namespace ORBIT9000.Plugins.Example.Response
         public string? Time { get; set; }
     }
 
-    public class WeatherResponse : IResult
+    public class WeatherResponse
     {
         public float Elevation { get; set; }
         public float GenerationTimeMs { get; set; }

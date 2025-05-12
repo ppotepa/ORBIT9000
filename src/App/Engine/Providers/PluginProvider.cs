@@ -52,7 +52,7 @@ namespace ORBIT9000.Engine.Providers
                         this._individualPluginScopes[info.PluginType] = this._rootScope.BeginLifetimeScope(builder =>
                         {
                             ServiceCollection services = new();
-                            RegisterPlugin(builder, services, info);
+                            this.RegisterPlugin(builder, services, info);
                             builder.Populate(services);
                         });
                     }
@@ -113,8 +113,10 @@ namespace ORBIT9000.Engine.Providers
             }
         }
 
-        private static void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
+        private void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
         {
+            this._logger.LogDebug("Registering plugin: {PluginType}, Singleton: {IsSingleton}", info.PluginType.FullName, info.IsSingleton);
+
             if (info.IsSingleton)
             {
                 builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().SingleInstance();
@@ -124,8 +126,16 @@ namespace ORBIT9000.Engine.Providers
                 builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().InstancePerDependency();
             }
 
-            IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
-            dummy.RegisterServices(services);
+            try
+            {
+                IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
+                dummy.RegisterServices(services);
+                this._logger.LogDebug("Registered services for plugin: {PluginType}", info.PluginType.FullName);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex, "Failed to register services for plugin: {PluginType}", info.PluginType.FullName);
+            }
         }
 
         private async Task<IOrbitPlugin> ActivatePrivate(PluginInfo target, bool exectueOnLoad = false)
@@ -180,13 +190,16 @@ namespace ORBIT9000.Engine.Providers
 
         private ILifetimeScope CreateSharedScope()
         {
+            this._logger.LogInformation("Creating shared plugin scope with {PluginCount} plugins.",
+                this._validPlugins.Count);
+
             return this._rootScope.BeginLifetimeScope(builder =>
             {
                 ServiceCollection services = new();
 
                 foreach (PluginInfo info in this._validPlugins)
                 {
-                    RegisterPlugin(builder, services, info);
+                    this.RegisterPlugin(builder, services, info);
                 }
 
                 builder.Populate(services);

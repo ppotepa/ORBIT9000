@@ -2,24 +2,23 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions.Authentication;
-using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Plugins.Example.Response;
+using ORBIT9000.Plugins.Example.Common;
 
-namespace ORBIT9000.Plugins.Example.DataProviders
+namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
 {
     [DataProvider]
     [DefaultProject("Example")]
-    public class ExampleDataProvider : IAuthenticate
+    public class WarsawDataProvider : IAuthenticate
     {
 #pragma warning disable S1075 // URIs should not be hardcoded
         private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";
 #pragma warning restore S1075 // URIs should not be hardcoded
 
-        private readonly ILogger<ExampleDataProvider> _logger;
+        private readonly ILogger<WarsawDataProvider> _logger;
 
-        public ExampleDataProvider(ILogger<ExampleDataProvider> logger)
+        public WarsawDataProvider(ILogger<WarsawDataProvider> logger)
         {
             ArgumentNullException.ThrowIfNull(logger);
 
@@ -46,6 +45,24 @@ namespace ORBIT9000.Plugins.Example.DataProviders
                 longitude = 13.41,
                 hourly = "temperature_2m",
                 imezone = "Europe/Warsaw"
+            };
+
+            Url url = ForecastURL.SetQueryParams(query);
+
+            WeatherResponse result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
+
+            return Task.FromResult<IEnumerable<WeatherResponse>>([result]);
+        }
+        public Task<IEnumerable<WeatherResponse>> GetAlternativeData()
+        {
+            this._logger.LogInformation("Fetching alternative data from weather API: {@Data}", this.GetHashCode());
+
+            var query = new
+            {
+                latitude = 40.71, // New York City coordinates
+                longitude = -74.01,
+                hourly = "precipitation",
+                timezone = "America/New_York"
             };
 
             Url url = ForecastURL.SetQueryParams(query);

@@ -1,19 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Data.Context;
-using ORBIT9000.Plugins.Example.DataProviders;
+using ORBIT9000.Plugins.Example.Common;
+using ORBIT9000.Plugins.ScheduleExample4.DataProviders;
 
-namespace ORBIT9000.Plugins.Example
+namespace ORBIT9000.Plugins.ScheduleExample4
 {
-    [SchedulableService("run every 10 seconds")]
-    public class ExamplePlugin(ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider,
-        ReflectiveInMemoryContext context
-        ) : IOrbitPlugin
+    [DefaultProject("Example")]
+    [SchedulableService("run every 4 seconds")]
+    public class ExampleSchedulePlugin4(ILogger<ExampleSchedulePlugin4> logger, NewYorkDataProvider dataProvider) : IOrbitPlugin
     {
-        private readonly ExampleDataProvider _dataProvider = dataProvider;
-        private readonly ILogger<ExamplePlugin> _logger = logger;
+        private readonly NewYorkDataProvider _dataProvider = dataProvider;
+        private readonly ILogger<ExampleSchedulePlugin4> _logger = logger;
 
         public Task<object> Execute()
         {
@@ -22,7 +22,7 @@ namespace ORBIT9000.Plugins.Example
 
         public Task OnLoad()
         {
-            foreach (Response.WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
+            foreach (WeatherResponse response in this._dataProvider.GetData().GetAwaiter().GetResult())
             {
                 this._logger.LogInformation("Weather data: {@Response}", response);
             }
@@ -39,7 +39,7 @@ namespace ORBIT9000.Plugins.Example
 
         public void RegisterServices(IServiceCollection collection)
         {
-            collection.AddTransient<ExampleDataProvider>();
+            collection.AddTransient<NewYorkDataProvider>();
         }
     }
 }

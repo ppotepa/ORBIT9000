@@ -3,7 +3,7 @@ name: Build
 
 on:
   push:
-    branches: [ master, 0.91-alpha ]
+    branches: [ master, 0.91.1-alpha ]
 
 jobs:
   build:
@@ -17,6 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Install gzip (via Chocolatey)
+        run: |
+          if (-Not (Get-Command gzip -ErrorAction SilentlyContinue)) {
+            choco install gzip -y
+          }
 
       - name: Allow unsigned scripts
         run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
@@ -46,7 +52,8 @@ jobs:
             "/k:ORBIT9000" `
             "/d:sonar.host.url=$Env:SONAR_HOST_URL" `
             "/d:sonar.login=$Env:SONAR_TOKEN" `
-            "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml"
+            "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml" `
+            "/d:sonar.exclusions=**/bin/**,**/obj/**,**/Plugins/**,**/Tests/**"
 
       - name: Restore & Build
         run: |

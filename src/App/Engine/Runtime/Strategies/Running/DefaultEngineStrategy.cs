@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ORBIT9000.Core.Abstractions.Data.Entities;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Core.Models;
 using ORBIT9000.Core.TempTools;
@@ -10,8 +11,6 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
 {
     internal static class Default
     {
-        #region Methods
-
         public static void EngineStartupStrategy(object? obj)
         {
             if (obj is not EngineState { Engine: { } engine })
@@ -71,26 +70,8 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
 
                 foreach (Type pluginType in engine.PluginProvider.Plugins)
                 {
-                    List<IEngineAttribute> engineAttributes =
-                        [.. pluginType.GetCustomAttributes().OfType<IEngineAttribute>()];
-
-                    if (engineAttributes.Count != 0)
-                    {
-                        engine.LogInformation("Found valid engine attributes in plugin: {PluginType}", pluginType.Name);
-
-                        foreach (IEngineAttribute? attribute in engineAttributes)
-                        {
-                            if (attribute is SchedulableServiceAttribute jobAttribute)
-                            {
-                                IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
-
-                                engine.LogInformation("Scheduled job in plugin: {PluginType}, Schedule: {Schedule}",
-                                    pluginType.Name, jobAttribute.ScheduleExpression);
-
-                                engine.Scheduler.Schedule(job, () => engine.PluginProvider.Activate(pluginType, true));
-                            }
-                        }
-                    }
+                    LogIEntityDetails(engine, pluginType);
+                    SchedulePluginJobs(engine, parser, pluginType);
                 }
 
                 engine.LogInformation("Plugin initialization completed.");
@@ -101,6 +82,62 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
             }
         }
 
-        #endregion Methods
+        private static void LogIEntityDetails(OrbitEngine engine, Type pluginType)
+        {
+            List<Type> entities = [.. pluginType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(t => typeof(IEntity).IsAssignableFrom(t))];
+
+            if (entities.Count == 0)
+                return;
+
+            engine.LogInformation("Plugin {PluginType} contains IEntity entities.", pluginType.Name);
+
+            if (typeof(IEntity).IsAssignableFrom(pluginType))
+            {
+                engine.LogInformation("IEntity type: {EntityType}", pluginType.FullName!);
+            }
+
+            foreach (Type? nested in pluginType.GetNestedTypes(BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(t => typeof(IEntity).IsAssignableFrom(t)))
+            {
+                engine.LogInformation("IEntity nested type: {EntityType}", nested.FullName!);
+            }
+
+            foreach (PropertyInfo? prop in pluginType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => typeof(IEntity).IsAssignableFrom(p.PropertyType)))
+            {
+                engine.LogInformation("IEntity property: {PropertyName} ({PropertyType})", prop.Name, prop.PropertyType.FullName!);
+            }
+
+            foreach (FieldInfo? field in pluginType.GetFields(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => typeof(IEntity).IsAssignableFrom(f.FieldType)))
+            {
+                engine.LogInformation("IEntity field: {FieldName} ({FieldType})", field.Name, field.FieldType.FullName!);
+            }
+        }
+
+        private static void SchedulePluginJobs(OrbitEngine engine, ITextScheduleParser parser, Type pluginType)
+        {
+            List<IEngineAttribute> engineAttributes =
+                [.. pluginType.GetCustomAttributes().OfType<IEngineAttribute>()];
+
+            if (engineAttributes.Count == 0)
+                return;
+
+            engine.LogInformation("Found valid engine attributes in plugin: {PluginType}", pluginType.Name);
+
+            foreach (IEngineAttribute? attribute in engineAttributes)
+            {
+                if (attribute is SchedulableServiceAttribute jobAttribute)
+                {
+                    IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
+                    job.Name = pluginType.Name;
+                    engine.LogInformation("Scheduled job in plugin: {PluginType}, Schedule: {Schedule}",
+                        pluginType.Name, jobAttribute.ScheduleExpression);
+
+                    engine.Scheduler.Schedule(job, () => engine.PluginProvider.Activate(pluginType, true));
+                }
+            }
+        }
     }
 }

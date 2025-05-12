@@ -1,4 +1,5 @@
-﻿using ORBIT9000.Core.Models;
+﻿using ORBIT9000.Core.Abstractions.Parsing;
+using ORBIT9000.Core.Models;
 using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.TempTools
@@ -24,7 +25,7 @@ namespace ORBIT9000.Core.TempTools
         private static readonly Regex _rx = new(FullPattern, RegexOptions.IgnoreCase
             | RegexOptions.Compiled, matchTimeout: TimeSpan.FromSeconds(1));
 
-        public IScheduleJob Parse(string input)
+        public IScheduleJob Parse(string input, string jobName = "[Unnamed]")
         {
             Match match = _rx.Match(input);
             if (!match.Success) throw new FormatException($"Cannot parse “{input}”");
@@ -64,8 +65,20 @@ namespace ORBIT9000.Core.TempTools
                 Start = DateTime.UtcNow,
                 Interval = interval,
                 End = end,
-                DaysOfWeek = days
+                DaysOfWeek = days,
+                OriginalExpression = input,
+                Name = jobName
             };
+        }
+
+        IScheduleJob ITextScheduleParser.Parse(string input, string jobName)
+        {
+            return this.Parse(input, jobName);
+        }
+
+        IScheduleJob IParser<IScheduleJob>.Parse(string input)
+        {
+            return this.Parse(input, string.Empty);
         }
     }
 }
