@@ -28,13 +28,9 @@ namespace ORBIT9000.Engine.Configuration
         {
             get
             {
-                if (this._containsPlugins == null)
-                {
-                    this._containsPlugins = this.PluginType is not null &&
+                return this._containsPlugins ??= this.PluginType is not null &&
                                        this.PluginType is not VoidAssembly &&
                                        typeof(IOrbitPlugin).IsAssignableFrom(this.PluginType);
-                }
-                return this._containsPlugins.Value;
             }
         }
 

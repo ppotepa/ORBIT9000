@@ -33,7 +33,7 @@ namespace ORBIT9000.Engine.Tests
         public async Task StartAsync_CancellationTokenRespected()
         {
             bool jobExecuted = false;
-            MockScheduleJob scheduleJob = this.CreateMockJob(DateTime.UtcNow.AddSeconds(10));
+            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddSeconds(10));
 
             this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
@@ -59,8 +59,8 @@ namespace ORBIT9000.Engine.Tests
 
             DateTime currentTime = DateTime.UtcNow;
 
-            MockScheduleJob job1 = this.CreateMockJob(currentTime.AddMilliseconds(100));
-            MockScheduleJob job2 = this.CreateMockJob(currentTime.AddMilliseconds(100));
+            MockScheduleJob job1 = CreateMockJob(currentTime.AddMilliseconds(100));
+            MockScheduleJob job2 = CreateMockJob(currentTime.AddMilliseconds(100));
 
             this.SetupScheduleCalculator(currentTime.AddMilliseconds(100));
 
@@ -97,7 +97,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public async Task StartAsync_HandlesExceptions()
         {
-            MockScheduleJob scheduleJob = this.CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
+            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
 
             this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
 
@@ -147,8 +147,8 @@ namespace ORBIT9000.Engine.Tests
             List<int> executionOrder = [];
             DateTime currentTime = DateTime.UtcNow;
 
-            MockScheduleJob firstJob = this.CreateMockJob(currentTime.AddMilliseconds(50));
-            MockScheduleJob secondJob = this.CreateMockJob(currentTime.AddMilliseconds(10));
+            MockScheduleJob firstJob = CreateMockJob(currentTime.AddMilliseconds(50));
+            MockScheduleJob secondJob = CreateMockJob(currentTime.AddMilliseconds(10));
 
             this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
 
@@ -169,7 +169,7 @@ namespace ORBIT9000.Engine.Tests
         public async Task StartAsync_RunsJobWhenDue()
         {
             bool jobExecuted = false;
-            MockScheduleJob scheduleJob = this.CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
+            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
 
             this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
             this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
@@ -186,8 +186,8 @@ namespace ORBIT9000.Engine.Tests
             int executedJobCount = 0;
             DateTime currentTime = DateTime.UtcNow;
 
-            MockScheduleJob firstOverdueJob = this.CreateMockJob(currentTime.AddMilliseconds(-20));
-            MockScheduleJob secondOverdueJob = this.CreateMockJob(currentTime.AddMilliseconds(-10));
+            MockScheduleJob firstOverdueJob = CreateMockJob(currentTime.AddMilliseconds(-20));
+            MockScheduleJob secondOverdueJob = CreateMockJob(currentTime.AddMilliseconds(-10));
 
             this.SetupScheduleCalculator(currentTime.AddHours(1));
 
@@ -202,7 +202,7 @@ namespace ORBIT9000.Engine.Tests
         [Test]
         public async Task StartAsync_UpdatesNextRunTime()
         {
-            MockScheduleJob scheduleJob = this.CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
+            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
             DateTime nextRunTime = DateTime.UtcNow.AddHours(1);
 
             this.SetupScheduleCalculator(nextRunTime);
@@ -219,7 +219,7 @@ namespace ORBIT9000.Engine.Tests
         {
             bool jobExecuted = false;
             DateTime currentTime = DateTime.UtcNow;
-            MockScheduleJob scheduleJob = this.CreateMockJob(currentTime.AddMilliseconds(100));
+            MockScheduleJob scheduleJob = CreateMockJob(currentTime.AddMilliseconds(100));
 
             this.SetupScheduleCalculator(currentTime.AddHours(1));
 
