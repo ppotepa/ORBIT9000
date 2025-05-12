@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
@@ -19,18 +20,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2
         private readonly LondonDataProvider _dataProvider = dataProvider;
         private readonly ILogger<ExampleSchedulePlugin2> _logger = logger;
 
-        public Task OnLoad()
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task OnUnload()
-        {
-            this._logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
-            return Task.CompletedTask;
-        }
-
-        public async Task<object> Execute()
+        public async Task OnLoad()
         {
             try
             {
@@ -43,17 +33,25 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 
                 this._logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
 
-                context.AddRange(data);
+                string serialized = JsonConvert.SerializeObject(data);
+                context.AddRange(serialized);
                 await context.SaveChangesAsync();
-
-                return await Task.FromResult(data);
             }
             catch (Exception ex)
             {
                 this._logger.LogError(ex, "An error occurred while fetching weather data.");
             }
+        }
 
-            return await Task.FromResult<object>(new object());
+        public Task OnUnload()
+        {
+            this._logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
+            return Task.CompletedTask;
+        }
+
+        public async Task<object> Execute()
+        {
+            throw new NotImplementedException();
         }
 
         public void RegisterServices(IServiceCollection collection)

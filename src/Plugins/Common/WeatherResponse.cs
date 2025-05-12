@@ -1,4 +1,6 @@
-﻿namespace ORBIT9000.Plugins.Example.Common
+﻿using ORBIT9000.Core.Abstractions.Data.Entities;
+
+namespace ORBIT9000.Plugins.Example.Common
 {
     public class HourlyData
     {
@@ -12,7 +14,7 @@
         public string? Time { get; set; }
     }
 
-    public class WeatherResponse
+    public class WeatherResponse : ExtendedEntity<Guid>
     {
         public float Elevation { get; set; }
         public float GenerationTimeMs { get; set; }
