@@ -47,7 +47,7 @@ jobs:
             "/d:sonar.host.url=$Env:SONAR_HOST_URL" `
             "/d:sonar.login=$Env:SONAR_TOKEN" `
             "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml" `
-            "/d:sonar.exclusions=**/bin/**,**/obj/**,**/plugins/**,**/tests/**"
+            "/d:sonar.exclusions=**/bin/**,**/obj/**,**/Plugins/**,**/Tests/**"
 
       - name: Restore & Build
         run: |

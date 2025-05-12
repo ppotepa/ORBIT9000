@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\App\Core\ORBIT9000.Core.csproj" />
-    <ProjectReference Include="..\..\Common\ORBIT9000.Plugins.Example.Common\ORBIT9000.Plugins.Example.Common.csproj" />
+    <ProjectReference Include="..\..\Common\ORBIT9000.Plugins.Example.Common.csproj" />
   </ItemGroup>
 
 </Project>
