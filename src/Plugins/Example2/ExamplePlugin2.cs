@@ -15,8 +15,6 @@ namespace ORBIT9000.Plugins.Example2
         // we should not be able to get data from the ExampleDataProvider here
         // Accessing data from the ExampleDataProvider here is not allowed
         // because it does not have a shared scope
-        // because it does not have a shared scope
-        // because it does not have a shared scope
 
         public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger)
         {
