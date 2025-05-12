@@ -6,8 +6,8 @@ using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
 
-    internal class DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger, IAssemblyLoader loader
-    ) : PluginLoaderBase<DirectoryInfo>(logger, loader)
+    internal class DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger, IAssemblyLoader loader)
+        : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
         private static readonly string[] SkipFolders = ["obj", "ref", "Release"];
         private static readonly string[] SkipFilePatterns =

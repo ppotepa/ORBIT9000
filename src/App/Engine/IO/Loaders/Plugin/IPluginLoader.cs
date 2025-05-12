@@ -6,7 +6,6 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         where TSource : class
     {
         IEnumerable<PluginInfo> LoadPlugins(TSource source);
-        IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source);
     }
 
     public interface IPluginLoader
