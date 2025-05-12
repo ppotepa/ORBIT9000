@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Binaries\ORBIT9000.Plugins.Example.dll">
+    <None Update="Binaries\ORBIT9000.Plugins.Example.odll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

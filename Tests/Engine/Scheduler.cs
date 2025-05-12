@@ -33,15 +33,24 @@ namespace ORBIT9000.Engine.Tests
         public async Task StartAsync_CancellationTokenRespected()
         {
             bool jobExecuted = false;
-            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddSeconds(10));
+            MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddSeconds(-10));
 
             this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
             using CancellationTokenSource cancellationTokenSource = new();
-            Task schedulerTask = this._simpleScheduler.StartAsync(cancellationTokenSource.Token);
 
-            // Assert
-            Assert.That(jobExecuted, Is.True, "Overdue job was not executed");
+            await cancellationTokenSource.CancelAsync();
+
+            try
+            {
+                await this._simpleScheduler.StartAsync(cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
+
+            Assert.That(jobExecuted, Is.False, "Job should not be executed when cancellation is requested before start.");
         }
 
         [Test]
