@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Extensions.IO;
+using ORBIT9000.Core.Extensions.IO.Files;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
@@ -10,23 +10,6 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
         private static readonly string[] SkipFolders = ["obj", "ref", "Release"];
-        private static readonly string[] SkipFilePatterns =
-        [
-                "Microsoft.",
-                "System.",
-                "netstandard",
-                "Serilog.",
-                "Newtonsoft.",
-                "runtime.",
-                "Accessibility",
-                "WindowsBase",
-                "PresentationCore",
-                "PresentationFramework",
-                "mscorlib",
-                "ORBIT9000.Core",
-                "ORBIT9000.Engine",
-                "ORBIT9000.Data",
-        ];
 
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
@@ -48,7 +31,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             }
 
             DirectoryInfo pluginDir = new(Path.Combine(source.FullName, "Plugins"));
-            IEnumerable<FileInfo> files = [.. pluginDir.GetFilesExcept("*.dll", SkipFolders, SkipFilePatterns)];
+            IEnumerable<FileInfo> files = [.. pluginDir.GetFilesExcept("*.odll", SkipFolders)];
 
             if (!files.Any())
             {

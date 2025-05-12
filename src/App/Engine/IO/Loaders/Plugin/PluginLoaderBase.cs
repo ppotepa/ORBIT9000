@@ -69,7 +69,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             {
                 Assembly = assemblyLoadResult,
                 FileInfo = info,
-                PluginType = pluginType is null ? pluginType : typeof(VoidAssembly),
+                PluginType = pluginType is not null ? pluginType : typeof(VoidType),
             };
         }
 

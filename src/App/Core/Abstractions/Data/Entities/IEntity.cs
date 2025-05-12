@@ -1,5 +1,12 @@
 ﻿namespace ORBIT9000.Core.Abstractions.Data.Entities
 {
+    public abstract class Entity<TIdentityType> : IEntity<TIdentityType>
+        where TIdentityType : struct
+    {
+        public TIdentityType Id { get; init; } = default;
+        dynamic IEntity.Id { get; set; }
+    }
+
     public interface IEntity
     {
         object Id { get; set; }
@@ -9,6 +16,7 @@
             get => this.GetType().GetProperty(index)?.GetValue(this)!;
         }
     }
+
     public interface IEntity<TIdentityType> : IEntity
         where TIdentityType : struct
     {
