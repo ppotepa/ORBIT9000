@@ -46,7 +46,8 @@ jobs:
             "/k:ORBIT9000" `
             "/d:sonar.host.url=$Env:SONAR_HOST_URL" `
             "/d:sonar.login=$Env:SONAR_TOKEN" `
-            "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml"
+            "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml" `
+            "/d:sonar.exclusions=**/bin/**,**/obj/**,**/plugins/**,**/tests/**"
 
       - name: Restore & Build
         run: |
