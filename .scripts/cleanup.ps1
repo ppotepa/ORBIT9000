@@ -1,43 +1,71 @@
 <#
 .SYNOPSIS
-   Recursively deletes build artifacts (bin/, obj/ folders and compiled .dll files), then rebuilds a specified solution.
+   Recursively deletes build artifacts (bin/, obj/ folders and loose .dll files), then optionally rebuilds the ORBIT9000.sln solution.
 
 .DESCRIPTION
-   This script searches from a specified root (default: script directory),
-   removes all 'bin' and 'obj' directories, and any loose .dll files.
-   It excludes hidden folders (like .git) to avoid accidental deletes.
-   Finally, it runs a clean rebuild of ORBIT9000.sln in that root.
+   This script is meant to run from the '.scripts' folder directly below ORBIT9000.sln.
+   It prevents cleaning outside that folder, accepts relative paths like './', and ensures all work stays scoped to ORBIT9000.
 
 .PARAMETER RootPath
-   The folder to start cleaning from. Defaults to the directory where this script resides.
+   Optional relative or absolute path to start cleaning from. Must be within the ORBIT9000 folder.
 
 .PARAMETER SolutionFile
-   The name of the solution file to rebuild. Defaults to 'ORBIT9000.sln'.
+   Optional name of the solution file to rebuild. Defaults to 'ORBIT9000.sln'.
 
 .PARAMETER WhatIf
-   Shows what would be deleted (and the rebuild command) without actually removing files or running the build.
+   Simulates deletions and rebuild without executing them.
+
+.PARAMETER NoBuild (-p)
+   Skips rebuilding the solution after cleanup.
 
 .EXAMPLE
-   # Dry-run to see what would be removed and the rebuild invocation
+   .\Clean-BuildArtefacts.ps1 -RootPath './'
+
+.EXAMPLE
+   .\Clean-BuildArtefacts.ps1 -p
+
+.EXAMPLE
    .\Clean-BuildArtefacts.ps1 -WhatIf
-
-.EXAMPLE
-   # Clean & rebuild from a specific solution folder
-   .\Clean-BuildArtefacts.ps1 -RootPath 'C:\Projects\MySolution'
 #>
+
 [CmdletBinding(SupportsShouldProcess=$true)]
 param(
    [Parameter(Mandatory=$false)]
-   [string]$RootPath = (Split-Path -Parent $MyInvocation.MyCommand.Definition),
+   [string]$RootPath = ".",
 
    [Parameter(Mandatory=$false)]
-   [string]$SolutionFile = 'ORBIT9000.sln'
+   [string]$SolutionFile = 'ORBIT9000.sln',
+
+   [Parameter(Mandatory=$false)]
+   [Alias("p")]
+   [switch]$NoBuild
 )
 
-Write-Host "Starting cleanup under: $RootPath" -ForegroundColor Cyan
+# Get the directory of the script and go one level up
+$scriptLocation = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$solutionRoot = Split-Path $scriptLocation -Parent
+
+# Make sure the .sln file exists at that location
+$solutionPath = Join-Path $solutionRoot $SolutionFile
+if (-not (Test-Path $solutionPath)) {
+    throw "ERROR: Expected solution file '$SolutionFile' not found at $solutionRoot."
+}
+
+# Resolve and validate RootPath
+try {
+    $resolvedRootPath = Resolve-Path -Path $RootPath -ErrorAction Stop | Select-Object -ExpandProperty Path
+} catch {
+    throw "ERROR: Could not resolve RootPath '$RootPath'."
+}
+
+if (-not ($resolvedRootPath.StartsWith($solutionRoot))) {
+    throw "ERROR: RootPath '$resolvedRootPath' must be inside the ORBIT9000 folder '$solutionRoot'."
+}
+
+Write-Host "Starting cleanup under: $resolvedRootPath" -ForegroundColor Cyan
 
 # 1) Remove bin/ and obj/ directories
-$dirs = Get-ChildItem -Path $RootPath -Recurse -Directory -Force |
+$dirs = Get-ChildItem -Path $resolvedRootPath -Recurse -Directory -Force |
    Where-Object {
        ($_.Name -in 'bin','obj') -and
        (-not ($_.FullName -match '\\\.(git|vs|idea|vscode)\\')) -and
@@ -46,13 +74,17 @@ $dirs = Get-ChildItem -Path $RootPath -Recurse -Directory -Force |
 
 foreach ($d in $dirs) {
    if ($PSCmdlet.ShouldProcess($d.FullName, 'Remove directory')) {
-       Remove-Item -LiteralPath $d.FullName -Recurse -Force -ErrorAction SilentlyContinue
-       Write-Host "Deleted directory: $($d.FullName)" -ForegroundColor Green
+       try {
+           Remove-Item -LiteralPath $d.FullName -Recurse -Force -ErrorAction Stop
+           Write-Host "Deleted directory: $($d.FullName)" -ForegroundColor Green
+       } catch {
+           Write-Warning "Failed to delete directory: $($d.FullName) - $_"
+       }
    }
 }
 
 # 2) Remove loose .dll files (outside bin/obj)
-$dlls = Get-ChildItem -Path $RootPath -Recurse -Include *.dll -File -Force |
+$dlls = Get-ChildItem -Path $resolvedRootPath -Recurse -Include *.dll -File -Force |
    Where-Object {
        -not ($_.FullName -match '\\(bin|obj)\\') -and
        -not ($_.FullName -match '\\Binaries\\')
@@ -60,21 +92,23 @@ $dlls = Get-ChildItem -Path $RootPath -Recurse -Include *.dll -File -Force |
 
 foreach ($f in $dlls) {
    if ($PSCmdlet.ShouldProcess($f.FullName, 'Remove file')) {
-       Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue
-       Write-Host "Deleted file: $($f.FullName)" -ForegroundColor Yellow
+       try {
+           Remove-Item -LiteralPath $f.FullName -Force -ErrorAction Stop
+           Write-Host "Deleted file: $($f.FullName)" -ForegroundColor Yellow
+       } catch {
+           Write-Warning "Failed to delete file: $($f.FullName) - $_"
+       }
    }
 }
 
 Write-Host "Cleanup complete!" -ForegroundColor Cyan
 
-# 3) Rebuild the solution
-$solutionPath = Join-Path $RootPath $SolutionFile
-if (Test-Path $solutionPath) {
-   $buildCmd = "dotnet build `"$solutionPath`" -t:Rebuild"
+# 3) Rebuild the solution unless -p is specified
+if (-not $NoBuild) {
    if ($PSCmdlet.ShouldProcess($solutionPath, "Rebuild solution")) {
        Write-Host "Rebuilding solution: $SolutionFile" -ForegroundColor Cyan
-       Invoke-Expression $buildCmd
+       Invoke-Expression "dotnet build `"$solutionPath`" -t:Rebuild"
    }
 } else {
-   Write-Warning "Solution file not found at: $solutionPath"
+   Write-Host "Skipping build step (-p flag set)." -ForegroundColor DarkGray
 }

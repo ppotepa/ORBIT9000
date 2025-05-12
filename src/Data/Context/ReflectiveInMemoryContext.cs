@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ORBIT9000.ExampleDomain.Entities;
 
 namespace ORBIT9000.Data.Context
 {
     public class ReflectiveInMemoryContext : ExtendedDbContext
     {
-        public DbSet<string> Data { get; set; }
+        public DbSet<WeatherData> WeatherData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -12,8 +13,8 @@ namespace ORBIT9000.Data.Context
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //DataSeed.Seed(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
     }
 }
+

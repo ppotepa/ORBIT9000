@@ -6,7 +6,9 @@ using Newtonsoft.Json;
 using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Core.Abstractions.Runtime;
 using ORBIT9000.Core.TempTools;
+using ORBIT9000.Data;
 using ORBIT9000.Data.Context;
+using ORBIT9000.Data.ORBIT9000.Data.Context;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders;
@@ -71,21 +73,11 @@ namespace ORBIT9000.Engine.Builders
             this._containerBuilder.RegisterInstance(this._configuration!).As<IConfiguration>().SingleInstance();
             this._containerBuilder.RegisterInstance(this._rawConfiguration!).AsSelf().SingleInstance();
 
+            // Plugin loading
             this._containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf().InstancePerDependency();
             this._containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf().InstancePerDependency();
             this._containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf().InstancePerDependency();
             this._containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().InstancePerDependency();
-
-            this._containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
-
-            this._containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
-            this._containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
-            this._containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
-                               .As(typeof(GlobalMessageChannel<>))
-                               .As(typeof(IMessageChannel<>))
-                               .SingleInstance();
-
-            this._containerBuilder.Register(_ => this._loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
 
             this._containerBuilder.Register(ctx =>
             {
@@ -95,31 +87,40 @@ namespace ORBIT9000.Engine.Builders
             .As<IPluginLoader>()
             .SingleInstance();
 
-            this._containerBuilder.RegisterType<OrbitEngine>()
-                .AsSelf()
-                .SingleInstance();
+            // Assembly loader
+            this._containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
 
-            this._containerBuilder.RegisterType<EngineState>()
-               .AsSelf()
-            .SingleInstance();
+            // Runtime
+            this._containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
+            this._containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
+            this._containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
+                                   .As(typeof(GlobalMessageChannel<>))
+                                   .As(typeof(IMessageChannel<>))
+                                   .SingleInstance();
 
-            this._containerBuilder.RegisterType<ScheduleCalculator>()
-               .AsImplementedInterfaces()
-               .SingleInstance();
+            // Logger fallback
+            this._containerBuilder.Register(_ => this._loggerFactory.CreateLogger<OrbitEngineBuilder>())
+                                  .As<ILogger>()
+                                  .SingleInstance();
 
-            this._containerBuilder.RegisterType<SimpleScheduler>()
-                .AsImplementedInterfaces()
-                .SingleInstance();
+            // Scheduling
+            this._containerBuilder.RegisterType<EngineState>().AsSelf().SingleInstance();
+            this._containerBuilder.RegisterType<ScheduleCalculator>().AsImplementedInterfaces().SingleInstance();
+            this._containerBuilder.RegisterType<SimpleScheduler>().AsImplementedInterfaces().SingleInstance();
+            this._containerBuilder.RegisterType<TextScheduleParser>().AsImplementedInterfaces().SingleInstance();
 
-            this._containerBuilder.RegisterType<TextScheduleParser>()
-                .AsImplementedInterfaces()
-                .SingleInstance();
+            // Core engine
+            this._containerBuilder.RegisterType<OrbitEngine>().AsSelf().SingleInstance();
 
+            // .NET DI interop
             this._containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
-                .As<IServiceProvider>()
-                .SingleInstance();
+                                  .As<IServiceProvider>()
+                                  .SingleInstance();
 
+            // WeatherData access layer
             this._containerBuilder.RegisterType<ReflectiveInMemoryContext>().AsSelf().InstancePerLifetimeScope();
+            this._containerBuilder.RegisterType<ReflectiveInMemoryDbAdapter>().As<IDbAdapter>().InstancePerLifetimeScope();
+            this._containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
 
             IContainer container = this._containerBuilder.Build();
             return container.Resolve<OrbitEngine>();
@@ -167,6 +168,7 @@ namespace ORBIT9000.Engine.Builders
             }
             else { throw new InvalidOperationException("Configuration has already been set."); }
 
+            this._rawConfiguration = rawConfiguration;
             return this;
         }
 

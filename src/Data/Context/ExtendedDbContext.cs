@@ -15,10 +15,14 @@ namespace ORBIT9000.Data.Context
         {
             get
             {
-                _entities ??= [.. AppDomain.CurrentDomain
-                        .GetAssemblies()
-                        .SelectMany(assembly => assembly.GetTypes()
-                            .Where(type => type.GetInterfaces().Contains(typeof(IExtendedEntity<Guid>))))];
+                //HACK: for some reason entities are loaded twice.
+                _entities ??= [..AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .SelectMany(assembly => assembly.GetTypes()
+                        .Where(type => type.GetInterfaces().Contains(typeof(IExtendedEntity<Guid>))))
+                    .GroupBy(type => type.AssemblyQualifiedName)
+                    .Select(group => group.First())
+                ];
 
                 return _entities;
             }

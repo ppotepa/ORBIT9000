@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ORBIT9000.Core.Abstractions;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Data.Context;
+using ORBIT9000.Data;
+using ORBIT9000.ExampleDomain.Entities;
 using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
 
@@ -12,30 +12,64 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 {
     [DefaultProject("Example")]
     [SchedulableService("run every 5 seconds")]
-    public class ExampleSchedulePlugin2(ILogger<ExampleSchedulePlugin2> logger,
-        LondonDataProvider dataProvider,
-        ReflectiveInMemoryContext context) :
-        IOrbitPlugin
+    public class ExampleSchedulePlugin2 : IOrbitPlugin
     {
-        private readonly LondonDataProvider _dataProvider = dataProvider;
-        private readonly ILogger<ExampleSchedulePlugin2> _logger = logger;
+        #region Fields
+
+        private readonly LondonDataProvider _dataProvider;
+        private readonly ILogger<ExampleSchedulePlugin2> _logger;
+        private readonly IRepository<WeatherData> _weatherRepository;
+
+        #endregion Fields
+
+        #region Constructor
+
+        public ExampleSchedulePlugin2(
+            ILogger<ExampleSchedulePlugin2> logger,
+            LondonDataProvider dataProvider,
+            IRepository<WeatherData> weatherRepository)
+        {
+            this._logger = logger;
+            this._dataProvider = dataProvider;
+            this._weatherRepository = weatherRepository;
+        }
+
+        #endregion Constructor
+
+        #region Methods
+
+        public async Task<object> Execute()
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task OnLoad()
         {
             try
             {
-                IEnumerable<WeatherResponse> data = await this._dataProvider.GetData();
+                IEnumerable<WeatherResponse> weatherResponses = await this._dataProvider.GetData();
 
-                foreach (WeatherResponse response in data)
+                foreach (WeatherResponse response in weatherResponses)
                 {
                     this._logger.LogInformation("Weather data: {@Response}", response);
                 }
 
-                this._logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());
+                this._logger.LogInformation("Fetched data from weather API: {@HashCode}", this.GetHashCode());
 
-                string serialized = JsonConvert.SerializeObject(data);
-                context.AddRange(serialized);
-                await context.SaveChangesAsync();
+                List<WeatherData> weatherDataList = [.. weatherResponses.Select(response => new WeatherData
+                {
+                    Temperature = (decimal?)response?.Hourly?.Temperature2M?.Average(),
+                    City = "London",
+                    Long = response!.Longitude,
+                    Lat = response!.Latitude
+                })];
+
+                foreach (WeatherData? weatherData in weatherDataList)
+                {
+                    this._weatherRepository.Add(weatherData);
+                }
+
+                this._weatherRepository.Save();
             }
             catch (Exception ex)
             {
@@ -49,14 +83,11 @@ namespace ORBIT9000.Plugins.ScheduleExample2
             return Task.CompletedTask;
         }
 
-        public async Task<object> Execute()
+        public void RegisterServices(IServiceCollection services)
         {
-            throw new NotImplementedException();
+            services.AddTransient<LondonDataProvider>();
         }
 
-        public void RegisterServices(IServiceCollection collection)
-        {
-            collection.AddTransient<LondonDataProvider>();
-        }
+        #endregion Methods
     }
 }
