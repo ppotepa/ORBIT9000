@@ -84,7 +84,7 @@ public class WeatherQuery : IOrbitPlugin
 
 - **ORBIT9000.Core** – Contracts and definitions
 - **ORBIT9000.Engine** – Core engine with loading strategies and DI container
-- **EngineTerminal** – Console interface for plugin execution
+- **EngineTerminal** – Console interface for plugin execution and exclusion (also a small PoC using System.IO.Pipes
 - **PoCDemo** – Example consumer app
 - **Plugins** – Example and test plugins
 
