@@ -18,6 +18,9 @@
 .PARAMETER NoBuild (-p)
    Skips rebuilding the solution after cleanup.
 
+.PARAMETER n
+   If specified, clears NuGet cache (dotnet nuget locals all --clear).
+
 .EXAMPLE
    .\Clean-BuildArtefacts.ps1 -RootPath './'
 
@@ -25,7 +28,7 @@
    .\Clean-BuildArtefacts.ps1 -p
 
 .EXAMPLE
-   .\Clean-BuildArtefacts.ps1 -WhatIf
+   .\Clean-BuildArtefacts.ps1 -n
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -38,7 +41,10 @@ param(
 
    [Parameter(Mandatory=$false)]
    [Alias("p")]
-   [switch]$NoBuild
+   [switch]$NoBuild,
+
+   [Parameter(Mandatory=$false)]
+   [switch]$n
 )
 
 # Get the directory of the script and go one level up
@@ -101,9 +107,15 @@ foreach ($f in $dlls) {
    }
 }
 
+# 3) Optionally clear NuGet cache if -n specified
+if ($n) {
+   Write-Host "Clearing NuGet cache (-n flag set)..." -ForegroundColor DarkCyan
+   dotnet nuget locals all --clear
+}
+
 Write-Host "Cleanup complete!" -ForegroundColor Cyan
 
-# 3) Force rebuild the solution unless -p is specified
+# 4) Force rebuild the solution unless -p is specified
 if (-not $NoBuild) {
    if ($PSCmdlet.ShouldProcess($solutionPath, "Force rebuild solution")) {
        Write-Host "Force rebuilding solution: $SolutionFile" -ForegroundColor Cyan
