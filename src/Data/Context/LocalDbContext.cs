@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using ORBIT9000.ExampleDomain.Entities;
 
@@ -28,5 +29,18 @@ namespace ORBIT9000.Data.Context
         }
 
         #endregion Methods
+    }
+
+    public class LocalDbContextFactory : IDesignTimeDbContextFactory<LocalDbContext>
+    {
+        public LocalDbContext CreateDbContext(string[] args)
+        {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                   .SetBasePath(Directory.GetCurrentDirectory())
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                   .Build();
+
+            return new LocalDbContext(configuration);
+        }
     }
 }
