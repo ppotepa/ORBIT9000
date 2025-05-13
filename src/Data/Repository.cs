@@ -3,14 +3,9 @@ using ORBIT9000.Data.ORBIT9000.Data.Context;
 
 namespace ORBIT9000.Data
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
+    public class Repository<TEntity>(IDbAdapter adapter) : IRepository<TEntity> where TEntity : class, IEntity
     {
-        private readonly IDbAdapter _adapter;
-
-        public Repository(IDbAdapter adapter)
-        {
-            this._adapter = adapter;
-        }
+        private readonly IDbAdapter _adapter = adapter;
 
         public IQueryable<TEntity> GetAll()
         {

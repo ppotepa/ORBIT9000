@@ -12,30 +12,11 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 {
     [DefaultProject("Example")]
     [SchedulableService("run every 5 seconds")]
-    public class ExampleSchedulePlugin2 : IOrbitPlugin
+    public class ExampleSchedulePlugin2(
+        ILogger<ExampleSchedulePlugin2> logger,
+        LondonDataProvider dataProvider,
+        IRepository<WeatherData> weatherRepository) : IOrbitPlugin
     {
-        #region Fields
-
-        private readonly LondonDataProvider _dataProvider;
-        private readonly ILogger<ExampleSchedulePlugin2> _logger;
-        private readonly IRepository<WeatherData> _weatherRepository;
-
-        #endregion Fields
-
-        #region Constructor
-
-        public ExampleSchedulePlugin2(
-            ILogger<ExampleSchedulePlugin2> logger,
-            LondonDataProvider dataProvider,
-            IRepository<WeatherData> weatherRepository)
-        {
-            this._logger = logger;
-            this._dataProvider = dataProvider;
-            this._weatherRepository = weatherRepository;
-        }
-
-        #endregion Constructor
-
         #region Methods
 
         public async Task<object> Execute()
@@ -47,14 +28,14 @@ namespace ORBIT9000.Plugins.ScheduleExample2
         {
             try
             {
-                IEnumerable<WeatherResponse> weatherResponses = await this._dataProvider.GetData();
+                IEnumerable<WeatherResponse> weatherResponses = await dataProvider.GetData();
 
                 foreach (WeatherResponse response in weatherResponses)
                 {
-                    this._logger.LogInformation("Weather data: {@Response}", response);
+                    logger.LogInformation("Weather data: {@Response}", response);
                 }
 
-                this._logger.LogInformation("Fetched data from weather API: {@HashCode}", this.GetHashCode());
+                logger.LogInformation("Fetched data from weather API: {@HashCode}", this.GetHashCode());
 
                 List<WeatherData> weatherDataList = [.. weatherResponses.Select(response => new WeatherData
                 {
@@ -66,20 +47,20 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 
                 foreach (WeatherData? weatherData in weatherDataList)
                 {
-                    this._weatherRepository.Add(weatherData);
+                    weatherRepository.Add(weatherData);
                 }
 
-                this._weatherRepository.Save();
+                weatherRepository.Save();
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "An error occurred while fetching weather data.");
+                logger.LogError(ex, "An error occurred while fetching weather data.");
             }
         }
 
         public Task OnUnload()
         {
-            this._logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
+            logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
         }
 

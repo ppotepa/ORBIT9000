@@ -2,25 +2,15 @@
 using ORBIT9000.Data.Context;
 using ORBIT9000.Data.ORBIT9000.Data.Context;
 
-
 namespace ORBIT9000.Data
 {
-    public class ReflectiveInMemoryDbAdapter : IDbAdapter
+    public class ReflectiveInMemoryDbAdapter(ReflectiveInMemoryContext context) : IDbAdapter
     {
         #region Fields
 
-        private readonly ReflectiveInMemoryContext _context;
+        private readonly ReflectiveInMemoryContext _context = context;
 
         #endregion Fields
-
-        #region Constructors
-
-        public ReflectiveInMemoryDbAdapter(ReflectiveInMemoryContext context)
-        {
-            this._context = context;
-        }
-
-        #endregion Constructors
 
         #region Methods
 
@@ -31,10 +21,7 @@ namespace ORBIT9000.Data
 
         public void AddRange<TEntity>(IEnumerable<TEntity> entities) where TEntity : class, IEntity
         {
-            foreach (TEntity entity in entities)
-            {
-                this._context.Set<TEntity>().Add(entity);
-            }
+            this._context.Set<TEntity>().AddRange(entities);
         }
 
         public void Attach<TEntity>(TEntity entity) where TEntity : class, IEntity
