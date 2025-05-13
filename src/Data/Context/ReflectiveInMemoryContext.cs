@@ -11,10 +11,10 @@ namespace ORBIT9000.Data.Context
         {
             optionsBuilder.UseInMemoryDatabase(nameof(ReflectiveInMemoryContext));
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
         }
     }
 }
-
