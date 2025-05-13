@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-   Recursively deletes build artifacts (bin/, obj/ folders and loose .dll files), then optionally rebuilds the ORBIT9000.sln solution.
+   Recursively deletes build artifacts (bin/, obj/ folders and loose .dll files), then forcefully rebuilds the ORBIT9000.sln solution.
 
 .DESCRIPTION
    This script is meant to run from the '.scripts' folder directly below ORBIT9000.sln.
@@ -103,11 +103,12 @@ foreach ($f in $dlls) {
 
 Write-Host "Cleanup complete!" -ForegroundColor Cyan
 
-# 3) Rebuild the solution unless -p is specified
+# 3) Force rebuild the solution unless -p is specified
 if (-not $NoBuild) {
-   if ($PSCmdlet.ShouldProcess($solutionPath, "Rebuild solution")) {
-       Write-Host "Rebuilding solution: $SolutionFile" -ForegroundColor Cyan
-       Invoke-Expression "dotnet build `"$solutionPath`" -t:Rebuild"
+   if ($PSCmdlet.ShouldProcess($solutionPath, "Force rebuild solution")) {
+       Write-Host "Force rebuilding solution: $SolutionFile" -ForegroundColor Cyan
+       Invoke-Expression "dotnet clean `"$solutionPath`""
+       Invoke-Expression "dotnet build `"$solutionPath`" -t:Rebuild --no-incremental"
    }
 } else {
    Write-Host "Skipping build step (-p flag set)." -ForegroundColor DarkGray
