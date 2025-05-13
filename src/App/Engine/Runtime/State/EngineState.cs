@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Runtime;
+using ORBIT9000.Abstractions.Runtime;
 using ORBIT9000.Core.Events;
 using ORBIT9000.Engine.Configuration;
 

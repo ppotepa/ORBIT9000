@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Abstractions.Loaders
+﻿namespace ORBIT9000.Abstractions.Loaders
 {
     public interface IFileLoader<TResult> : ILoader
     {

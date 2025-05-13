@@ -1,6 +1,4 @@
-﻿using ORBIT9000.Core.Models;
-
-namespace ORBIT9000.Core.Abstractions.Scheduling
+﻿namespace ORBIT9000.Abstractions.Scheduling
 {
     public interface IScheduler
     {

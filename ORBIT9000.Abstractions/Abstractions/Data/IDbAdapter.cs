@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions.Data.Entities;
+﻿using ORBIT9000.Abstractions.Data.Entities;
 
 namespace ORBIT9000.Data
 {

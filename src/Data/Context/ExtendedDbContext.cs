@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ORBIT9000.Core.Abstractions.Data.Entities;
+using ORBIT9000.Abstractions.Data.Entities;
 using System.Reflection;
 
 namespace ORBIT9000.Data.Context

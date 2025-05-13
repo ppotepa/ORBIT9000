@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace ORBIT9000.Core.Abstractions
+namespace ORBIT9000.Abstractions
 {
     public interface IOrbitPlugin
     {

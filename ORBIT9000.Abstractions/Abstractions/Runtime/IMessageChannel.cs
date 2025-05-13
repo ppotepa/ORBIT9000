@@ -1,6 +1,6 @@
 ﻿using System.Threading.Channels;
 
-namespace ORBIT9000.Core.Abstractions.Runtime
+namespace ORBIT9000.Abstractions.Runtime
 {
     public interface IMessageChannel<T>
     {

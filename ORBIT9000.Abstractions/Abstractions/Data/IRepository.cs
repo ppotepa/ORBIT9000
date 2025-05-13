@@ -1,6 +1,6 @@
-﻿using ORBIT9000.Core.Abstractions.Data.Entities;
+﻿using ORBIT9000.Abstractions.Data.Entities;
 
-namespace ORBIT9000.Core.Abstractions.Data
+namespace ORBIT9000.Abstractions.Data
 {
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {

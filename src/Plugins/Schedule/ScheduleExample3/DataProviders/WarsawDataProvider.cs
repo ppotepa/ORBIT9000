@@ -1,7 +1,7 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Authentication;
+using ORBIT9000.Abstractions.Authentication;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.Example.Common;

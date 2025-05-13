@@ -1,15 +1,31 @@
-﻿using ORBIT9000.Core.Abstractions.Data;
-using ORBIT9000.Core.Abstractions.Data.Entities;
+﻿using ORBIT9000.Abstractions.Data;
+using ORBIT9000.Abstractions.Data.Entities;
 
 namespace ORBIT9000.Data
 {
     public class Repository<TEntity>(IDbAdapter adapter) : IRepository<TEntity> where TEntity : class, IEntity
     {
+        #region Fields
+
         private readonly IDbAdapter _adapter = adapter;
 
-        public IQueryable<TEntity> GetAll()
+        #endregion Fields
+
+        #region Methods
+
+        public void Add(TEntity entity)
         {
-            return this._adapter.Query<TEntity>();
+            this._adapter.Add(entity);
+        }
+
+        public Task AddAsync(TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(TEntity entity)
+        {
+            throw new NotImplementedException();
         }
 
         public TEntity? FindById(params object[] key)
@@ -17,9 +33,18 @@ namespace ORBIT9000.Data
             return this._adapter.Find<TEntity>(key);
         }
 
-        public void Add(TEntity entity)
+        public IQueryable<TEntity> GetAll()
         {
-            this._adapter.Add(entity);
+            return this._adapter.Query<TEntity>();
+        }
+        public Task<TEntity?> GetAsync(object id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<TEntity> Query()
+        {
+            throw new NotImplementedException();
         }
 
         public void Remove(TEntity entity)
@@ -31,30 +56,11 @@ namespace ORBIT9000.Data
         {
             this._adapter.SaveChanges();
         }
-
-        public IQueryable<TEntity> Query()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TEntity?> GetAsync(object id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddAsync(TEntity entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task UpdateAsync(TEntity entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteAsync(TEntity entity)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion Methods
     }
 }

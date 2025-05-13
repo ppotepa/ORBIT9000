@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions;
-using ORBIT9000.Core.Abstractions.Data;
+using ORBIT9000.Abstractions;
+using ORBIT9000.Abstractions.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.ExampleDomain.Entities;
 using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
+
 
 namespace ORBIT9000.Plugins.ScheduleExample2
 {

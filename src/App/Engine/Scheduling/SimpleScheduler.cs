@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Core.Environment;
-using ORBIT9000.Core.Models;
 
 namespace ORBIT9000.Engine.Scheduling
 {

@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Abstractions.Authentication
+﻿namespace ORBIT9000.Abstractions.Authentication
 {
     public interface IAuthenticate
     {

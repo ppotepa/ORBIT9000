@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Abstractions.Parsing
+﻿namespace ORBIT9000.Abstractions.Parsing
 {
     public interface IParser
     {

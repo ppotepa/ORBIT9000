@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions;
+﻿using ORBIT9000.Abstractions;
 
 namespace ORBIT9000.Core.Attributes.Engine
 {

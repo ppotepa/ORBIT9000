@@ -1,7 +1,7 @@
 ﻿#nullable disable
 
 using MessagePack;
-using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Reflection;
@@ -11,18 +11,23 @@ namespace ORBIT9000.Engine.Configuration
     [MessagePackObject(AllowPrivate = true)]
     public partial class PluginInfo
     {
+        #region Fields
+
+        [IgnoreMember]
+        private bool? _containsPlugins;
+
         [Key(0)]
         private bool? _isSingleton;
+
+        #endregion Fields
+
+        #region Properties
 
         [Key(3)]
         public bool Activated { get; internal set; }
 
         [IgnoreMember]
         public Assembly Assembly { get; internal set; }
-
-        [IgnoreMember]
-        private bool? _containsPlugins;
-
         [Key(2)]
         public bool ContainsPlugins
         {
@@ -49,5 +54,7 @@ namespace ORBIT9000.Engine.Configuration
 
         [IgnoreMember]
         public Type PluginType { get; internal set; }
+
+        #endregion Properties
     }
 }

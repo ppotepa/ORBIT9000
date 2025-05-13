@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Abstractions.Providers
+﻿namespace ORBIT9000.Abstractions.Providers
 {
     public interface IPluginProvider
     {

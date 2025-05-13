@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Abstractions\Plugin\**" />
     <Compile Remove="UI\**" />
-    <EmbeddedResource Remove="Abstractions\Plugin\**" />
     <EmbeddedResource Remove="UI\**" />
-    <None Remove="Abstractions\Plugin\**" />
     <None Remove="UI\**" />
   </ItemGroup>
 
@@ -29,6 +26,10 @@
 
   <ItemGroup>
     <None Include="Attributes\Engine\IEngineAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ORBIT9000.Abstractions\ORBIT9000.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

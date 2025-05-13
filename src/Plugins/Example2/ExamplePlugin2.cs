@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Plugins.Example2.Services;
 
@@ -9,12 +9,18 @@ namespace ORBIT9000.Plugins.Example2
     [DefaultProject("Example")]
     public class ExamplePlugin2 : IOrbitPlugin
     {
+        #region Fields
+
         private readonly ILogger<ExamplePlugin2> _logger;
         private readonly RandomNumberService _numbers;
+
+        #endregion Fields
 
         // we should not be able to get data from the ExampleDataProvider here
         // Accessing data from the ExampleDataProvider here is not allowed
         // because it does not have a shared scope
+
+        #region Constructors
 
         public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger)
         {
@@ -23,6 +29,10 @@ namespace ORBIT9000.Plugins.Example2
 
             _logger.LogInformation("ExamplePlugin2 created");
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         public Task<object> Execute()
         {
@@ -44,5 +54,7 @@ namespace ORBIT9000.Plugins.Example2
         {
             collection.AddTransient<RandomNumberService>();
         }
+
+        #endregion Methods
     }
 }

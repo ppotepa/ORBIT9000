@@ -1,4 +1,4 @@
-﻿namespace ORBIT9000.Core.Abstractions.Data.Entities
+﻿namespace ORBIT9000.Abstractions.Data.Entities
 {
     public abstract class ExtendedEntity<TIdentityType> : IExtendedEntity<TIdentityType>
         where TIdentityType : struct

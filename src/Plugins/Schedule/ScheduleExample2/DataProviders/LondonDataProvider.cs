@@ -1,7 +1,7 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Authentication;
+using ORBIT9000.Abstractions.Authentication;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Plugins.Example.Common;
 
@@ -32,7 +32,6 @@ namespace ORBIT9000.Plugins.ScheduleExample2.DataProviders
         {
             throw new NotImplementedException();
         }
-
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
             this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());

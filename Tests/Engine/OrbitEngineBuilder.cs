@@ -2,12 +2,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using NUnit.Framework.Internal;
-using ORBIT9000.Core.Abstractions.Providers;
-using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Abstractions.Providers;
+using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Engine.Configuration.Raw;
 using System.Reflection;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ORBIT9000.Engine.Tests
 {
