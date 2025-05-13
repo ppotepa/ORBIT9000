@@ -7,7 +7,6 @@ using ORBIT9000.Engine.Scheduling;
 
 namespace ORBIT9000.Engine.Tests
 {
-
     // This test class currently uses Task.Delay or threaded calls to wait for asynchronous or scheduled operations.
     // These delays make the tests slower and potentially flaky, especially as the test suite grows.
     // TODO: Replace Task.Delay and threaded calls with controlled time simulation, mocks, or manual triggering
@@ -205,6 +204,7 @@ namespace ORBIT9000.Engine.Tests
 
             Assert.That(executedJobCount, Is.EqualTo(2), "Not all overdue jobs were executed");
         }
+
         [Test]
         public async Task StartAsync_UpdatesNextRunTime()
         {
@@ -219,6 +219,7 @@ namespace ORBIT9000.Engine.Tests
 
             Assert.That(nextRunTime, Is.EqualTo(scheduleJob.NextRun));
         }
+
         [Test]
         public async Task StartAsync_WaitsUntilNextJob()
         {

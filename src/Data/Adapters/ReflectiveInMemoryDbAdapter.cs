@@ -1,4 +1,5 @@
-﻿using ORBIT9000.Abstractions.Data.Entities;
+﻿using ORBIT9000.Abstractions.Data;
+using ORBIT9000.Abstractions.Data.Entities;
 using ORBIT9000.Data.Context;
 namespace ORBIT9000.Data.Adapters
 {

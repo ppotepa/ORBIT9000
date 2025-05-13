@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,4 +32,24 @@
     <ProjectReference Include="..\Abstractions\ORBIT9000.Abstractions.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- Suppress SonarAnalyzer diagnostics that are causing exceptions -->
+    <NoWarn>$(NoWarn);S1125;S6610;S6588</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\Users\pawel\AppData\Roaming\SonarLint for Visual Studio\Bindings\ORBIT9000\csharp\SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\Users\pawel\AppData\Roaming\SonarLint for Visual Studio\Bindings\ORBIT9000\csharp\SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\Users\pawel\AppData\Roaming\SonarLint for Visual Studio\Bindings\ORBIT9000\csharp\SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\Users\pawel\AppData\Roaming\SonarLint for Visual Studio\Bindings\ORBIT9000\csharp\SonarLint.xml" />
+  </ItemGroup>
 </Project>

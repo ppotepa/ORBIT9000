@@ -193,7 +193,7 @@ namespace ORBIT9000.Engine.Builders
         /// Creates a factory delegate for constructing generic ILogger&lt;T&gt; instances using the provided ILoggerFactory.
         /// Uses an Expression-based approach for efficient access.
         /// NOTE: Unable to get LoggerFactory.CreateLogger to work directly for generic types, so an Expression-based
-        /// approach is used for faster access. 
+        /// approach is used for faster access.
         /// TODO: Investigate and implement a more direct or idiomatic solution if possible.
         /// </summary>
         private static Func<ILoggerFactory, object> CreateLoggerFactory(Type categoryType)

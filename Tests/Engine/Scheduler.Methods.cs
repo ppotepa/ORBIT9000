@@ -2,7 +2,6 @@
 using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Core.Environment;
 
-
 namespace ORBIT9000.Engine.Tests
 {
     // This test class currently uses Task.Delay or threaded calls to wait for asynchronous or scheduled operations.
@@ -52,11 +51,10 @@ namespace ORBIT9000.Engine.Tests
             public IReadOnlyCollection<DayOfWeek>? DaysOfWeek { get; set; }
             public DateTime? End { get; set; }
             public TimeSpan Interval { get; set; } = TimeSpan.FromHours(1);
-            public DateTime NextRun { get; set; }
-            public DateTime Start { get; set; } = DateTime.UtcNow;
             public string? Name { get; set; }
+            public DateTime NextRun { get; set; }
             public string? OriginalExpression { get; set; }
-
+            public DateTime Start { get; set; } = DateTime.UtcNow;
             #endregion Properties
         }
 

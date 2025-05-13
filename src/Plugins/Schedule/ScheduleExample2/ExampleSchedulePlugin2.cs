@@ -8,7 +8,6 @@ using ORBIT9000.ExampleDomain.Entities;
 using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
 
-
 namespace ORBIT9000.Plugins.ScheduleExample2
 {
     [DefaultProject("Example")]
@@ -22,6 +21,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 
         public async Task<object> Execute()
         {
+            await Task.Delay(0);
             throw new NotImplementedException();
         }
 

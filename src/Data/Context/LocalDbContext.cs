@@ -4,14 +4,9 @@ using ORBIT9000.ExampleDomain.Entities;
 
 namespace ORBIT9000.Data.Context
 {
-    public class LocalDbContext : ExtendedDbContext
+    public class LocalDbContext(IConfiguration configuration) : ExtendedDbContext
     {
-        private readonly IConfiguration _configuration;
-
-        public LocalDbContext(IConfiguration configuration)
-        {
-            this._configuration = configuration;
-        }
+        private readonly IConfiguration _configuration = configuration;
 
         #region Properties
 
@@ -23,7 +18,7 @@ namespace ORBIT9000.Data.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = this._configuration.GetConnectionString("Debug");
+            string? connectionString = this._configuration.GetConnectionString("Debug");
             optionsBuilder.UseSqlServer(connectionString);
         }
 

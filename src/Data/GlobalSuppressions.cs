@@ -6,3 +6,5 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Major Code Smell", "S3011:Reflection should not be used to increase accessibility of classes, methods, or fields", Justification = "<Pending>", Scope = "member", Target = "~F:ORBIT9000.Data.Context.ExtendedDbContext.PRIVATE_FIELD_BINDING_ATTRS")]
+[assembly: SuppressMessage("Roslynator", "RCS1132:Remove redundant overriding member", Justification = "<Pending>", Scope = "member", Target = "~M:ORBIT9000.Data.Context.LocalDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)")]
+[assembly: SuppressMessage("Minor Code Smell", "S1185:Overriding members should do more than simply call the same member in the base class", Justification = "<Pending>", Scope = "member", Target = "~M:ORBIT9000.Data.Context.LocalDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)")]

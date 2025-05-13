@@ -1,44 +1,42 @@
-﻿namespace ORBIT9000.Core.Environment
+﻿namespace ORBIT9000.Core.Environment;
+public abstract class Disposable : IDisposable
 {
-    public abstract class Disposable : IDisposable
+    protected bool disposed = false;
+
+    // Public implementation of Dispose pattern callable by consumers.
+    public void Dispose()
     {
-        protected bool disposed = false;
+        this.Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        // Public implementation of Dispose pattern callable by consumers.
-        public void Dispose()
+    // Protected implementation of Dispose pattern.
+    protected virtual void Dispose(bool disposing)
+    {
+        if (this.disposed)
+            return;
+
+        if (disposing)
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            this.DisposeManagedObjects();
         }
 
-        // Protected implementation of Dispose pattern.
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.disposed)
-                return;
+        this.DisposeUnmanagedObjects();
+        this.disposed = true;
+    }
 
-            if (disposing)
-            {
-                this.DisposeManagedObjects();
-            }
+    /// <summary>
+    /// Free any managed objects
+    /// </summary>
+    protected virtual void DisposeManagedObjects() { }
 
-            this.DisposeUnmanagedObjects();
-            this.disposed = true;
-        }
+    /// <summary>
+    /// Free any unmanaged objects
+    /// </summary>
+    protected virtual void DisposeUnmanagedObjects() { }
 
-        /// <summary>
-        /// Free any managed objects
-        /// </summary>
-        protected virtual void DisposeManagedObjects() { }
-
-        /// <summary>
-        /// Free any unmanaged objects
-        /// </summary>
-        protected virtual void DisposeUnmanagedObjects() { }
-
-        ~Disposable()
-        {
-            this.Dispose(false);
-        }
+    ~Disposable()
+    {
+        this.Dispose(false);
     }
 }

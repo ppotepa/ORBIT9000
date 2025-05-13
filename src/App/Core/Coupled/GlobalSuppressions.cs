@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:ORBIT9000.Core.TempTools.TextScheduleParser.Parse(System.String,System.String)~ORBIT9000.Core.Models.IScheduleJob")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:ORBIT9000.Core.TempTools.TextScheduleParser.Parse(System.String,System.String)~ORBIT9000.Abstractions.Scheduling.IScheduleJob")]
