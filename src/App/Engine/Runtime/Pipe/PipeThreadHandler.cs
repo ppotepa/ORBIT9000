@@ -1,6 +1,6 @@
 using MessagePack;
 using MessagePack.Resolvers;
-using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Runtime.State;
 using System.IO.Pipes;
@@ -9,7 +9,13 @@ namespace ORBIT9000.Engine.Runtime.Pipe
 {
     internal class PipeThreadHandler
     {
+        #region Fields
+
         private readonly EngineState _state;
+
+        #endregion Fields
+
+        #region Constructors
 
         public PipeThreadHandler(EngineState state)
         {
@@ -20,6 +26,10 @@ namespace ORBIT9000.Engine.Runtime.Pipe
                 throw new InvalidOperationException("Engine state is null.");
             }
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         public async Task StartAsync()
         {
@@ -82,5 +92,7 @@ namespace ORBIT9000.Engine.Runtime.Pipe
 
             this._state.Engine.LogInformation("PipeThread has completed.");
         }
+
+        #endregion Methods
     }
 }

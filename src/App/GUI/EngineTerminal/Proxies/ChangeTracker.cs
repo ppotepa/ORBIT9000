@@ -1,4 +1,4 @@
-﻿using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+﻿using ORBIT9000.Core.Models.Pipe;
 using System.Reflection;
 
 namespace EngineTerminal.Proxies
@@ -11,12 +11,10 @@ namespace EngineTerminal.Proxies
     {
         #region Fields
 
-        private TTargetType? _originalData;
-        private TTargetType? _proxyData;
-
         private readonly List<PropertyChangeRecord> _changes = [];
         private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
-
+        private TTargetType? _originalData;
+        private TTargetType? _proxyData;
         #endregion Fields
 
         #region Properties
@@ -37,6 +35,8 @@ namespace EngineTerminal.Proxies
         #endregion Properties
 
         #region Methods
+
+        public IReadOnlyList<PropertyChangeRecord> GetChanges() => this._changes;
 
         public void Initialize(TTargetType data)
         {
@@ -72,11 +72,43 @@ namespace EngineTerminal.Proxies
                 }
             }
         }
+        private static bool IsComplexType(Type type)
+        {
+            return !type.IsPrimitive &&
+                   type != typeof(string) &&
+                   !type.IsEnum &&
+                   !type.IsValueType;
+        }
 
-        public IReadOnlyList<PropertyChangeRecord> GetChanges() => this._changes;
+        private TTargetType CreateProxy(TTargetType target)
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+            }
+
+            if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
+            {
+                return proxy.SetTarget(target, this._changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
+            }
+            else
+            {
+                return target;
+            }
+        }
+
+        private PropertyInfo[] GetCachedProperties(Type type)
+        {
+            if (!this._propertyCache.TryGetValue(type, out PropertyInfo[]? properties))
+            {
+                properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                this._propertyCache[type] = properties;
+            }
+            return properties;
+        }
 
         private void UpdateProperties<TProperty>(
-            TProperty source,
+                                    TProperty source,
             TProperty target,
             string parentPath,
             List<PropertyChangeRecord> changes) where TProperty : class
@@ -117,42 +149,6 @@ namespace EngineTerminal.Proxies
                 }
             }
         }
-
-        private TTargetType CreateProxy(TTargetType target)
-        {
-            if (target == null)
-            {
-                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
-            }
-
-            if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
-            {
-                return proxy.SetTarget(target, this._changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
-            }
-            else
-            {
-                return target;
-            }
-        }
-
-        private static bool IsComplexType(Type type)
-        {
-            return !type.IsPrimitive &&
-                   type != typeof(string) &&
-                   !type.IsEnum &&
-                   !type.IsValueType;
-        }
-
-        private PropertyInfo[] GetCachedProperties(Type type)
-        {
-            if (!this._propertyCache.TryGetValue(type, out PropertyInfo[]? properties))
-            {
-                properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                this._propertyCache[type] = properties;
-            }
-            return properties;
-        }
-
         #endregion Methods
     }
 }

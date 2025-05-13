@@ -1,6 +1,6 @@
 ﻿using EngineTerminal.Contracts;
 using ORBIT9000.Core.Environment;
-using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
 using static EngineTerminal.Managers.UIManager;

@@ -1,6 +1,6 @@
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Proxies;
-using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Core.TempTools;
 using Terminal.Gui.CustomViews.Misc;
 using static EngineTerminal.Managers.UIManager;
@@ -10,6 +10,7 @@ namespace EngineTerminal.Managers
     public class DataManager : IDataManager
     {
         #region Properties
+
         public object? Data { get; private set; }
         private readonly ChangeTracker<IPipeData> _changeTracker = new();
 

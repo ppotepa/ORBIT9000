@@ -2,7 +2,7 @@
 using MessagePack;
 using MessagePack.Resolvers;
 using ORBIT9000.Core.Environment;
-using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe;
 using System.Buffers;
 using System.IO.Pipes;
 using System.Threading.Channels;
