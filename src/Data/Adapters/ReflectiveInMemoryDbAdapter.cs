@@ -1,5 +1,5 @@
 ﻿using ORBIT9000.Core.Abstractions.Data.Entities;
-using ORBIT9000.Data.Context.ORBIT9000.Data.Context;
+using ORBIT9000.Data.Context;
 using ORBIT9000.Data.ORBIT9000.Data.Context;
 
 namespace ORBIT9000.Data.Adapters
@@ -69,6 +69,4 @@ namespace ORBIT9000.Data.Adapters
 
         #endregion Methods
     }
-
-
 }

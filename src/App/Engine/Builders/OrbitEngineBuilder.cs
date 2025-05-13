@@ -9,8 +9,7 @@ using ORBIT9000.Core.Abstractions.Runtime;
 using ORBIT9000.Core.TempTools;
 using ORBIT9000.Data;
 using ORBIT9000.Data.Adapters;
-using ORBIT9000.Data.Context.ORBIT9000.Data.Context;
-using ORBIT9000.Data.ORBIT9000.Data.Context;
+using ORBIT9000.Data.Context;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders;
@@ -190,6 +189,13 @@ namespace ORBIT9000.Engine.Builders
             return this;
         }
 
+        /// <summary>
+        /// Creates a factory delegate for constructing generic ILogger&lt;T&gt; instances using the provided ILoggerFactory.
+        /// Uses an Expression-based approach for efficient access.
+        /// NOTE: Unable to get LoggerFactory.CreateLogger to work directly for generic types, so an Expression-based
+        /// approach is used for faster access. 
+        /// TODO: Investigate and implement a more direct or idiomatic solution if possible.
+        /// </summary>
         private static Func<ILoggerFactory, object> CreateLoggerFactory(Type categoryType)
         {
             return _loggerFactoryCache.GetOrAdd(categoryType, type =>
