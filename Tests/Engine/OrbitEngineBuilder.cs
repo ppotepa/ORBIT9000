@@ -23,6 +23,7 @@ namespace ORBIT9000.Engine.Tests
     /// - Add clearer test naming for better readability (e.g., 'Should_Throw_When_ConfigurationMissing').
     /// - Extract repeated setup (e.g., config creation) into reusable helpers or test fixtures.
     /// - Document test intent using comments for complex behaviors (e.g., singleton validation).
+    /// - Consider using type builder to create test configurations instead of raw JSON strings and ODLL loading.
     /// </summary>
 
     [TestFixture]
@@ -64,7 +65,9 @@ namespace ORBIT9000.Engine.Tests
 
             FieldInfo? field = typeof(Engine.OrbitEngine).GetField("_logger", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.That(field, Is.Not.Null, "Field '_logger' not found.");
+
             object? logger = field?.GetValue(engine);
+
             Assert.That(logger, Is.InstanceOf<ILogger>());
 
             File.Delete("test_appsettings.json");

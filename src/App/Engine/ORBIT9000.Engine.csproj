@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Data\ORBIT9000.Data.csproj" />
-    <ProjectReference Include="..\Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\Core\Coupled\ORBIT9000.Core.csproj" />
   </ItemGroup>
 
 </Project>

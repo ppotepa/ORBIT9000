@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\App\Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\App\Core\Abstractions\ORBIT9000.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

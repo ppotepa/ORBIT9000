@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ORBIT9000.Abstractions\ORBIT9000.Abstractions.csproj" />
+    <ProjectReference Include="..\Abstractions\ORBIT9000.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\App\Core\ORBIT9000.Core.csproj" />
     <ProjectReference Include="..\ScheduleExample4\ORBIT9000.Plugins.ScheduleExample4.csproj" />    
   </ItemGroup>
 
