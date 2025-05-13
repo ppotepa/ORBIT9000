@@ -133,12 +133,23 @@ namespace ORBIT9000.Engine.Builders
             return container.Resolve<OrbitEngine>();
         }
 
+        /// <summary>
+        /// Sets the configuration for the builder using an existing <see cref="IConfiguration"/> instance.
+        /// This method is intended for scenarios where you want to inject a pre-built configuration,
+        /// such as during integration tests or when composing configuration from multiple sources.
+        /// </summary>
         public OrbitEngineBuilder Configure(IConfiguration configuration)
         {
             this._configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             return this;
         }
 
+        /// <summary>
+        /// Loads configuration from a JSON file or a <see cref="RawEngineConfiguration"/> object.
+        /// These overloads are designed for quickly setting up the application runtime, especially
+        /// for local development or rapid testing scenarios. They allow the engine to be configured
+        /// with minimal setup, bypassing the need for a full configuration pipeline.
+        /// </summary>
         public OrbitEngineBuilder UseConfiguration(string settingsPath = "appsettings.json")
         {
             if (this._configuration is null)

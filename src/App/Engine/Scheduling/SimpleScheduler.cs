@@ -8,7 +8,7 @@ namespace ORBIT9000.Engine.Scheduling
     public class SimpleScheduler(IScheduleCalculator calculator, ILogger<SimpleScheduler> logger)
                     : Disposable, IScheduler
     {
-        private readonly List<ScheduleJobWithAction> _jobs = [];
+        private readonly List<ScheduleJobWithAction> _entries = [];
         private readonly HashSet<IScheduleJob> _runningJobs = [];
         private readonly object _lock = new();
         private readonly IScheduleCalculator _calculator = calculator;
@@ -21,7 +21,7 @@ namespace ORBIT9000.Engine.Scheduling
 
             lock (this._lock)
             {
-                this._jobs.Add(new ScheduleJobWithAction(job, action));
+                this._entries.Add(new ScheduleJobWithAction(job, action));
                 this._logger.LogInformation(
                     "Scheduled job: {JobName}, NextRun: {NextRun}",
                     job.Name,
@@ -59,7 +59,7 @@ namespace ORBIT9000.Engine.Scheduling
 
         private async Task<bool> HandleNoJobsAsync(CancellationToken token)
         {
-            if (this._jobs.Count == 0)
+            if (this._entries.Count == 0)
             {
                 this._logger.LogDebug("No jobs scheduled. Waiting...");
                 await Task.Delay(TimeSpan.FromSeconds(1), token);
@@ -73,9 +73,9 @@ namespace ORBIT9000.Engine.Scheduling
             DateTime now = DateTime.UtcNow;
             lock (this._lock)
             {
-                List<ScheduleJobWithAction> dueJobs = [.. this._jobs
+                List<ScheduleJobWithAction> dueJobs = [.. this._entries
                     .Where(job => job.Job.NextRun <= now && !this._runningJobs.Contains(job.Job))
-                    .OrderBy(j => j.Job.NextRun)];
+                    .OrderBy(job => job.Job.NextRun)];
 
                 dueJobs.ForEach(job =>
                 {
@@ -92,9 +92,7 @@ namespace ORBIT9000.Engine.Scheduling
 
         private async Task HandleDueJobsAsync(List<ScheduleJobWithAction> dueJobs, CancellationToken token)
         {
-            this._logger.LogInformation(
-                "Handling {Count} due job(s).",
-                dueJobs.Count);
+            this._logger.LogInformation("Handling {Count} due job(s).", dueJobs.Count);
             List<Task> jobTasks = dueJobs.ConvertAll(dueJob => this.RunJobAsync(dueJob, token));
 
             _ = Task.Run(async () =>
@@ -138,14 +136,14 @@ namespace ORBIT9000.Engine.Scheduling
 
             lock (this._lock)
             {
-                if (this._jobs.Count == 0)
+                if (this._entries.Count == 0)
                 {
                     this._logger.LogDebug("No jobs to wait for. Delaying 1 second.");
                     Task.Delay(TimeSpan.FromSeconds(1), token);
                     return;
                 }
 
-                next = this._jobs.Min(j => j.Job.NextRun);
+                next = this._entries.Min(j => j.Job.NextRun);
             }
 
             TimeSpan delay = next - now;
@@ -165,6 +163,7 @@ namespace ORBIT9000.Engine.Scheduling
                 this._logger.LogInformation(
                     "Running job: {JobName}",
                     job.Job.Name);
+
                 if (job.Action != null)
                 {
                     await Task.Run(job.Action, token);

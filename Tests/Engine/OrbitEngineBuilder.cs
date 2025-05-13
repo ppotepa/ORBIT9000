@@ -11,6 +11,22 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ORBIT9000.Engine.Tests
 {
+    /// <summary>
+    /// Unit tests for the OrbitEngineBuilder, verifying dependency registration,
+    /// configuration handling, and error conditions during engine setup.
+    /// 
+    /// While the tests correctly validate key functionality, they have several areas
+    /// for improvement:
+    /// 
+    /// TODO:
+    /// - Avoid writing to disk using File.WriteAllText or File.Delete; replace with in-memory configuration or mocks.
+    /// - Separate pure unit tests from integration-style tests that indirectly validate DI or runtime behavior.
+    /// - Consider using a temp directory or cleanup logic to prevent test pollution or accidental file leakage.
+    /// - Add clearer test naming for better readability (e.g., 'Should_Throw_When_ConfigurationMissing').
+    /// - Extract repeated setup (e.g., config creation) into reusable helpers or test fixtures.
+    /// - Document test intent using comments for complex behaviors (e.g., singleton validation).
+    /// </summary>
+
     [TestFixture]
     public class OrbitEngineBuilder
     {

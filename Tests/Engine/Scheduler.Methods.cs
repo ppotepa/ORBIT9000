@@ -4,6 +4,10 @@ using ORBIT9000.Core.Models;
 
 namespace ORBIT9000.Engine.Tests
 {
+    // This test class currently uses Task.Delay or threaded calls to wait for asynchronous or scheduled operations.
+    // These delays make the tests slower and potentially flaky, especially as the test suite grows.
+    // TODO: Replace Task.Delay and threaded calls with controlled time simulation, mocks, or manual triggering
+    // of scheduled behavior to improve reliability and speed of tests.
     [TestFixture]
     public partial class Scheduler : Disposable
     {

@@ -34,6 +34,7 @@ namespace ORBIT9000.Engine.Tests
         public void WeatherDataRepository_BasicOperationsTest()
         {
             Mock<IRepository<WeatherData>> weatherDataRepositoryMock = new();
+
             List<WeatherData> mockWeatherDataList =
             [
                 new WeatherData { Id = Guid.NewGuid(), City = "Seattle", Temperature = 15.5m, Lattitude = 47.6062f, Longitude = -122.3321f },
@@ -46,11 +47,13 @@ namespace ORBIT9000.Engine.Tests
                 .Returns((object[] keys) => mockWeatherDataList.FirstOrDefault(weatherData => weatherData.Id.Equals(keys[0])));
 
             List<WeatherData> allWeatherDataFromMock = [.. weatherDataRepositoryMock.Object.GetAll()];
+
             Assert.That(allWeatherDataFromMock, Has.Count.EqualTo(3));
             Assert.That(allWeatherDataFromMock.Any(weatherData => weatherData.City == "Seattle"), Is.True);
 
             WeatherData expectedSeattleData = mockWeatherDataList[0];
             WeatherData? foundSeattleData = weatherDataRepositoryMock.Object.FindById(expectedSeattleData.Id);
+
             Assert.That(foundSeattleData, Is.Not.Null);
             Assert.That(foundSeattleData!.City, Is.EqualTo("Seattle"));
 
@@ -86,10 +89,12 @@ namespace ORBIT9000.Engine.Tests
             this.weatherDataRepository.Save();
 
             List<WeatherData> allStoredWeatherData = [.. this.weatherDataRepository.GetAll()];
+
             Assert.That(allStoredWeatherData, Has.Count.EqualTo(3));
             Assert.That(allStoredWeatherData.Any(weatherData => weatherData.City == "Seattle"), Is.True);
 
             WeatherData? foundSeattleData = this.weatherDataRepository.FindById(seattleWeatherData.Id);
+
             Assert.That(foundSeattleData, Is.Not.Null);
             Assert.That(foundSeattleData!.City, Is.EqualTo("Seattle"));
 
@@ -98,12 +103,14 @@ namespace ORBIT9000.Engine.Tests
             this.weatherDataRepository.Save();
 
             foundSeattleData = this.weatherDataRepository.FindById(seattleWeatherData.Id);
+
             Assert.That(foundSeattleData!.Temperature, Is.EqualTo(16.2m));
 
             this.weatherDataRepository.Remove(seattleWeatherData);
             this.weatherDataRepository.Save();
 
             allStoredWeatherData = [.. this.weatherDataRepository.GetAll()];
+
             Assert.That(allStoredWeatherData, Has.Count.EqualTo(2));
             Assert.That(allStoredWeatherData.Any(weatherData => weatherData.City == "Seattle"), Is.False);
         }
@@ -123,6 +130,7 @@ namespace ORBIT9000.Engine.Tests
             {
                 this.weatherDataRepository.Add(weatherData);
             }
+
             this.weatherDataRepository.Save();
 
             List<WeatherData> seattleWeatherDataList
