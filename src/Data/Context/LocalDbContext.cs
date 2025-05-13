@@ -1,13 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using ORBIT9000.ExampleDomain.Entities;
 
 namespace ORBIT9000.Data.Context
 {
     namespace ORBIT9000.Data.Context
     {
-
-        public class ReflectiveInMemoryContext : ExtendedDbContext
+        public class LocalDbContext : ExtendedDbContext
         {
+            private readonly IConfiguration _configuration;
+
+            public LocalDbContext(IConfiguration configuration)
+            {
+                this._configuration = configuration;
+            }
+
             #region Properties
 
             public DbSet<WeatherData> WeatherData { get; set; }
@@ -18,7 +25,8 @@ namespace ORBIT9000.Data.Context
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(nameof(ReflectiveInMemoryContext));
+                string connectionString = this._configuration.GetConnectionString("Debug");
+                optionsBuilder.UseSqlServer(connectionString);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

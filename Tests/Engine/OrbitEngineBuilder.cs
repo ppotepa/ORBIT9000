@@ -214,6 +214,19 @@ namespace ORBIT9000.Engine.Tests
                     AbortOnError = true,
                     ActivePlugins = ["Plugin1", "Plugin2"],
                     LoadAsBinary = true
+                },
+                Database = new Database()
+                {
+                    Debug = new ConnectionStringInfo()
+                    {
+                        ConnectionString = "DebugConnectionString",
+                        Provider = "DebugProvider"
+                    },
+                    Release = new ConnectionStringInfo()
+                    {
+                        ConnectionString = "ReleaseConnectionString",
+                        Provider = "ReleaseProvider"
+                    }
                 }
             };
 
@@ -238,6 +251,19 @@ namespace ORBIT9000.Engine.Tests
                     AbortOnError = true,
                     ActivePlugins = ["Plugin1", "Plugin2"],
                     LoadAsBinary = true
+                },
+                Database = new Database()
+                {
+                    Debug = new ConnectionStringInfo()
+                    {
+                        ConnectionString = "DebugConnectionString",
+                        Provider = "DebugProvider"
+                    },
+                    Release = new ConnectionStringInfo()
+                    {
+                        ConnectionString = "ReleaseConnectionString",
+                        Provider = "ReleaseProvider"
+                    }
                 }
             };
 
@@ -258,6 +284,19 @@ namespace ORBIT9000.Engine.Tests
                         AbortOnError = true,
                         ActivePlugins = ["./Binaries/ORBIT9000.Plugins.Example.odll"],
                         LoadAsBinary = true
+                    },
+                    Database = new Database()
+                    {
+                        Debug = new ConnectionStringInfo()
+                        {
+                            ConnectionString = "DebugConnectionString",
+                            Provider = "DebugProvider"
+                        },
+                        Release = new ConnectionStringInfo()
+                        {
+                            ConnectionString = "ReleaseConnectionString",
+                            Provider = "ReleaseProvider"
+                        }
                     }
                 }
             };

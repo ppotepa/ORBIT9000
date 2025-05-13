@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Abstractions.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Data;
 using ORBIT9000.ExampleDomain.Entities;
 using ORBIT9000.Plugins.Example.Common;
 using ORBIT9000.Plugins.ScheduleExample2.DataProviders;
@@ -41,8 +41,8 @@ namespace ORBIT9000.Plugins.ScheduleExample2
                 {
                     Temperature = (decimal?)response?.Hourly?.Temperature2M?.Average(),
                     City = "London",
-                    Long = response!.Longitude,
-                    Lat = response!.Latitude
+                    Longitude = response!.Longitude,
+                    Lattitude = response!.Latitude
                 })];
 
                 foreach (WeatherData? weatherData in weatherDataList)
@@ -64,9 +64,9 @@ namespace ORBIT9000.Plugins.ScheduleExample2
             return Task.CompletedTask;
         }
 
-        public void RegisterServices(IServiceCollection services)
+        public void RegisterServices(IServiceCollection collection)
         {
-            services.AddTransient<LondonDataProvider>();
+            collection.AddTransient<LondonDataProvider>();
         }
 
         #endregion Methods
