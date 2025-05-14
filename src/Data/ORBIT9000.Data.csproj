@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Domain\ORBIT9000.Domain\ORBIT9000.ExampleDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

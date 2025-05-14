@@ -59,13 +59,13 @@ namespace ORBIT9000.Data.Context
 
         public override int SaveChanges()
         {
-            this.ChangeTracker.DetectChanges();
+            ChangeTracker.DetectChanges();
 
             var entries = new
             {
-                added = this.ChangeTracker.Entries().Where(entry => entry.State == EntityState.Added).Select(entry => entry.Entity as IEntity).ToList(),
-                modified = this.ChangeTracker.Entries().Where(entry => entry.State == EntityState.Modified).Select(entry => entry.Entity as IEntity).ToList(),
-                deleted = this.ChangeTracker.Entries().Where(entry => entry.State == EntityState.Deleted).Select(entry => entry.Entity as IEntity).ToList(),
+                added = ChangeTracker.Entries().Where(entry => entry.State == EntityState.Added).Select(entry => entry.Entity as IEntity).ToList(),
+                modified = ChangeTracker.Entries().Where(entry => entry.State == EntityState.Modified).Select(entry => entry.Entity as IEntity).ToList(),
+                deleted = ChangeTracker.Entries().Where(entry => entry.State == EntityState.Deleted).Select(entry => entry.Entity as IEntity).ToList(),
             };
 
             foreach (IEntity? addedEntry in entries.added)

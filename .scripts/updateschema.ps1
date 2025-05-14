@@ -1,0 +1,1 @@
+dotnet ef database update --project ..\src\Data\ORBIT9000.Data.csproj --context LocalDbContext

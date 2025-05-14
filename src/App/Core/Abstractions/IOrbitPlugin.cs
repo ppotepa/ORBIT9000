@@ -7,7 +7,6 @@ namespace ORBIT9000.Abstractions
         Task OnLoad();
         Task OnUnload();
         Task<object> Execute();
-
         void RegisterServices(IServiceCollection collection) { }
     }
 }

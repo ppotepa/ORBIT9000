@@ -19,7 +19,10 @@ namespace ORBIT9000.Data.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string? connectionString = this._configuration.GetConnectionString("Debug");
+            string? connectionString = _configuration.GetSection("OrbitEngine:Database:Debug:ConnectionString").Value;
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("Database connection string is missing in appsettings.json.");
+
             optionsBuilder.UseSqlServer(connectionString);
         }
 
@@ -39,6 +42,7 @@ namespace ORBIT9000.Data.Context
                    .SetBasePath(Directory.GetCurrentDirectory())
                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                    .Build();
+
 
             return new LocalDbContext(configuration);
         }

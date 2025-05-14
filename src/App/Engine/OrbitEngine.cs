@@ -36,26 +36,26 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(pluginProvider);
             ArgumentNullException.ThrowIfNull(scheduler);
 
-            this._logger = loggerFactory.CreateLogger<OrbitEngine>()
+            _logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
-            this._mainThread = new Thread(Default.EngineStartupStrategy)
+            _mainThread = new Thread(Default.EngineStartupStrategy)
             {
                 IsBackground = true,
 
                 Name = "MainEngineThread"
             };
 
-            this.PluginProvider = pluginProvider;
-            this.ServiceProvider = serviceProvider;
+            PluginProvider = pluginProvider;
+            ServiceProvider = serviceProvider;
 
-            this.Scheduler = scheduler;
+            Scheduler = scheduler;
 
-            this.IsInitialized = true;
-            this.IsRunning = true;
+            IsInitialized = true;
+            IsRunning = true;
 
-            this.Configuration = configuration;
-            this._logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
+            Configuration = configuration;
+            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
         }
 
         #endregion Constructors
@@ -70,20 +70,20 @@ namespace ORBIT9000.Engine
 
         public void Start()
         {
-            if (!this.IsInitialized)
+            if (!IsInitialized)
             {
                 throw new InvalidOperationException("Engine has not been initialized.");
             }
 
-            ILifetimeScope root = this.ServiceProvider.GetAutofacRoot();
+            ILifetimeScope root = ServiceProvider.GetAutofacRoot();
             EngineState state = root.Resolve<EngineState>();
 
-            this._logger.LogInformation("Starting engine thread...");
-            this._mainThread.Start(state);
+            _logger.LogInformation("Starting engine thread...");
+            _mainThread.Start(state);
 
-            this.Scheduler.StartAsync();
+            Scheduler.StartAsync();
 
-            while (this.IsRunning)
+            while (IsRunning)
             {
                 Thread.Sleep(100);
             }
