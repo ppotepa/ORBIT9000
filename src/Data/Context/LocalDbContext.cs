@@ -16,21 +16,12 @@ namespace ORBIT9000.Data.Context
 
         #region Constructors
 
-        private static SchemaValidator _schemaValidator = default;
 
-
-        public LocalDbContext(IConfiguration configuration, ILogger<LocalDbContext> logger)
+        public LocalDbContext(IConfiguration configuration, ILogger<LocalDbContext> logger) : base(configuration, logger)
         {
             _logger = logger;
             _configuration = configuration;
             _logger.LogInformation("Created a new instance of dbContext. {Code}", GetHashCode());
-
-            if (_schemaValidator == null)
-            {
-                _schemaValidator = new SchemaValidator(logger, configuration);
-            }
-
-            bool validate = _schemaValidator.EnsureMigration();
         }
 
         public DbSet<WeatherData> WeatherData { get; set; }
@@ -38,6 +29,7 @@ namespace ORBIT9000.Data.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string? connectionString = _configuration.GetSection("OrbitEngine:Database:Debug:ConnectionString").Value;
+
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 _logger.LogError("Database connection string is missing in appsettings.json.");

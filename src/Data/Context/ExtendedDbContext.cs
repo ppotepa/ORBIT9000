@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions.Data.Entities;
 using System.Reflection;
 
@@ -6,8 +8,43 @@ namespace ORBIT9000.Data.Context
 {
     public class ExtendedDbContext : DbContext
     {
+        #region Fields
+
         private static Type[]? _entities;
-        private readonly bool _created;
+        private static readonly SemaphoreSlim _semaphore = new(1, 1);
+        private static bool _created;
+
+        #endregion Fields
+
+        #region Constructors
+
+        public ExtendedDbContext(IConfiguration configuration, ILogger<ExtendedDbContext> logger)
+        {
+            if (!_created)
+            {
+                bool semaphoreAcquired = false;
+                try
+                {
+                    semaphoreAcquired = _semaphore.Wait(TimeSpan.FromSeconds(5));
+                    if (semaphoreAcquired && !_created)
+                    {
+                        Database.EnsureCreated();
+                        _created = true;
+                    }
+                }
+                finally
+                {
+                    if (semaphoreAcquired)
+                    {
+                        _semaphore.Release();
+                    }
+                }
+            }
+        }
+
+        #endregion Constructors
+
+        #region Properties
 
         private static IEnumerable<Type> Entities
         {
@@ -15,45 +52,20 @@ namespace ORBIT9000.Data.Context
             {
                 //HACK: for some reason entities are loaded twice.
                 _entities ??= [..AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes()
-                        .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(IEntity))))
-                    .GroupBy(type => type.AssemblyQualifiedName)
-                    .Select(group => group.First())
+                        .GetAssemblies()
+                        .SelectMany(assembly => assembly.GetTypes()
+                            .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(IEntity))))
+                        .GroupBy(type => type.AssemblyQualifiedName)
+                        .Select(group => group.First())
                 ];
 
                 return _entities;
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            Type extended = typeof(IExtendedEntity<Guid>);
+        #endregion Properties
 
-            string[] propertyNames =
-            [
-                    nameof(IExtendedEntity.CreatedOn),
-                    nameof(IExtendedEntity.CreatedBy),
-                    nameof(IExtendedEntity.DeletedOn),
-                    nameof(IExtendedEntity.DeletedBy),
-                    nameof(IExtendedEntity.ModifiedOn),
-                    nameof(IExtendedEntity.ModifiedBy)
-            ];
-
-            foreach (Type entity in Entities)
-            {
-                modelBuilder.Entity(entity).HasKey(nameof(IEntity.Id));
-
-                foreach (string propName in propertyNames)
-                {
-                    PropertyInfo? propInfo = extended.GetProperty(propName);
-                    if (propInfo != null)
-                    {
-                        modelBuilder.Entity(entity).Property(propInfo.PropertyType, propName);
-                    }
-                }
-            }
-        }
+        #region Methods
 
         public override int SaveChanges()
         {
@@ -92,9 +104,39 @@ namespace ORBIT9000.Data.Context
             return base.SaveChanges();
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            Type extended = typeof(IExtendedEntity<Guid>);
+
+            string[] propertyNames =
+            [
+                    nameof(IExtendedEntity.CreatedOn),
+                        nameof(IExtendedEntity.CreatedBy),
+                        nameof(IExtendedEntity.DeletedOn),
+                        nameof(IExtendedEntity.DeletedBy),
+                        nameof(IExtendedEntity.ModifiedOn),
+                        nameof(IExtendedEntity.ModifiedBy)
+            ];
+
+            foreach (Type entity in Entities)
+            {
+                modelBuilder.Entity(entity).HasKey(nameof(IEntity.Id));
+
+                foreach (string propName in propertyNames)
+                {
+                    PropertyInfo? propInfo = extended.GetProperty(propName);
+                    if (propInfo != null)
+                    {
+                        modelBuilder.Entity(entity).Property(propInfo.PropertyType, propName);
+                    }
+                }
+            }
+        }
         private static Guid ResolveIdentity()
         {
             return Guid.Empty;
         }
+
+        #endregion Methods
     }
 }

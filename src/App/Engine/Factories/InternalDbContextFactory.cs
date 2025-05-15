@@ -63,7 +63,7 @@ namespace ORBIT9000.Engine.Factories
             else if (type == typeof(ReflectiveInMemoryContext))
             {
                 _logger.LogDebug("Creating new instance of ReflectiveInMemoryContext.");
-                return new ReflectiveInMemoryContext();
+                return new ReflectiveInMemoryContext(null, null);
             }
             else
             {
