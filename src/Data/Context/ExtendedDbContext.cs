@@ -10,13 +10,22 @@ namespace ORBIT9000.Data.Context
     {
         #region Fields
 
-        protected static Type[]? _entities;
+        private static Type[]? _entities;
         protected static readonly SemaphoreSlim _semaphore = new(1, 1);
         protected readonly ILogger<ExtendedDbContext> _logger;
         protected readonly IConfiguration _configuration;
-        protected static bool _created;
+        private static bool _created;
 
         #endregion Fields
+
+        #region Static Constructor
+
+        static ExtendedDbContext()
+        {
+            _created = false;
+        }
+
+        #endregion Static Constructor
 
         #region Constructors
 
@@ -31,11 +40,8 @@ namespace ORBIT9000.Data.Context
                 try
                 {
                     semaphoreAcquired = _semaphore.Wait(TimeSpan.FromSeconds(5));
-                    if (semaphoreAcquired && !_created)
-                    {
-                        Database.EnsureCreated();
-                        _created = true;
-                    }
+                    Database.EnsureCreated();
+                    _created = true;
                 }
                 finally
                 {
