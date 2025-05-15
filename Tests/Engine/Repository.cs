@@ -18,7 +18,7 @@ namespace ORBIT9000.Engine.Tests
         [SetUp]
         public void Setup()
         {
-            reflectiveInMemoryContext = new ReflectiveInMemoryContext();
+            reflectiveInMemoryContext = new ReflectiveInMemoryContext(null, null);
             reflectiveInMemoryDbAdapter = new ReflectiveInMemoryDbAdapter(reflectiveInMemoryContext);
             weatherDataRepository = new Repository<WeatherData>(reflectiveInMemoryDbAdapter);
         }

@@ -10,9 +10,11 @@ namespace ORBIT9000.Data.Context
     {
         #region Fields
 
-        private static Type[]? _entities;
-        private static readonly SemaphoreSlim _semaphore = new(1, 1);
-        private static bool _created;
+        protected static Type[]? _entities;
+        protected static readonly SemaphoreSlim _semaphore = new(1, 1);
+        protected readonly ILogger<ExtendedDbContext> _logger;
+        protected readonly IConfiguration _configuration;
+        protected static bool _created;
 
         #endregion Fields
 
@@ -20,6 +22,9 @@ namespace ORBIT9000.Data.Context
 
         public ExtendedDbContext(IConfiguration configuration, ILogger<ExtendedDbContext> logger)
         {
+            _logger = logger;
+            _configuration = configuration;
+
             if (!_created)
             {
                 bool semaphoreAcquired = false;

@@ -9,8 +9,9 @@ namespace ORBIT9000.Data.Context
     {
         #region Fields
 
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<LocalDbContext> _logger;
+
+        private static readonly SemaphoreSlim _dbCreationSemaphore = new(1, 1);
+        private static bool _dbCreated;
 
         #endregion Fields
 
@@ -19,9 +20,36 @@ namespace ORBIT9000.Data.Context
 
         public LocalDbContext(IConfiguration configuration, ILogger<LocalDbContext> logger) : base(configuration, logger)
         {
-            _logger = logger;
-            _configuration = configuration;
-            _logger.LogInformation("Created a new instance of dbContext. {Code}", GetHashCode());
+            EnsureDatabaseCreated().GetAwaiter().GetResult();
+        }
+
+        private async Task EnsureDatabaseCreated()
+        {
+            if (!_dbCreated)
+            {
+                await _dbCreationSemaphore.WaitAsync();
+                try
+                {
+                    if (!_dbCreated)
+                    {
+                        _logger.LogInformation("Checking if database exists and creating if needed");
+                        bool created = await Database.EnsureCreatedAsync();
+                        if (created)
+                        {
+                            _logger.LogInformation("Database was created");
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Database already exists");
+                        }
+                        _dbCreated = true;
+                    }
+                }
+                finally
+                {
+                    _dbCreationSemaphore.Release();
+                }
+            }
         }
 
         public DbSet<WeatherData> WeatherData { get; set; }
