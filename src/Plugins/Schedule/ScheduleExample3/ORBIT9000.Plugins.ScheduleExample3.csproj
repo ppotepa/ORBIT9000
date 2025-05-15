@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Domain\ORBIT9000.Domain\ORBIT9000.ExampleDomain.csproj" />
     <ProjectReference Include="..\ScheduleExample4\ORBIT9000.Plugins.ScheduleExample4.csproj" />    
   </ItemGroup>
 

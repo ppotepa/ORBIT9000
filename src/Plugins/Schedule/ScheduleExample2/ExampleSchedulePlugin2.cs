@@ -36,11 +36,11 @@ namespace ORBIT9000.Plugins.ScheduleExample2
                     logger.LogInformation("Weather data: {@Response}", response);
                 }
 
-                logger.LogInformation("Fetched data from weather API: {@HashCode}", this.GetHashCode());
+                logger.LogInformation("Fetched data from weather API: {@HashCode}", GetHashCode());
 
                 List<WeatherData> weatherDataList = [.. weatherResponses.Select(response => new WeatherData
                 {
-                    Temperature = (decimal?)response?.Hourly?.Temperature2M?.Average(),
+                    Temperature = (decimal)new Random().NextDouble() * 10,
                     City = "London",
                     Longitude = response!.Longitude,
                     Lattitude = response!.Latitude
@@ -61,7 +61,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2
 
         public Task OnUnload()
         {
-            logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
+            logger.LogInformation("Unloading plugin {Name}", GetType().Name);
             return Task.CompletedTask;
         }
 
