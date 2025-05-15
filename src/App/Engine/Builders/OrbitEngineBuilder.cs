@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ using ORBIT9000.Data.Adapters;
 using ORBIT9000.Data.Context;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.Factories;
 using ORBIT9000.Engine.IO.Loaders;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
@@ -118,6 +120,8 @@ namespace ORBIT9000.Engine.Builders
                                   .As<IServiceProvider>()
                                   .SingleInstance();
 
+            _containerBuilder.RegisterType<InternalDbContextFactory>().AsSelf().SingleInstance();
+
             // WeatherData access layer
             _containerBuilder.RegisterType<ReflectiveInMemoryContext>().AsSelf().InstancePerDependency();
             _containerBuilder.RegisterType<ReflectiveInMemoryDbAdapter>().As<IDbAdapter>().InstancePerDependency();
@@ -125,6 +129,14 @@ namespace ORBIT9000.Engine.Builders
             // WeatherData access layer - localdb
             _containerBuilder.RegisterType<LocalDbContext>().AsSelf().InstancePerDependency();
             _containerBuilder.RegisterType<LocalDbAdapter>().As<IDbAdapter>().InstancePerDependency();
+
+            _containerBuilder.Register(ctx =>
+            {
+                InternalDbContextFactory factory = ctx.Resolve<InternalDbContextFactory>();
+                return factory.ResolveContext();
+            })
+           .As<DbContext>()
+           .SingleInstance();
 
             _containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
 
