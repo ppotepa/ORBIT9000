@@ -8,8 +8,6 @@ namespace ORBIT9000.Data.Context
     {
         private static Type[]? _entities;
         private readonly bool _created;
-        private const BindingFlags PRIVATE_FIELD_BINDING_ATTRS = BindingFlags.Instance |
-            BindingFlags.NonPublic | BindingFlags.IgnoreCase;
 
         private static IEnumerable<Type> Entities
         {
@@ -73,25 +71,30 @@ namespace ORBIT9000.Data.Context
                 deleted = ChangeTracker.Entries().Where(entry => entry.State == EntityState.Deleted).Select(entry => entry.Entity as IEntity).ToList(),
             };
 
-            foreach (IEntity? addedEntry in entries.added)
+            foreach (ExtendedEntity<Guid> addedEntry in entries.added.Cast<ExtendedEntity<Guid>>())
             {
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.CreatedOn), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(addedEntry, DateTime.Now);
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.CreatedBy), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(addedEntry, Guid.NewGuid());
+                addedEntry.CreatedOn = DateTime.UtcNow;
+                addedEntry.CreatedBy = ResolveIdentity();
             }
 
-            foreach (IEntity? modifiedEntry in entries.modified)
+            foreach (ExtendedEntity<Guid> modifiedEntry in entries.modified.Cast<ExtendedEntity<Guid>>())
             {
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.ModifiedOn), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(modifiedEntry, DateTime.Now);
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.ModifiedBy), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(modifiedEntry, Guid.NewGuid());
+                modifiedEntry.ModifiedOn = DateTime.UtcNow;
+                modifiedEntry.ModifiedBy = ResolveIdentity();
             }
 
-            foreach (IEntity? deletedEntry in entries.deleted)
+            foreach (ExtendedEntity<Guid> deletedEntry in entries.deleted.Cast<ExtendedEntity<Guid>>())
             {
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.DeletedOn), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(deletedEntry, DateTime.Now);
-                typeof(ExtendedEntity<Guid>).GetField(nameof(IExtendedEntity<Guid>.DeletedBy), PRIVATE_FIELD_BINDING_ATTRS)?.SetValue(deletedEntry, Guid.NewGuid());
+                deletedEntry.ModifiedOn = DateTime.UtcNow;
+                deletedEntry.ModifiedBy = ResolveIdentity();
             }
 
             return base.SaveChanges();
+        }
+
+        private static Guid ResolveIdentity()
+        {
+            return Guid.Empty;
         }
     }
 }

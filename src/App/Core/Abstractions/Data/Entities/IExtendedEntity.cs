@@ -3,12 +3,12 @@
     public interface IExtendedEntity<TIdentityType> : IEntity<TIdentityType>
         where TIdentityType : struct
     {
-        TIdentityType CreatedBy { get; }
-        DateTime CreatedOn { get; }
-        TIdentityType DeletedBy { get; }
-        DateTime? DeletedOn { get; }
-        TIdentityType ModifiedBy { get; }
-        DateTime? ModifiedOn { get; }
+        TIdentityType CreatedBy { get; internal set; }
+        DateTime CreatedOn { get; internal set; }
+        TIdentityType DeletedBy { get; internal set; }
+        DateTime? DeletedOn { get; internal set; }
+        TIdentityType ModifiedBy { get; internal set; }
+        DateTime? ModifiedOn { get; internal set; }
     }
 
     public interface IExtendedEntity

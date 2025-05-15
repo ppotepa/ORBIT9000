@@ -3,17 +3,17 @@
     public abstract class ExtendedEntity<TIdentityType> : IExtendedEntity<TIdentityType>
         where TIdentityType : struct
     {
-        public TIdentityType CreatedBy { get; } = default;
-        public DateTime CreatedOn { get; } = default;
-        public TIdentityType DeletedBy { get; } = default;
-        public DateTime? DeletedOn { get; } = default;
-        public TIdentityType Id { get; init; } = default;
-        public DateTime? ModifiedOn { get; } = default;
-        public TIdentityType ModifiedBy { get; } = default;
+        public TIdentityType CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public TIdentityType DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public TIdentityType Id { get; init; }
+        public DateTime? ModifiedOn { get; set; }
+        public TIdentityType ModifiedBy { get; set; }
 
         object? IEntity.Id
         {
-            get => this.Id;
+            get => Id;
             set => ((IEntity)this).Id = value;
         }
     }
