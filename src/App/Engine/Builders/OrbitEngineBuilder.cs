@@ -53,13 +53,9 @@ namespace ORBIT9000.Engine.Builders
             _containerBuilder = new ContainerBuilder();
         }
 
-        #endregion Constructors
-
-        #region Methods
-
         public OrbitEngine Build()
         {
-            _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
+            _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>().SingleInstance();
 
             _ = _containerBuilder.RegisterGeneric((context, genericArguments, _) =>
             {
@@ -80,7 +76,7 @@ namespace ORBIT9000.Engine.Builders
             _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf().InstancePerDependency();
             _containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf().InstancePerDependency();
             _containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf().InstancePerDependency();
-            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().InstancePerDependency();
+            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().SingleInstance();
 
             _containerBuilder.Register(ctx =>
             {
@@ -97,9 +93,9 @@ namespace ORBIT9000.Engine.Builders
             _containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
             _containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
             _containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
-                                   .As(typeof(GlobalMessageChannel<>))
-                                   .As(typeof(IMessageChannel<>))
-                                   .SingleInstance();
+                                       .As(typeof(GlobalMessageChannel<>))
+                                       .As(typeof(IMessageChannel<>))
+                                       .SingleInstance();
 
             // Logger fallback
             _containerBuilder.Register(_ => _loggerFactory.CreateLogger<OrbitEngineBuilder>())
@@ -136,9 +132,9 @@ namespace ORBIT9000.Engine.Builders
                 return factory.ResolveContext();
             })
            .As<DbContext>()
-           .SingleInstance();
+           .InstancePerDependency();
 
-            _containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
+            _containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerDependency();
 
             IContainer container = _containerBuilder.Build();
             return container.Resolve<OrbitEngine>();
@@ -223,6 +219,6 @@ namespace ORBIT9000.Engine.Builders
             });
         }
 
-        #endregion Methods
+        #endregion Constructors
     }
 }

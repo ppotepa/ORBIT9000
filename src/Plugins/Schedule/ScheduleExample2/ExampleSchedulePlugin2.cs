@@ -31,12 +31,7 @@ namespace ORBIT9000.Plugins.ScheduleExample2
             {
                 IEnumerable<WeatherResponse> weatherResponses = await dataProvider.GetData();
 
-                foreach (WeatherResponse response in weatherResponses)
-                {
-                    logger.LogInformation("Weather data: {@Response}", response);
-                }
-
-                logger.LogInformation("Fetched data from weather API: {@HashCode}", GetHashCode());
+                logger.LogInformation("Fetched data from weather API LondonDataProvider");
 
                 List<WeatherData> weatherDataList = [.. weatherResponses.Select(response => new WeatherData
                 {

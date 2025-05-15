@@ -47,7 +47,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0FAA5A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Plugins.Example.Common", "src\Plugins\Common\ORBIT9000.Plugins.Example.Common.csproj", "{5D985238-F0C0-4EEE-A4A0-8599E33FD8C1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scheduled", "Scheduled", "{0BEBB4DB-346F-45DB-AF80-BA802881D08B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Schedule", "Schedule", "{0BEBB4DB-346F-45DB-AF80-BA802881D08B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.ExampleDomain", "src\Domain\ORBIT9000.Domain\ORBIT9000.ExampleDomain.csproj", "{2C9441F2-9989-41B4-B0FC-3AA5F2CDFF24}"
 EndProject

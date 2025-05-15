@@ -17,13 +17,6 @@ namespace ORBIT9000.Plugins.ScheduleExample4
         IRepository<WeatherData> weatherRepository)
         : IOrbitPlugin
     {
-        #region Fields
-
-        private readonly NewYorkDataProvider _dataProvider = dataProvider;
-        private readonly ILogger<ExampleSchedulePlugin4> _logger = logger;
-
-        #endregion Fields
-
         #region Methods
 
         public Task<object> Execute()
@@ -37,12 +30,7 @@ namespace ORBIT9000.Plugins.ScheduleExample4
             {
                 IEnumerable<WeatherResponse> weatherResponses = await dataProvider.GetData();
 
-                foreach (WeatherResponse response in weatherResponses)
-                {
-                    logger.LogInformation("Weather data: {@Response}", response);
-                }
-
-                logger.LogInformation("Fetched data from weather API: {@HashCode}", GetHashCode());
+                logger.LogInformation("Fetched data from weather API NewYorkDataProvider.");
 
                 List<WeatherData> weatherDataList = [.. weatherResponses.Select(response => new WeatherData
                 {
@@ -67,7 +55,7 @@ namespace ORBIT9000.Plugins.ScheduleExample4
 
         public Task OnUnload()
         {
-            _logger.LogInformation("Unloading plugin {Name}", GetType().Name);
+            logger.LogInformation("Unloading plugin {Name}", GetType().Name);
             return Task.CompletedTask;
         }
 
