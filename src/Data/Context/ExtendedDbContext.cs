@@ -7,7 +7,7 @@ namespace ORBIT9000.Data.Context
     public class ExtendedDbContext : DbContext
     {
         private static Type[]? _entities;
-
+        private readonly bool _created;
         private const BindingFlags PRIVATE_FIELD_BINDING_ATTRS = BindingFlags.Instance |
             BindingFlags.NonPublic | BindingFlags.IgnoreCase;
 
@@ -19,7 +19,7 @@ namespace ORBIT9000.Data.Context
                 _entities ??= [..AppDomain.CurrentDomain
                     .GetAssemblies()
                     .SelectMany(assembly => assembly.GetTypes()
-                        .Where(type => type.GetInterfaces().Contains(typeof(IExtendedEntity<Guid>))))
+                        .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(IEntity))))
                     .GroupBy(type => type.AssemblyQualifiedName)
                     .Select(group => group.First())
                 ];
@@ -40,11 +40,11 @@ namespace ORBIT9000.Data.Context
                     nameof(IExtendedEntity.DeletedBy),
                     nameof(IExtendedEntity.ModifiedOn),
                     nameof(IExtendedEntity.ModifiedBy)
-                ];
+            ];
 
             foreach (Type entity in Entities)
             {
-                modelBuilder.Entity(entity).HasKey(nameof(IExtendedEntity<byte>.Id));
+                modelBuilder.Entity(entity).HasKey(nameof(IEntity.Id));
 
                 foreach (string propName in propertyNames)
                 {
@@ -59,6 +59,11 @@ namespace ORBIT9000.Data.Context
 
         public override int SaveChanges()
         {
+            if (!_created)
+            {
+                Database.EnsureCreated();
+            }
+
             ChangeTracker.DetectChanges();
 
             var entries = new

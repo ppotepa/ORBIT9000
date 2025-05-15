@@ -13,7 +13,7 @@
 
         object this[string index]
         {
-            get => this.GetType().GetProperty(index)?.GetValue(this)!;
+            get => GetType().GetProperty(index)?.GetValue(this)!;
         }
     }
 
@@ -25,10 +25,10 @@
         {
             get
             {
-                return (TIdentityType)this.GetType().GetProperty("Id")?.GetValue(this)!;
+                return (TIdentityType)GetType().GetProperty("Id")?.GetValue(this)!;
             }
 
-            set => this.GetType().GetProperty("Id")?.SetValue(this, value);
+            set => GetType().GetProperty("Id")?.SetValue(this, value);
         }
     }
 }
