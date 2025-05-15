@@ -22,19 +22,19 @@ namespace ORBIT9000.Plugins.Example
 
         public async Task OnLoad()
         {
-            IEnumerable<WeatherResponse> data = await this._dataProvider.GetData();
+            IEnumerable<WeatherResponse> data = await _dataProvider.GetData();
 
             foreach (WeatherResponse response in data)
             {
-                this._logger.LogInformation("Weather data: {@Response}", response);
+                _logger.LogInformation("Weather data: {@Response}", response);
             }
 
-            this._logger.LogInformation("Fetched data from weather.");
+            _logger.LogInformation("Fetched data from weather.");
         }
 
         public Task OnUnload()
         {
-            this._logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
+            _logger.LogInformation("Unloading plugin {Name}", GetType().Name);
             return Task.CompletedTask;
         }
 

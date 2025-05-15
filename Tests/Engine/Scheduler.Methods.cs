@@ -15,7 +15,7 @@ namespace ORBIT9000.Engine.Tests
 
         protected override void DisposeManagedObjects()
         {
-            this._simpleScheduler?.Dispose();
+            _simpleScheduler?.Dispose();
             base.DisposeManagedObjects();
         }
 
@@ -27,7 +27,7 @@ namespace ORBIT9000.Engine.Tests
         private async Task RunSchedulerAndCancelAfterDelay(int delay)
         {
             using CancellationTokenSource cancellationTokenSource = new();
-            _ = this._simpleScheduler.StartAsync(cancellationTokenSource.Token);
+            _ = _simpleScheduler.StartAsync(cancellationTokenSource.Token);
 
             await Task.Delay(delay);
             await cancellationTokenSource.CancelAsync();
@@ -35,7 +35,7 @@ namespace ORBIT9000.Engine.Tests
 
         private void SetupScheduleCalculator(DateTime nextOccurrence)
         {
-            this._scheduleCalculatorMock
+            _scheduleCalculatorMock
                 .Setup(calculator => calculator.GetNextOccurrence(It.IsAny<IScheduleJob>(), It.IsAny<DateTime>()))
                 .Returns(nextOccurrence);
         }

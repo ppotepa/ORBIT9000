@@ -15,7 +15,7 @@ namespace ORBIT9000.Data
 
         public void Add(TEntity entity)
         {
-            this._adapter.Add(entity);
+            _adapter.Add(entity);
         }
 
         public Task AddAsync(TEntity entity)
@@ -30,12 +30,12 @@ namespace ORBIT9000.Data
 
         public TEntity? FindById(params object[] key)
         {
-            return this._adapter.Find<TEntity>(key);
+            return _adapter.Find<TEntity>(key);
         }
 
         public IQueryable<TEntity> GetAll()
         {
-            return this._adapter.Query<TEntity>();
+            return _adapter.Query<TEntity>();
         }
         public Task<TEntity?> GetAsync(object id)
         {
@@ -49,12 +49,12 @@ namespace ORBIT9000.Data
 
         public void Remove(TEntity entity)
         {
-            this._adapter.Remove(entity);
+            _adapter.Remove(entity);
         }
 
         public void Save()
         {
-            this._adapter.SaveChanges();
+            _adapter.SaveChanges();
         }
         public Task UpdateAsync(TEntity entity)
         {

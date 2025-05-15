@@ -11,7 +11,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
         {
             MemoryStream memoryStream = new(assemblyBytes);
             using MemoryStream stream = memoryStream;
-            return this.LoadFromStream(stream);
+            return LoadFromStream(stream);
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -24,11 +24,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
                 return loadedAssembly;
             }
 
-            string? assemblyPath = this._resolver.ResolveAssemblyToPath(assemblyName);
+            string? assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
 
             if (assemblyPath != null)
             {
-                return this.LoadFromAssemblyPath(assemblyPath);
+                return LoadFromAssemblyPath(assemblyPath);
             }
 
             return null!;
@@ -36,11 +36,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
 
         protected override nint LoadUnmanagedDll(string unmanagedDllName)
         {
-            string? libraryPath = this._resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+            string? libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
 
             if (libraryPath != null)
             {
-                return this.LoadUnmanagedDllFromPath(libraryPath);
+                return LoadUnmanagedDllFromPath(libraryPath);
             }
             return nint.Zero;
         }

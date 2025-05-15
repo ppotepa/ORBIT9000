@@ -16,17 +16,17 @@ namespace ORBIT9000.Engine.Configuration
 
         public RuntimeSettings(ILogger<RuntimeSettings> logger, RawEngineConfiguration config, IPluginLoader loader)
         {
-            this._config = config;
+            _config = config;
 
             ArgumentNullException.ThrowIfNull(config);
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
             {
-                PluginInfo[] loaded = [.. loader.LoadPlugins(this.PluginSource)];
-                this.Plugins = [.. loaded];
-                this.SharePluginScopes = config.SharePluginScopes;
-                this.EnableTerminal = config.EnableTerminal;
+                PluginInfo[] loaded = [.. loader.LoadPlugins(PluginSource)];
+                Plugins = [.. loaded];
+                SharePluginScopes = config.SharePluginScopes;
+                EnableTerminal = config.EnableTerminal;
             }
             catch (Exception ex)
             {
@@ -48,7 +48,7 @@ namespace ORBIT9000.Engine.Configuration
             get
             {
                 //TODO: Fix Active Plugins Source
-                if (this._config.Plugins.ActivePlugins.Length != 0) return this._config.Plugins.ActivePlugins;
+                if (_config.Plugins.ActivePlugins.Length != 0) return _config.Plugins.ActivePlugins;
                 else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
         }

@@ -11,7 +11,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogCritical(Template, message, args);
+                _logger.LogCritical(Template, message, args);
             }
         }
 
@@ -19,7 +19,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogDebug(Template, message, args);
+                _logger.LogDebug(Template, message, args);
             }
         }
 
@@ -27,7 +27,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogError(Template, message, args);
+                _logger.LogError(Template, message, args);
             }
         }
 
@@ -35,7 +35,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogInformation(Template, message, args);
+                _logger.LogInformation(Template, message, args);
             }
         }
 
@@ -43,7 +43,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogTrace(Template, message, args);
+                _logger.LogTrace(Template, message, args);
             }
         }
 
@@ -51,7 +51,7 @@ namespace ORBIT9000.Engine
         {
             if (!string.IsNullOrEmpty(message))
             {
-                this._logger.LogWarning(Template, message, args);
+                _logger.LogWarning(Template, message, args);
             }
         }
 

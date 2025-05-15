@@ -33,9 +33,9 @@ namespace ORBIT9000.Engine.Configuration
         {
             get
             {
-                return this._containsPlugins ??= this.PluginType is not null &&
-                                       this.PluginType is not VoidType &&
-                                       typeof(IOrbitPlugin).IsAssignableFrom(this.PluginType);
+                return _containsPlugins ??= PluginType is not null &&
+                                       PluginType is not VoidType &&
+                                       typeof(IOrbitPlugin).IsAssignableFrom(PluginType);
             }
         }
 
@@ -47,8 +47,8 @@ namespace ORBIT9000.Engine.Configuration
         {
             get
             {
-                this._isSingleton ??= this.PluginType?.IsDefined(typeof(SingletonAttribute), true) ?? false;
-                return this._isSingleton.Value;
+                _isSingleton ??= PluginType?.IsDefined(typeof(SingletonAttribute), true) ?? false;
+                return _isSingleton.Value;
             }
         }
 

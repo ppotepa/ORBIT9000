@@ -16,13 +16,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (files.Length == 0)
             {
-                this._logger.LogWarning("No plugins found in {Name}", source.FullName);
+                _logger.LogWarning("No plugins found in {Name}", source.FullName);
             }
             else
             {
                 foreach (FileInfo file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
                 {
-                    yield return this.LoadSingle(file.FullName);
+                    yield return LoadSingle(file.FullName);
                 }
             }
         }

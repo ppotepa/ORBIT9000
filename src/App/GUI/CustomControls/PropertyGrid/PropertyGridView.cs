@@ -81,12 +81,12 @@ namespace Terminal.Gui.CustomViews
         /// <param name="cols">The number of columns in the property grid layout.</param>
         public PropertyGridView(View top, object data, int rows = 5, int cols = 5)
         {
-            this._top = top;
-            this._data = data;
-            this._rows = rows;
-            this._cols = cols;
+            _top = top;
+            _data = data;
+            _rows = rows;
+            _cols = cols;
 
-            this._main = new FrameView("Main")
+            _main = new FrameView("Main")
             {
                 X = 0,
                 Y = 1,
@@ -94,7 +94,7 @@ namespace Terminal.Gui.CustomViews
                 Height = Dim.Fill()
             };
 
-            this.Bindings = this.TranslateView();
+            Bindings = TranslateView();
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Terminal.Gui.CustomViews
         /// <param name="bounds">The bounding rectangle for the view.</param>
         public override void Redraw(Rect bounds)
         {
-            this.TranslateView();
+            TranslateView();
             base.Redraw(bounds);
         }
 
@@ -115,11 +115,11 @@ namespace Terminal.Gui.CustomViews
         /// <returns>A dictionary of property bindings created during the translation.</returns>
         public Dictionary<string, ValueBinding> TranslateView()
         {
-            Type dataType = this._data.GetType();
-            if (!this._propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
+            Type dataType = _data.GetType();
+            if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
             {
                 properties = dataType.GetProperties(NOT_INHERITED);
-                this._propertyInfoCache[dataType] = properties;
+                _propertyInfoCache[dataType] = properties;
             }
 
             MenuBarItem[] items = new MenuBarItem[properties.Length];
@@ -131,13 +131,13 @@ namespace Terminal.Gui.CustomViews
 
                 items[i] = new MenuBarItem(info.Name, "", () =>
                 {
-                    this._main.RemoveAll();
-                    this._main.Add(frame);
+                    _main.RemoveAll();
+                    _main.Add(frame);
 
                     Application.Refresh();
                 });
 
-                this.GeneratePropertyGrid(frame, info);
+                GeneratePropertyGrid(frame, info);
             }
 
             MenuBar? menuBar = Application.Top.Subviews.OfType<MenuBar>()
@@ -146,15 +146,15 @@ namespace Terminal.Gui.CustomViews
             if (menuBar is not null)
             {
                 menuBar.Data = items;
-                this._top.Add(this._main);
+                _top.Add(_main);
             }
             else
             {
                 menuBar = new MenuBar(items);
-                this._top.Add(menuBar, this._main);
+                _top.Add(menuBar, _main);
             }
 
-            return this.Bindings;
+            return Bindings;
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Terminal.Gui.CustomViews
         /// <param name="info">The property info representing the object whose properties will be displayed.</param>
         private void GeneratePropertyGrid(FrameView container, PropertyInfo info)
         {
-            object? val = info.GetValue(this._data);
+            object? val = info.GetValue(_data);
 
             if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
             {
@@ -176,11 +176,11 @@ namespace Terminal.Gui.CustomViews
 
                     View frameItem = new()
                     {
-                        X = Pos.Percent((index % this._cols) * (100f / this._cols)),
-                        Y = Pos.Percent((index / this._cols) * (100f / this._rows)),
+                        X = Pos.Percent((index % _cols) * (100f / _cols)),
+                        Y = Pos.Percent((index / _cols) * (100f / _rows)),
 
-                        Width = Dim.Percent(100f / this._cols),
-                        Height = Dim.Percent(100f / this._rows),
+                        Width = Dim.Percent(100f / _cols),
+                        Height = Dim.Percent(100f / _rows),
                     };
 
                     Label label = new(0, 0, subProperty.Name, true);
@@ -191,11 +191,11 @@ namespace Terminal.Gui.CustomViews
 
                     ValueBinding binding = new(text, ref subValue!);
 
-                    this.Bindings[route] = binding;
+                    Bindings[route] = binding;
 
                     text.TextChanged += PipelineFactory.Builder
                         .Create(text, binding, val!, subProperty)
-                        .AddIf(() => text.Text == "2137", _ => MessageBox.Query("Secret", this.SECRET, "OK"))
+                        .AddIf(() => text.Text == "2137", _ => MessageBox.Query("Secret", SECRET, "OK"))
                         .Build();
 
                     frameItem.Add(label, text);

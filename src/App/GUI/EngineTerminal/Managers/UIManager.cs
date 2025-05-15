@@ -18,12 +18,12 @@ namespace EngineTerminal.Managers
         {
             get
             {
-                if (this.Grid == null)
+                if (Grid == null)
                 {
                     throw new InvalidOperationException("Grid is not initialized.");
                 }
 
-                return this.Grid.Bindings ?? [];
+                return Grid.Bindings ?? [];
             }
         }
 
@@ -35,16 +35,16 @@ namespace EngineTerminal.Managers
         {
             Application.Init();
 
-            this.MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            this.Grid = new PropertyGridView(this.MainView, data);
-            this.MenuBar = new MenuBar();
+            MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
+            Grid = new PropertyGridView(MainView, data);
+            MenuBar = new MenuBar();
 
-            this.StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), this.StatusItem, this.AdditionalStatusItem, this.CurrentMethod])
+            StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), StatusItem, AdditionalStatusItem, CurrentMethod])
             {
                 CanFocus = true
             };
 
-            Application.Top.Add(this.MenuBar, this.MainView, this.StatusBar);
+            Application.Top.Add(MenuBar, MainView, StatusBar);
         }
 
         public void Run() => Application.Run();
@@ -55,11 +55,11 @@ namespace EngineTerminal.Managers
             {
                 if (additionalInfo != null)
                 {
-                    this.AdditionalStatusItem.Title = additionalInfo;
+                    AdditionalStatusItem.Title = additionalInfo;
                 }
                 else
                 {
-                    this.StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
+                    StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
                 }
 
                 Application.Refresh();
@@ -70,7 +70,7 @@ namespace EngineTerminal.Managers
         {
             Application.MainLoop.Invoke(() =>
             {
-                this.CurrentMethod.Title = message;
+                CurrentMethod.Title = message;
                 Application.Refresh();
             });
         }
@@ -81,7 +81,7 @@ namespace EngineTerminal.Managers
             {
                 foreach (BindingAction update in updates)
                 {
-                    update(this.Grid!.Bindings);
+                    update(Grid!.Bindings);
                 }
 
                 Application.Refresh();

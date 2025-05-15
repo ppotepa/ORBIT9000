@@ -26,15 +26,15 @@
 
         public override string ToString()
         {
-            return $"Location: [Latitude: {this.Latitude}, Longitude: {this.Longitude}], " +
-                   $"Generated in: {this.GenerationTimeMs} ms, " +
-                   $"UTC Offset: {this.UtcOffsetSeconds} seconds, " +
-                   $"Timezone: {this.Timezone} ({this.TimezoneAbbreviation}), " +
-                   $"Elevation: {this.Elevation} meters, " +
-                   $"Hourly Units: [Time Unit: {this.HourlyUnits?.Time}, " +
-                   $"Temperature Unit: {this.HourlyUnits?.Temperature2M}], " +
-                   $"Hourly Data: [Times: {string.Join(", ", this.Hourly?.Time ?? [])}, " +
-                   $"Temperatures: {string.Join(", ", this.Hourly?.Temperature2M ?? [])}]";
+            return $"Location: [Latitude: {Latitude}, Longitude: {Longitude}], " +
+                   $"Generated in: {GenerationTimeMs} ms, " +
+                   $"UTC Offset: {UtcOffsetSeconds} seconds, " +
+                   $"Timezone: {Timezone} ({TimezoneAbbreviation}), " +
+                   $"Elevation: {Elevation} meters, " +
+                   $"Hourly Units: [Time Unit: {HourlyUnits?.Time}, " +
+                   $"Temperature Unit: {HourlyUnits?.Temperature2M}], " +
+                   $"Hourly Data: [Times: {string.Join(", ", Hourly?.Time ?? [])}, " +
+                   $"Temperatures: {string.Join(", ", Hourly?.Temperature2M ?? [])}]";
         }
     }
 }

@@ -5,10 +5,10 @@ namespace ORBIT9000.Plugins.Example.Common
     {
         public WeatherQuery(double latitude, double longitude, string hourly, string timezone)
         {
-            this.Latitude = latitude;
-            this.Longitude = longitude;
-            this.Hourly = hourly;
-            this.Timezone = timezone;
+            Latitude = latitude;
+            Longitude = longitude;
+            Hourly = hourly;
+            Timezone = timezone;
         }
 
         public WeatherQuery() { }
@@ -21,15 +21,15 @@ namespace ORBIT9000.Plugins.Example.Common
         public override bool Equals(object obj)
         {
             return obj is WeatherQuery other &&
-                   Equals((float)this.Latitude, (float)other.Latitude) &&
-                   Equals((float)this.Longitude, (float)other.Longitude) &&
-                   this.Hourly == other.Hourly &&
-                   this.Timezone == other.Timezone;
+                   Equals((float)Latitude, (float)other.Latitude) &&
+                   Equals((float)Longitude, (float)other.Longitude) &&
+                   Hourly == other.Hourly &&
+                   Timezone == other.Timezone;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Latitude, this.Longitude, this.Hourly, this.Timezone);
+            return HashCode.Combine(Latitude, Longitude, Hourly, Timezone);
         }
     }
 }

@@ -18,14 +18,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (source is null)
             {
-                this._logger.LogWarning("No 'src' folder found starting from {Name}", source?.FullName ?? "unknown");
+                _logger.LogWarning("No 'src' folder found starting from {Name}", source?.FullName ?? "unknown");
                 yield break;
             }
 
             IEnumerable<DirectoryInfo> subdirs = source.EnumerateDirectories();
             if (!subdirs.Any(d => d.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase)))
             {
-                this._logger.LogWarning("No 'Plugins' directory found under {Name}", source.FullName);
+                _logger.LogWarning("No 'Plugins' directory found under {Name}", source.FullName);
                 yield break;
             }
 
@@ -34,13 +34,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (!files.Any())
             {
-                this._logger.LogWarning("No plugins found in {Name}", pluginDir.FullName);
+                _logger.LogWarning("No plugins found in {Name}", pluginDir.FullName);
                 yield break;
             }
 
             foreach (FileInfo file in files)
             {
-                yield return this.LoadSingle(file.FullName);
+                yield return LoadSingle(file.FullName);
             }
         }
 

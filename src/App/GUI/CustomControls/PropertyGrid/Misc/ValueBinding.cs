@@ -19,11 +19,11 @@ namespace Terminal.Gui.CustomViews.Misc
         /// </summary>
         public object? Value
         {
-            get => this._value;
+            get => _value;
             set
             {
-                this._value = value!;
-                switch (this.View)
+                _value = value!;
+                switch (View)
                 {
                     case Label label:
                         label.Text = value?.ToString();
@@ -45,8 +45,8 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="value">Reference to the value being bound</param>
         public ValueBinding(View view, ref object value)
         {
-            this.View = view;
-            this._value = value;
+            View = view;
+            _value = value;
         }
     }
 }

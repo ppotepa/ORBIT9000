@@ -20,7 +20,8 @@ BEGIN
         [ModifiedBy] UNIQUEIDENTIFIER NOT NULL,
         [ModifiedOn] DATETIME2 NULL,
         [DeletedBy] UNIQUEIDENTIFIER NOT NULL,
-        [DeletedOn] DATETIME2 NULL
+        [DeletedOn] DATETIME2 NULL,
+        [TestColumn] DATETIME2 NULL
     );
 END
 

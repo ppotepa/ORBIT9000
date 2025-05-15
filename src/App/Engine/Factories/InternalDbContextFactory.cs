@@ -14,7 +14,8 @@ namespace ORBIT9000.Engine.Factories
         private readonly ILogger<InternalDbContextFactory> _logger;
         private readonly ConcurrentDictionary<Type, ExtendedDbContext> _contextCache = new();
 
-        public InternalDbContextFactory(IComponentContext context, IConfiguration configuration, ILogger<InternalDbContextFactory> logger)
+        public InternalDbContextFactory(IComponentContext context, IConfiguration configuration,
+            ILogger<InternalDbContextFactory> logger)
         {
             _context = context;
             _configuration = configuration;

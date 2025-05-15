@@ -20,15 +20,15 @@ namespace EngineTerminal.Managers
 
         public IReadOnlyList<BindingAction> GetUpdates<TData>(TData newData, Dictionary<string, ValueBinding> bindings)
         {
-            if (EqualityComparer<TData?>.Default.Equals(newData, default) || this.Data == null)
+            if (EqualityComparer<TData?>.Default.Equals(newData, default) || Data == null)
                 return [];
 
             if (newData is ExampleData typedNewData)
             {
-                this._changeTracker.UpdateData(typedNewData);
+                _changeTracker.UpdateData(typedNewData);
             }
 
-            IReadOnlyList<PropertyChangeRecord> changes = this._changeTracker.GetChanges();
+            IReadOnlyList<PropertyChangeRecord> changes = _changeTracker.GetChanges();
             List<BindingAction> actions = [];
 
             foreach (PropertyChangeRecord change in changes)
@@ -46,8 +46,8 @@ namespace EngineTerminal.Managers
         public void Initialize()
         {
             ExampleData initialData = CreateInitialData();
-            this._changeTracker.Initialize(initialData);
-            this.Data = this._changeTracker.ProxyData;
+            _changeTracker.Initialize(initialData);
+            Data = _changeTracker.ProxyData;
         }
 
         private static ExampleData CreateInitialData()

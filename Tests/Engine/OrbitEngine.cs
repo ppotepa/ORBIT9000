@@ -29,30 +29,30 @@ namespace ORBIT9000.Engine.Tests
         public void Constructor_InitializesEngine_WithValidDependencies()
         {
             Engine.OrbitEngine engine = new(
-                 this._inMemoryLoggerFactory,
-                 this._mockServiceProvider.Object,
-                 this._configuration.Object,
-                 this._mockPluginProvider.Object,
-                 this._mockScheduler.Object);
+                 _inMemoryLoggerFactory,
+                 _mockServiceProvider.Object,
+                 _configuration.Object,
+                 _mockPluginProvider.Object,
+                 _mockScheduler.Object);
 
             Assert.Multiple(() =>
             {
                 Assert.That(engine.IsInitialized, Is.True);
                 Assert.That(engine.IsRunning, Is.True);
-                Assert.That(engine.PluginProvider, Is.EqualTo(this._mockPluginProvider.Object));
-                Assert.That(engine.ServiceProvider, Is.EqualTo(this._mockServiceProvider.Object));
-                Assert.That(engine.Scheduler, Is.EqualTo(this._mockScheduler.Object));
+                Assert.That(engine.PluginProvider, Is.EqualTo(_mockPluginProvider.Object));
+                Assert.That(engine.ServiceProvider, Is.EqualTo(_mockServiceProvider.Object));
+                Assert.That(engine.Scheduler, Is.EqualTo(_mockScheduler.Object));
             });
         }
 
         [Test]
         public void Constructor_ThrowsArgumentNullException_WhenDependenciesAreNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(null!, this._mockServiceProvider.Object, this._configuration.Object, this._mockPluginProvider.Object, this._mockScheduler.Object));
-            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(this._inMemoryLoggerFactory, null!, this._configuration.Object, this._mockPluginProvider.Object, this._mockScheduler.Object));
-            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(this._inMemoryLoggerFactory, this._mockServiceProvider.Object, null!, this._mockPluginProvider.Object, this._mockScheduler.Object));
-            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(this._inMemoryLoggerFactory, this._mockServiceProvider.Object, this._configuration.Object, null!, this._mockScheduler.Object));
-            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(this._inMemoryLoggerFactory, this._mockServiceProvider.Object, this._configuration.Object, this._mockPluginProvider.Object, null!));
+            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(null!, _mockServiceProvider.Object, _configuration.Object, _mockPluginProvider.Object, _mockScheduler.Object));
+            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(_inMemoryLoggerFactory, null!, _configuration.Object, _mockPluginProvider.Object, _mockScheduler.Object));
+            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(_inMemoryLoggerFactory, _mockServiceProvider.Object, null!, _mockPluginProvider.Object, _mockScheduler.Object));
+            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(_inMemoryLoggerFactory, _mockServiceProvider.Object, _configuration.Object, null!, _mockScheduler.Object));
+            Assert.Throws<ArgumentNullException>(() => new Engine.OrbitEngine(_inMemoryLoggerFactory, _mockServiceProvider.Object, _configuration.Object, _mockPluginProvider.Object, null!));
         }
 
         [Test]
@@ -63,10 +63,10 @@ namespace ORBIT9000.Engine.Tests
 
             Engine.OrbitEngine engine = new(
                 loggerFactory,
-                this._mockServiceProvider.Object,
-                this._configuration.Object,
-                this._mockPluginProvider.Object,
-                this._mockScheduler.Object);
+                _mockServiceProvider.Object,
+                _configuration.Object,
+                _mockPluginProvider.Object,
+                _mockScheduler.Object);
 
             const string testMessage = "Test message {A}";
 
@@ -100,28 +100,28 @@ namespace ORBIT9000.Engine.Tests
         [SetUp]
         public void Setup()
         {
-            this._inMemoryLoggerFactory = new InMemoryLoggerProvider().CreateLoggerFactory();
-            this._mockServiceProvider = new Mock<IServiceProvider>();
-            this._mockPluginProvider = new Mock<IPluginProvider>();
-            this._mockScheduler = new Mock<IScheduler>();
-            this._configuration = new Mock<RuntimeSettings>();
+            _inMemoryLoggerFactory = new InMemoryLoggerProvider().CreateLoggerFactory();
+            _mockServiceProvider = new Mock<IServiceProvider>();
+            _mockPluginProvider = new Mock<IPluginProvider>();
+            _mockScheduler = new Mock<IScheduler>();
+            _configuration = new Mock<RuntimeSettings>();
 
-            this._mockServiceProvider.Setup(provider => provider.GetService(typeof(ILifetimeScope)))
+            _mockServiceProvider.Setup(provider => provider.GetService(typeof(ILifetimeScope)))
                 .Returns(new Mock<ILifetimeScope>().Object);
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (disposed)
                 return;
 
             if (disposing)
             {
-                this._inMemoryLoggerFactory?.Dispose();
-                this._mockServiceProvider = null!;
-                this._mockPluginProvider = null!;
-                this._mockScheduler = null!;
-                this._configuration = null!;
+                _inMemoryLoggerFactory?.Dispose();
+                _mockServiceProvider = null!;
+                _mockPluginProvider = null!;
+                _mockScheduler = null!;
+                _configuration = null!;
             }
 
             base.Dispose(disposing);

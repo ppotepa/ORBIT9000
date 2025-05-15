@@ -19,9 +19,9 @@ namespace ORBIT9000.Engine.Runtime.Pipe
 
         public PipeThreadHandler(EngineState state)
         {
-            this._state = state ?? throw new ArgumentNullException(nameof(state));
+            _state = state ?? throw new ArgumentNullException(nameof(state));
 
-            if (this._state.Engine is null)
+            if (_state.Engine is null)
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
@@ -33,10 +33,10 @@ namespace ORBIT9000.Engine.Runtime.Pipe
 
         public async Task StartAsync()
         {
-            ArgumentNullException.ThrowIfNull(this._state);
-            ArgumentNullException.ThrowIfNull(this._state.Engine);
+            ArgumentNullException.ThrowIfNull(_state);
+            ArgumentNullException.ThrowIfNull(_state.Engine);
 
-            this._state.Engine.LogInformation("Starting PipeThread.");
+            _state.Engine.LogInformation("Starting PipeThread.");
 
             try
             {
@@ -44,11 +44,11 @@ namespace ORBIT9000.Engine.Runtime.Pipe
 
                 await server.WaitForConnectionAsync();
 
-                this._state.Engine.LogInformation("GUI Connected");
+                _state.Engine.LogInformation("GUI Connected");
 
                 Random random = new();
 
-                while (this._state.Engine.IsRunning)
+                while (_state.Engine.IsRunning)
                 {
                     try
                     {
@@ -64,33 +64,33 @@ namespace ORBIT9000.Engine.Runtime.Pipe
                         if (random.NextDouble() > 0.91 && server.IsConnected)
                         {
                             await server.WriteAsync(buffer);
-                            this._state.Engine.LogInformation("Message sent to GUI. {A}", exampleData);
+                            _state.Engine.LogInformation("Message sent to GUI. {A}", exampleData);
                         }
                         else
                         {
-                            this._state.Engine.LogInformation("Message skipped for this interval.");
+                            _state.Engine.LogInformation("Message skipped for this interval.");
                         }
 
                         await Task.Delay(TimeSpan.FromMilliseconds(random.Next(50, 200)));
                     }
                     catch (IOException ex)
                     {
-                        this._state.Engine.LogError("An error occurred while writing to the pipe: {Message}, Disposing...", ex.Message);
+                        _state.Engine.LogError("An error occurred while writing to the pipe: {Message}, Disposing...", ex.Message);
                         server.Disconnect();
                         await server.DisposeAsync();
                     }
                     catch (ObjectDisposedException ex)
                     {
-                        this._state.Engine.LogError("An error occurred during the pipe thread loop: {Message}", ex.Message);
+                        _state.Engine.LogError("An error occurred during the pipe thread loop: {Message}", ex.Message);
                     }
                 }
             }
             catch (Exception ex)
             {
-                this._state.Engine.LogError("An error occurred in PipeThread: {Message}", ex.Message);
+                _state.Engine.LogError("An error occurred in PipeThread: {Message}", ex.Message);
             }
 
-            this._state.Engine.LogInformation("PipeThread has completed.");
+            _state.Engine.LogInformation("PipeThread has completed.");
         }
 
         #endregion Methods

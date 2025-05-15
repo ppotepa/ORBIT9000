@@ -28,14 +28,14 @@ namespace EngineTerminal
             ArgumentNullException.ThrowIfNull(dataChannel);
             ArgumentNullException.ThrowIfNull(statusChannel);
 
-            this._dataManager = dataManager ?? throw new ArgumentNullException(nameof(dataManager));
-            this._uiManager = uiManager ?? throw new ArgumentNullException(nameof(uiManager));
-            this._pipeManager = pipeManager ?? throw new ArgumentNullException(nameof(pipeManager));
+            _dataManager = dataManager ?? throw new ArgumentNullException(nameof(dataManager));
+            _uiManager = uiManager ?? throw new ArgumentNullException(nameof(uiManager));
+            _pipeManager = pipeManager ?? throw new ArgumentNullException(nameof(pipeManager));
 
-            this._dataReader = dataChannel.Reader;
-            this._statusReader = statusChannel.Reader;
+            _dataReader = dataChannel.Reader;
+            _statusReader = statusChannel.Reader;
 
-            PipeDataReceived += this._uiManager.UpdateUIFromData;
+            PipeDataReceived += _uiManager.UpdateUIFromData;
         }
 
         #endregion Fields
@@ -50,34 +50,34 @@ namespace EngineTerminal
 
         public async Task RunAsync()
         {
-            this._dataManager.Initialize();
-            this._uiManager.Initialize(this._dataManager.Data!);
+            _dataManager.Initialize();
+            _uiManager.Initialize(_dataManager.Data!);
 
-            Task pipeTask = this._pipeManager.StartProcessingAsync(this._tokenSource.Token);
+            Task pipeTask = _pipeManager.StartProcessingAsync(_tokenSource.Token);
 
-            Task dataTask = Task.Run(this.GetData, this._tokenSource.Token);
-            Task statusTask = Task.Run(this.GetStatus, this._tokenSource.Token);
+            Task dataTask = Task.Run(GetData, _tokenSource.Token);
+            Task statusTask = Task.Run(GetStatus, _tokenSource.Token);
 
-            this._uiManager.Run();
+            _uiManager.Run();
 
-            this._uiManager.UpdateStatusMessage("Initializing UI");
+            _uiManager.UpdateStatusMessage("Initializing UI");
             await Task.WhenAll(pipeTask, dataTask, statusTask);
-            await this._tokenSource.CancelAsync();
+            await _tokenSource.CancelAsync();
         }
 
         protected virtual void OnDataReceived(IReadOnlyList<BindingAction> actions)
         {
-            this._uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
+            _uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
 
             PipeDataReceived?.Invoke(this, actions);
         }
 
         private async Task GetData()
         {
-            await foreach (ExampleData newData in this._dataReader.ReadAllAsync(this._tokenSource.Token))
+            await foreach (ExampleData newData in _dataReader.ReadAllAsync(_tokenSource.Token))
             {
-                this._uiManager.UpdateCurrentMethod("Obtaining data");
-                await this.Process(newData);
+                _uiManager.UpdateCurrentMethod("Obtaining data");
+                await Process(newData);
             }
         }
 
@@ -87,26 +87,26 @@ namespace EngineTerminal
 
             stopwatch.Start();
 
-            IReadOnlyList<BindingAction> updates = this._dataManager.GetUpdates(newData, this._uiManager.GridBindings ?? []);
+            IReadOnlyList<BindingAction> updates = _dataManager.GetUpdates(newData, _uiManager.GridBindings ?? []);
 
             if (updates.Any())
             {
-                this._uiManager.UpdateCurrentMethod($"Processing updates {updates.Count}.");
-                this._uiManager.UpdateUIFromData(this, updates);
-                this.OnDataReceived(updates);
+                _uiManager.UpdateCurrentMethod($"Processing updates {updates.Count}.");
+                _uiManager.UpdateUIFromData(this, updates);
+                OnDataReceived(updates);
             }
 
             stopwatch.Stop();
 
-            this._uiManager.UpdateStatusMessage(null, $"Last Update took : {stopwatch.ElapsedMilliseconds}ms");
+            _uiManager.UpdateStatusMessage(null, $"Last Update took : {stopwatch.ElapsedMilliseconds}ms");
             await Task.Delay(100);
         }
 
         private async Task GetStatus()
         {
-            await foreach (string status in this._statusReader.ReadAllAsync(this._tokenSource.Token))
+            await foreach (string status in _statusReader.ReadAllAsync(_tokenSource.Token))
             {
-                this._uiManager.UpdateStatusMessage(status);
+                _uiManager.UpdateStatusMessage(status);
             }
         }
 
@@ -114,8 +114,8 @@ namespace EngineTerminal
         {
             if (disposing)
             {
-                this._tokenSource.Cancel();
-                this._tokenSource.Dispose();
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
             }
 
             base.Dispose(disposing);

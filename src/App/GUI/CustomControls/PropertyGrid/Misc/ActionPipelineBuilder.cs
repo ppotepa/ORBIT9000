@@ -47,12 +47,12 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
         {
-            this._valueField = valueField;
-            this._targetBinding = targetBinding;
-            this._parent = parent;
-            this._propertyInfo = propertyInfo;
-            this._pipeline.Clear();
-            this._pipeline.Add(_ => this.ProcessInputValue());
+            _valueField = valueField;
+            _targetBinding = targetBinding;
+            _parent = parent;
+            _propertyInfo = propertyInfo;
+            _pipeline.Clear();
+            _pipeline.Add(_ => ProcessInputValue());
             return this;
         }
 
@@ -64,10 +64,10 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
-            this._pipeline.Add(_ =>
+            _pipeline.Add(_ =>
             {
                 if (condition())
-                    action(this._targetBinding!);
+                    action(_targetBinding!);
             });
             return this;
         }
@@ -79,7 +79,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
-            this._pipeline.Insert(0, action);
+            _pipeline.Insert(0, action);
             return this;
         }
 
@@ -90,7 +90,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
-            this._pipeline.Add(action);
+            _pipeline.Add(action);
             return this;
         }
 
@@ -100,7 +100,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <returns>An action that executes all steps in the pipeline.</returns>
         public Action<ustring> Build() => input =>
         {
-            foreach (Action<ustring> step in this._pipeline)
+            foreach (Action<ustring> step in _pipeline)
                 step(input);
         };
 
@@ -109,20 +109,20 @@ namespace Terminal.Gui.CustomViews.Misc
         /// </summary>
         private void ProcessInputValue()
         {
-            if (this._valueField == null || this._targetBinding == null || this._parent == null || this._propertyInfo == null)
+            if (_valueField == null || _targetBinding == null || _parent == null || _propertyInfo == null)
                 return;
 
-            string? text = this._valueField.Text.ToString();
-            switch (Type.GetTypeCode(this._propertyInfo.PropertyType))
+            string? text = _valueField.Text.ToString();
+            switch (Type.GetTypeCode(_propertyInfo.PropertyType))
             {
                 case TypeCode.String:
-                    this.ApplyValue(text!); break;
+                    ApplyValue(text!); break;
                 case TypeCode.Int32:
-                    if (int.TryParse(text, out int i)) this.ApplyValue(i);
+                    if (int.TryParse(text, out int i)) ApplyValue(i);
                     break;
 
                 case TypeCode.Boolean:
-                    if (bool.TryParse(text, out bool b)) this.ApplyValue(b);
+                    if (bool.TryParse(text, out bool b)) ApplyValue(b);
                     break;
             }
         }
@@ -134,11 +134,11 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="value">The value to apply.</param>
         private void ApplyValue(object value)
         {
-            if (this._propertyInfo == null || this._parent == null || this._targetBinding == null || value == null) return;
-            if (Validate(this._propertyInfo, this._parent, value))
+            if (_propertyInfo == null || _parent == null || _targetBinding == null || value == null) return;
+            if (Validate(_propertyInfo, _parent, value))
             {
-                this._targetBinding.Value = value!;
-                this._propertyInfo.SetValue(this._parent, value);
+                _targetBinding.Value = value!;
+                _propertyInfo.SetValue(_parent, value);
             }
         }
 

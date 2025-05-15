@@ -9,6 +9,6 @@
     {
         new TTarget Parse(string input);
 
-        object IParser.Parse(string input) => this.Parse(input)!;
+        object IParser.Parse(string input) => Parse(input)!;
     }
 }

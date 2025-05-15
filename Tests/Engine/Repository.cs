@@ -18,16 +18,16 @@ namespace ORBIT9000.Engine.Tests
         [SetUp]
         public void Setup()
         {
-            this.reflectiveInMemoryContext = new ReflectiveInMemoryContext();
-            this.reflectiveInMemoryDbAdapter = new ReflectiveInMemoryDbAdapter(this.reflectiveInMemoryContext);
-            this.weatherDataRepository = new Repository<WeatherData>(this.reflectiveInMemoryDbAdapter);
+            reflectiveInMemoryContext = new ReflectiveInMemoryContext();
+            reflectiveInMemoryDbAdapter = new ReflectiveInMemoryDbAdapter(reflectiveInMemoryContext);
+            weatherDataRepository = new Repository<WeatherData>(reflectiveInMemoryDbAdapter);
         }
 
         [TearDown]
         public void TearDown()
         {
-            this.reflectiveInMemoryContext.Database.EnsureDeleted();
-            this.reflectiveInMemoryContext.Dispose();
+            reflectiveInMemoryContext.Database.EnsureDeleted();
+            reflectiveInMemoryContext.Dispose();
         }
 
         [Test]
@@ -83,33 +83,33 @@ namespace ORBIT9000.Engine.Tests
             WeatherData portlandWeatherData = new() { Id = Guid.NewGuid(), City = "Portland", Temperature = 18.2m, Lattitude = 45.5152f, Longitude = -122.6784f };
             WeatherData sanFranciscoWeatherData = new() { Id = Guid.NewGuid(), City = "San Francisco", Temperature = 22.1m, Lattitude = 37.7749f, Longitude = -122.4194f };
 
-            this.weatherDataRepository.Add(seattleWeatherData);
-            this.weatherDataRepository.Add(portlandWeatherData);
-            this.weatherDataRepository.Add(sanFranciscoWeatherData);
-            this.weatherDataRepository.Save();
+            weatherDataRepository.Add(seattleWeatherData);
+            weatherDataRepository.Add(portlandWeatherData);
+            weatherDataRepository.Add(sanFranciscoWeatherData);
+            weatherDataRepository.Save();
 
-            List<WeatherData> allStoredWeatherData = [.. this.weatherDataRepository.GetAll()];
+            List<WeatherData> allStoredWeatherData = [.. weatherDataRepository.GetAll()];
 
             Assert.That(allStoredWeatherData, Has.Count.EqualTo(3));
             Assert.That(allStoredWeatherData.Any(weatherData => weatherData.City == "Seattle"), Is.True);
 
-            WeatherData? foundSeattleData = this.weatherDataRepository.FindById(seattleWeatherData.Id);
+            WeatherData? foundSeattleData = weatherDataRepository.FindById(seattleWeatherData.Id);
 
             Assert.That(foundSeattleData, Is.Not.Null);
             Assert.That(foundSeattleData!.City, Is.EqualTo("Seattle"));
 
             seattleWeatherData.Temperature = 16.2m;
-            this.weatherDataRepository.UpdateAsync(seattleWeatherData);
-            this.weatherDataRepository.Save();
+            weatherDataRepository.UpdateAsync(seattleWeatherData);
+            weatherDataRepository.Save();
 
-            foundSeattleData = this.weatherDataRepository.FindById(seattleWeatherData.Id);
+            foundSeattleData = weatherDataRepository.FindById(seattleWeatherData.Id);
 
             Assert.That(foundSeattleData!.Temperature, Is.EqualTo(16.2m));
 
-            this.weatherDataRepository.Remove(seattleWeatherData);
-            this.weatherDataRepository.Save();
+            weatherDataRepository.Remove(seattleWeatherData);
+            weatherDataRepository.Save();
 
-            allStoredWeatherData = [.. this.weatherDataRepository.GetAll()];
+            allStoredWeatherData = [.. weatherDataRepository.GetAll()];
 
             Assert.That(allStoredWeatherData, Has.Count.EqualTo(2));
             Assert.That(allStoredWeatherData.Any(weatherData => weatherData.City == "Seattle"), Is.False);
@@ -128,25 +128,25 @@ namespace ORBIT9000.Engine.Tests
 
             foreach (WeatherData weatherData in testWeatherDataList)
             {
-                this.weatherDataRepository.Add(weatherData);
+                weatherDataRepository.Add(weatherData);
             }
 
-            this.weatherDataRepository.Save();
+            weatherDataRepository.Save();
 
             List<WeatherData> seattleWeatherDataList
-                = [.. this.weatherDataRepository.GetAll().Where(weatherData => weatherData.City == "Seattle")];
+                = [.. weatherDataRepository.GetAll().Where(weatherData => weatherData.City == "Seattle")];
 
             Assert.That(seattleWeatherDataList, Has.Count.EqualTo(2));
             Assert.That(seattleWeatherDataList.All(weatherData => weatherData.City == "Seattle"), Is.True);
 
             List<WeatherData> coolWeatherDataList
-                = [.. this.weatherDataRepository.GetAll().Where(weatherData => weatherData.Temperature < 15.0m)];
+                = [.. weatherDataRepository.GetAll().Where(weatherData => weatherData.Temperature < 15.0m)];
 
             Assert.That(coolWeatherDataList, Has.Count.EqualTo(1));
             Assert.That(coolWeatherDataList[0].Temperature, Is.EqualTo(10.0m));
 
             List<WeatherData> filteredSeattleWarmWeatherDataList
-                = [.. this.weatherDataRepository.GetAll().Where(weatherData => weatherData.City == "Seattle" && weatherData.Temperature > 12.0m)];
+                = [.. weatherDataRepository.GetAll().Where(weatherData => weatherData.City == "Seattle" && weatherData.Temperature > 12.0m)];
 
             Assert.That(filteredSeattleWarmWeatherDataList, Has.Count.EqualTo(1));
             Assert.That(filteredSeattleWarmWeatherDataList[0].Temperature, Is.EqualTo(15.5m));
@@ -154,7 +154,7 @@ namespace ORBIT9000.Engine.Tests
 
         protected override void DisposeManagedObjects()
         {
-            this.reflectiveInMemoryContext?.Dispose();
+            reflectiveInMemoryContext?.Dispose();
             base.DisposeManagedObjects();
         }
     }

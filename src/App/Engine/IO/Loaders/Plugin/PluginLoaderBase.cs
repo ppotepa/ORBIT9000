@@ -17,28 +17,28 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(assemblyLoader);
 
-            this._logger = logger;
-            this._assemblyLoader = assemblyLoader;
+            _logger = logger;
+            _assemblyLoader = assemblyLoader;
 
-            this._logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
+            _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", GetType());
         }
 
         public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
 
         public IEnumerable<PluginInfo> LoadPlugins(object source)
         {
-            return this.LoadPlugins((TSource)source);
+            return LoadPlugins((TSource)source);
         }
 
         protected PluginInfo LoadSingle(string path)
         {
             FileInfo fileInfo = new(path);
 
-            using (this._logger.BeginScope($"{fileInfo.Name}"))
+            using (_logger.BeginScope($"{fileInfo.Name}"))
             {
-                this._logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
+                _logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
-                PluginInfo result = this.TryLoadSingleFile(fileInfo);
+                PluginInfo result = TryLoadSingleFile(fileInfo);
 
                 return result;
             }
@@ -46,7 +46,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
-            System.Reflection.Assembly? assemblyLoadResult = this._assemblyLoader.Load(info);
+            System.Reflection.Assembly? assemblyLoadResult = _assemblyLoader.Load(info);
 
             if (assemblyLoadResult is null)
             {
@@ -62,7 +62,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
             if (pluginType is null)
             {
-                this._logger.LogWarning("No plugin type found in assembly {Assembly}", info.Name);
+                _logger.LogWarning("No plugin type found in assembly {Assembly}", info.Name);
             }
 
             return new PluginInfo

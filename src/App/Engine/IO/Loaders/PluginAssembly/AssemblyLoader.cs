@@ -31,7 +31,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             catch (Exception ex)
             {
                 string contextualMessage = $"Failed to load assembly from {info.FullName}.";
-                this._logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
+                _logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
                 throw new InvalidOperationException(contextualMessage, ex);
             }
         }
@@ -42,11 +42,11 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                this._logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
+                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 
         public void UnloadAssembly(FileInfo info)
-            => this.UnloadAssembly(info.FullName);
+            => UnloadAssembly(info.FullName);
     }
 }

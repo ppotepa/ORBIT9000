@@ -22,8 +22,8 @@ namespace ORBIT9000.Plugins.ScheduleExample4.DataProviders
         {
             ArgumentNullException.ThrowIfNull(logger);
 
-            this._logger = logger;
-            this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());
+            _logger = logger;
+            _logger.LogInformation("ExampleDataProvider initialized. {Data}", GetHashCode());
         }
 
         public bool AllowAnonymous => true;
@@ -37,7 +37,7 @@ namespace ORBIT9000.Plugins.ScheduleExample4.DataProviders
 
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
-            this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
+            _logger.LogInformation("Fetching data from weather API: {@Data}", GetHashCode());
 
             // Changed to fetch weather for New York City
             var query = new

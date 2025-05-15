@@ -8,8 +8,8 @@
 
         public ExampleData(SettingsData frame1, EngineData frame2)
         {
-            this.Frame1 = frame1 ?? throw new ArgumentNullException(nameof(frame1));
-            this.Frame2 = frame2 ?? throw new ArgumentNullException(nameof(frame2));
+            Frame1 = frame1 ?? throw new ArgumentNullException(nameof(frame1));
+            Frame2 = frame2 ?? throw new ArgumentNullException(nameof(frame2));
         }
 
         [MessagePack.Key(0)]

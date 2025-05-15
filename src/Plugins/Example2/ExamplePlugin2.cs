@@ -24,7 +24,7 @@ namespace ORBIT9000.Plugins.Example2
 
         public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger)
         {
-            this._numbers = numbers;
+            _numbers = numbers;
             this._logger = _logger;
 
             _logger.LogInformation("ExamplePlugin2 created");
@@ -41,8 +41,8 @@ namespace ORBIT9000.Plugins.Example2
 
         public async Task OnLoad()
         {
-            IEnumerable<int> data = await this._numbers.GenerateRandomNumbers();
-            this._logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
+            IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
+            _logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
         }
 
         public Task OnUnload()

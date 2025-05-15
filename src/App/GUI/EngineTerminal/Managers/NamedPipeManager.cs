@@ -29,7 +29,7 @@ namespace EngineTerminal.Managers
             try
             {
                 await client.ConnectAsync(cancellationToken);
-                await this._statusWriter.WriteAsync("Connected to engine.", cancellationToken);
+                await _statusWriter.WriteAsync("Connected to engine.", cancellationToken);
 
                 byte[] buffer = new byte[4096];
 
@@ -41,31 +41,31 @@ namespace EngineTerminal.Managers
                     ExampleData data = MessagePackSerializer
                         .Deserialize<ExampleData>(new ReadOnlySequence<byte>(buffer, 0, bytesRead), options, cancellationToken);
 
-                    await this._dataWriter.WriteAsync(data, cancellationToken);
-                    await this._statusWriter.WriteAsync("New engine data received.", cancellationToken);
+                    await _dataWriter.WriteAsync(data, cancellationToken);
+                    await _statusWriter.WriteAsync("New engine data received.", cancellationToken);
                     await Task.Delay(50, cancellationToken);
                 }
 
-                await this._statusWriter.WriteAsync("Pipe closed by server.", cancellationToken);
+                await _statusWriter.WriteAsync("Pipe closed by server.", cancellationToken);
             }
             catch (Exception ex)
             {
-                await this._statusWriter.WriteAsync($"Pipe error: {ex.Message}", cancellationToken);
+                await _statusWriter.WriteAsync($"Pipe error: {ex.Message}", cancellationToken);
             }
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
-                    this._dataWriter.Complete();
-                    this._statusWriter.Complete();
+                    _dataWriter.Complete();
+                    _statusWriter.Complete();
                 }
 
                 base.Dispose(disposing);
-                this.disposed = true;
+                disposed = true;
             }
         }
     }

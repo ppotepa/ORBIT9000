@@ -15,17 +15,17 @@ namespace ORBIT9000.Abstractions.Runtime
 
         public GlobalMessageChannel()
         {
-            this._channel = Channel.CreateUnbounded<T>();
+            _channel = Channel.CreateUnbounded<T>();
         }
 
         public async ValueTask PublishAsync(T message)
         {
-            await this._channel.Writer.WriteAsync(message);
+            await _channel.Writer.WriteAsync(message);
         }
 
         public IAsyncEnumerable<T> ReadAllAsync(CancellationToken cancellationToken = default)
         {
-            return this._channel.Reader.ReadAllAsync(cancellationToken);
+            return _channel.Reader.ReadAllAsync(cancellationToken);
         }
     }
 }

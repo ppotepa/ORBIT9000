@@ -11,7 +11,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         {
             foreach (string plugin in source)
             {
-                yield return this.LoadSingle(plugin);
+                yield return LoadSingle(plugin);
             }
         }
     }

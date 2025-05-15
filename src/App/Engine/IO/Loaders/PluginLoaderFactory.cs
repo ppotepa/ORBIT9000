@@ -13,13 +13,13 @@ namespace ORBIT9000.Engine.IO.Loaders
 
         public IPluginLoader Create()
         {
-            ArgumentNullException.ThrowIfNull(this._rawConfig);
+            ArgumentNullException.ThrowIfNull(_rawConfig);
 
-            return this._rawConfig.Plugins.ActivePlugins.Length switch
+            return _rawConfig.Plugins.ActivePlugins.Length switch
             {
-                > 0 => this._serviceProvider.GetRequiredService<StringArrayPluginLoader>(),
-                _ when AppEnvironment.IsDebug => this._serviceProvider.GetRequiredService<DebugDirectoryPluginLoader>(),
-                _ => this._serviceProvider.GetRequiredService<DirectoryPluginLoader>()
+                > 0 => _serviceProvider.GetRequiredService<StringArrayPluginLoader>(),
+                _ when AppEnvironment.IsDebug => _serviceProvider.GetRequiredService<DebugDirectoryPluginLoader>(),
+                _ => _serviceProvider.GetRequiredService<DirectoryPluginLoader>()
             };
         }
     }
