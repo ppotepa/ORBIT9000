@@ -14,12 +14,11 @@
 - 💬 **Messaging Interface** – `IMessageChannel` abstraction for internal communication.
 - 🧰 **Attribute-based DI** – Use `[Service]`, `[Singleton]`, `[DefaultProject]` and other custom attributes.
 - 🧪 **PoC Ready** – Includes a terminal-based GUI and sample plugins for testing and demo.
+- 📊 **Data Processing** – Channel-based data flow with reactive UI updates.
 
 ---
 
 ## 🗂️ Structure Overview
-
-```
 src/
 ├── App/
 │   ├── Core/             # Interfaces, abstractions, and attributes
@@ -31,27 +30,13 @@ src/
 │   └── Example2/         # Plugin with a service returning random numbers
 │
 └── PoC/PoCDemo/          # Minimal demo app for engine execution
-```
-
 ---
 
 ## 🚀 Getting Started
 
-1. **Clone and Build**
-   ```bash
-   dotnet build ORBIT9000.sln
-   ```
-
-2. **Run the Engine Terminal**
-   ```bash
-   dotnet run --project src/App/GUI/EngineTerminal
-   ```
-
-3. **Run the PoC Demo (starts the engine directly)**
-   ```bash
-   dotnet run --project src/App/PoC/PoCDemo
-   ```
-
+1. **Clone and Build**dotnet build ORBIT9000.sln
+2. **Run the Engine Terminal**dotnet run --project src/App/GUI/EngineTerminal
+3. **Run the PoC Demo (starts the engine directly)**dotnet run --project src/App/PoC/PoCDemo
 4. **Add Plugins**
    - Drop compiled plugin DLLs into a specified plugin directory.
    - Use attributes and interfaces to define behaviour.
@@ -59,15 +44,11 @@ src/
 ---
 
 ## 🧱 Example Plugin
-
-```csharp
 [Service]
 public class WeatherQuery : IOrbitPlugin
 {
     // Logic here
 }
-```
-
 ---
 
 ## 🔧 Tech Stack
@@ -96,3 +77,4 @@ public class WeatherQuery : IOrbitPlugin
 ## 📜 License & Status
 
 This is an **experimental project under active development**. Use at your own discretion.
+        
