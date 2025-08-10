@@ -1,0 +1,187 @@
+TRADING BOT ARCHITECTURE SPECIFICATION
+=====================================
+
+Core Principle
+A bot's name must never reference a specific strategy or wallet.
+Both are plug‑and‑play components that can be swapped at start‑up.
+
+✅ IMPLEMENTATION STATUS: COMPLETED
+This principle is fully implemented in our modular bot architecture with IBotOrchestrator and IBotComponent interfaces.
+
+Bot as a Runtime Container
+A trading bot is a long‑running task (process, thread, coroutine) that composes several interchangeable modules:
+
+Strategy – decides when and how to trade.
+✅ IMPLEMENTED: StrategyEngine component type
+
+Wallet – holds and moves funds.
+✅ IMPLEMENTED: Via IWallet interface and wallet factories
+
+Market‑Exchange Service – supplies real‑time market data.
+✅ IMPLEMENTED: MarketScanner component type with IAggregateMarketScanner
+
+Execution Engine – places, amends, and cancels orders.
+✅ IMPLEMENTED: ExecutionEngine component type
+
+Alert System – notifies when a trading opportunity appears.
+✅ IMPLEMENTED: Event-based AlertService with TradingAlert messaging
+
+Risk Management – monitors exposure and enforces limits.
+✅ IMPLEMENTED: RiskManager component type
+
+Alert Processing – handles and routes alert notifications.
+✅ IMPLEMENTED: AlertProcessor component type
+
+Data Processing – transforms and analyzes market data.
+✅ IMPLEMENTED: DataProcessor component type
+
+Notification System – sends alerts to external systems.
+✅ IMPLEMENTED: Notification component type
+
+Monitored Exchanges List – defines the venues under surveillance
+✅ IMPLEMENTED: Configurable via component configuration
+
+If omitted in configuration, the bot scans all available exchanges by default.
+
+Extensibility: This list is intentionally open‑ended; additional modules (e.g., authentication, analytics) can be introduced at any time without touching core bot code.
+✅ IMPLEMENTED: New component types can be added by implementing IBotComponent interface
+
+Alert Mechanism
+When any module flags an opportunity, the bot must raise an alert. Two common patterns:
+
+Event‑based messaging – simple publish/subscribe, low overhead.
+✅ IMPLEMENTED: Current system uses C# events with AlertService
+- TradingAlert objects for typed messaging
+- Type-specific and global subscriptions
+- Low latency, immediate delivery
+- Perfect for current trading volumes
+
+Message channels / queues – buffered, back‑pressure aware; better when producers may outpace consumers.
+📋 ANALYZED: Comprehensive comparison available in advantages.txt
+- Recommended for high-frequency data streams (>100k msg/sec)
+- Hybrid approach planned for future scaling
+
+Select the pattern that best fits expected load and reliability requirements.
+✅ DECISION MADE: Events chosen for optimal balance of simplicity and performance
+
+Dynamic Strategies
+The strategy module should be discoverable and loadable at runtime (reflection, module loading, plugin framework, etc.).
+✅ IMPLEMENTED: 
+- Component loading via configuration with type discovery
+- Assembly loading support for external components
+- Dependency injection integration
+- Hot-swappable components without core code changes
+
+New strategies become available by dropping in their binaries or scripts—no core‑code changes required.
+✅ IMPLEMENTED: BotOrchestrator loads components from configuration
+
+CURRENT ARCHITECTURE IMPLEMENTATION
+===================================
+
+Core Components:
+- IBotOrchestrator: Central orchestrator managing component lifecycle
+- IBotComponent: Base interface for all modular components
+- BotComponentBase: Common functionality for component implementations
+- AlertService: Event-based messaging system
+- TradingAlert: Strongly typed alert objects
+
+Available Component Types:
+- MarketScanner: Market data collection and analysis
+- ExecutionEngine: Trade execution and order management
+- RiskManager: Risk assessment and limit enforcement
+- AlertProcessor: Alert routing and processing
+- StrategyEngine: Trading strategy implementation
+- DataProcessor: Data transformation and analysis
+- Notification: External notification delivery
+
+Key Features:
+✅ Dependency-ordered startup and shutdown
+✅ Health monitoring and status reporting
+✅ Configuration-driven component loading
+✅ Event-based inter-component communication
+✅ Comprehensive logging and diagnostics
+✅ Clean separation of concerns
+✅ Full dependency injection support
+
+EXAMPLE COMPONENT IMPLEMENTATION
+===============================
+
+```csharp
+public class CustomStrategyComponent : BotComponentBase
+{
+    public override BotComponentType ComponentType => BotComponentType.StrategyEngine;
+
+    public CustomStrategyComponent(ILogger<CustomStrategyComponent> logger) : base(logger) { }
+
+    protected override async Task OnStartAsync(CancellationToken cancellationToken)
+    {
+        // Initialize strategy logic
+        await base.OnStartAsync(cancellationToken);
+    }
+
+    protected override async Task OnHandleAlertAsync(TradingAlert alert)
+    {
+        if (alert.Type == AlertType.OPPORTUNITY_DETECTED)
+        {
+            // Process trading opportunity
+            var executionAlert = new TradingAlert
+            {
+                Type = AlertType.EXECUTION_SIGNAL,
+                Title = "Execute Trade",
+                // ... strategy logic
+            };
+            
+            await PublishAlertAsync(executionAlert);
+        }
+    }
+}
+```
+
+DEPENDENCY INJECTION REGISTRATION
+================================
+
+```csharp
+services.AddBotOrchestration(config =>
+{
+    config.AddComponent<MarketScannerComponent>("market-scanner")
+          .WithConfiguration(new Dictionary<string, object>
+          {
+              ["ScanInterval"] = 5000,
+              ["Tokens"] = new[] { "SOL", "BTC", "ETH" }
+          });
+          
+    config.AddComponent<ExecutionEngineComponent>("execution-engine")
+          .WithConfiguration(new Dictionary<string, object>
+          {
+              ["MaxTradeSize"] = 1000,
+              ["RiskLevel"] = "Medium"
+          });
+});
+```
+
+LEGACY COMPONENTS REMOVED
+=========================
+The following legacy components have been removed in favor of the modular architecture:
+- BasicTradingBot (replaced by IBotOrchestrator + components)
+- SolanaTradingBot (replaced by modular components)
+- BonkScanner (replaced by configurable MarketScanner)
+- PudgyScanner (replaced by configurable MarketScanner)
+- EnhancedBotManager (deprecated, use IBotOrchestrator)
+
+MIGRATION GUIDE
+===============
+Old Pattern:
+```csharp
+var bot = new BasicTradingBot("MyBot", strategy, wallet, logger);
+await bot.StartAsync();
+```
+
+New Pattern:
+```csharp
+var orchestrator = serviceProvider.GetRequiredService<IBotOrchestrator>();
+await orchestrator.StartAsync();
+```
+
+Bottom line: The bot is an orchestrator, while domain logic lives in modular, hot‑swappable components that can evolve—or expand—independently of the runtime.
+
+✅ FULLY IMPLEMENTED: This vision is now a reality in our codebase.

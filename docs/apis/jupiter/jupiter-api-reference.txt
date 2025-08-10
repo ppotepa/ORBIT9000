@@ -1,0 +1,1537 @@
+
+
+    
+    
+    
+    
+    Jupiter API Reference Manual
+
+    Base URLs and API Access: Jupiter provides Lite (free tier) API endpoints under the base https://lite-api.jup.ag (no API key required) and Pro endpoints under https://api.jup.ag (API key required via x-api-key header)[1]. Unless otherwise noted, methods are RESTful HTTP calls. Jupiter currently does not expose GraphQL or WebSocket endpoints; all APIs are HTTP requests. Each section below is organized by service (Ultra, Swap, Lend, Trigger, Recurring, Token, Price). For Pro usage, ensure you include a valid API key in the request headers.
+
+    
+    Ultra API
+
+    The Ultra API is Jupiter’s next-generation swap API, providing an all-in-one solution for trading on Solana with built-in slippage protection, transaction broadcasting, MEV protection, and integrator fee support[2][3]. Ultra endpoints do not require a Pro API key (dynamic rate limiting applies)[4]. Base URL: https://lite-api.jup.ag/ultra/v1.
+
+    
+    GET /ultra/v1/order
+
+    Description: Returns a base64-encoded unsigned swap transaction for a given token swap request[5]. The client must later sign this transaction and execute it (via the execute endpoint). This “order” response also contains a requestId used to correlate with execution[6].
+
+    Authorization: No API key needed (Ultra uses dynamic rate limits).
+
+    Required Query Parameters: (pass as URL query string)
+- inputMint (string, required): The mint address of the input token[7].
+- outputMint (string, required): The mint address of the desired output token[7].
+- amount (string, required): Amount of the input token to swap, specified in the token’s smallest units (e.g. lamports for SOL or atomic units for SPL tokens)[8].
+- taker (string, optional): The user’s Solana wallet address. If provided, the transaction will be prepared to debit this address; if omitted, an order is still returned but with no transaction field in the response[9].
+- referralAccount (string, optional): A referral account public key for integrator fees (must be pre-created via Jupiter’s referral program)[10].
+- referralFee (integer, optional): Referral fee in basis points (bps) to charge on this swap (50–255 bps allowed)[11] (Jupiter takes 20% of this fee)[12]. If provided, ensure a corresponding referral token account is set up for the output token mint (otherwise the swap will proceed without applying the fee)[13].
+
+    Example Request: (fetching a swap transaction for 1 SOL to USDC)
+
+    const orderResponse = await (
+  await fetch('https://lite-api.jup.ag/ultra/v1/order?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=100000000&taker=YourWalletAddress')
+).json();
+console.log(JSON.stringify(orderResponse, null, 2));
+```[14]
+
+**Response Structure:** On success (`200 OK`), returns a JSON object with key fields:  
+- **`transaction`** (string): The unsigned swap transaction in base64 format, to be signed by the caller’s wallet[15].  
+- **`requestId`** (string): The unique identifier for this order request, used when executing the swap[6].  
+- Other metadata fields such as **`swapType`**, **`router`**, **`inAmount`**, **`outAmount`**, **`slippageBps`**, **`priceImpactPct`**, and a detailed **`routePlan`** describing how the trade will be split across liquidity sources[16][17].
+
+**Example Response:** (truncated for brevity)  
+
+```json
+{
+  "mode": "ultra",
+  "swapType": "aggregator",
+  "router": "metis",
+  "requestId": "5421e18f-9d12-4709-8f5a-6c79c1032203",
+  "inAmount": "100000000",
+  "outAmount": "16198753",
+  "otherAmountThreshold": "16117760",
+  "swapMode": "ExactIn",
+  "slippageBps": 50,
+  "priceImpactPct": "0",
+  "routePlan": [
+    {
+      "swapInfo": {
+        "ammKey": "5BKxfWMbmYBAEWvyPZS9esPducUba9GqyMjtLCfbaqyF",
+        "label": "Meteora DLMM",
+        "inputMint": "So11111111111111111111111111111111111111112",
+        "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "inAmount": "100000000",
+        "outAmount": "16198753",
+        "feeAmount": "24825",
+        "feeMint": "So11111111111111111111111111111111111111112"
+      },
+      "percent": 100
+    }
+  ],
+  "transaction": "AQAAAA...AAAA=="
+}
+```[18][19]
+
+**Error Responses:** On bad requests (e.g. missing or invalid parameters), a `400 Bad Request` is returned with an error message. For example:  
+
+```json
+{ "error": "invalid create order request", "cause": "...", "code": 400 }
+```[20]
+
+### POST `/ultra/v1/execute`
+
+**Description:** Executes a **signed swap transaction** previously obtained from `/order`. This endpoint broadcasts the signed transaction to the Solana network and returns its execution status[21][22]. Using Jupiter’s execute endpoint is optional – you may also send the transaction to the network yourself (see **Response**). Jupiter’s service handles transaction broadcast through multiple RPCs, monitors for completion, and applies strategies for fast, reliable confirmation[21].
+
+**Authorization:** No API key needed (Ultra dynamic rate limit). Endpoint: `https://lite-api.jup.ag/ultra/v1/execute`[23].
+
+**Request Body (JSON):**  
+- **`signedTransaction`** (string, required): The base64-encoded signed transaction obtained from a prior `/order` response (after signing it with the user’s private key)?11†L125-L133?.  
+- **`requestId`** (string, required): The `requestId` from the `/order` response that corresponds to this transaction?11†L125-L133?.
+
+**Example Request:**  
+
+```js
+const executeResponse = await (
+  await fetch('https://lite-api.jup.ag/ultra/v1/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      signedTransaction: signedTxBase64,
+      requestId: orderResponse.requestId
+    })
+  })
+).json();
+```?11†L135-L144?
+
+**Response Structure:** Returns a JSON object indicating success or failure of the swap execution. Key fields include:  
+- **`status`** (string): `"Success"` or `"Failed"`?11†L163-L171??11†L182-L189?.  
+- **`signature`** (string): The Solana transaction signature (ID) of the swap transaction?11†L165-L173??11†L182-L189?.  
+- If successful: **`slot`** (string or number): the slot number at which the transaction was confirmed; **`inputAmountResult`**, **`outputAmountResult`**: actual amounts swapped (as strings)?11†L165-L173?; **`swapEvents`**: array of objects detailing each swap leg (with input/output mints and amounts)?11†L169-L177?.  
+- If failed: **`error`**: error message or code, if available; **`code`**: numeric error code (if applicable)?11†L182-L189?.
+
+**Example Successful Response:**  
+
+```json
+{
+  "status": "Success",
+  "signature": "5iH4SJxTRNq...L79QpJD54U5hLqL3v97TiT7j7de3nYZL",
+  "slot": "323598314",
+  "code": 0,
+  "inputAmountResult": "9995000",
+  "outputAmountResult": "1274698",
+  "swapEvents": [
+    {
+      "inputMint": "So11111111111111111111111111111111111111112",
+      "inputAmount": "9995000",
+      "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "outputAmount": "1274698"
+    }
+  ]
+}
+```?11†L163-L171??11†L173-L179?
+
+**Example Failed Response:**  
+
+```json
+{
+  "status": "Failed",
+  "signature": "5jyc18T918oGUhkcqaXLfe1srCiQ1MLdi2oTLLwXHTRi...",
+  "error": "custom program error: #6023",
+  "code": 4615026,
+  "slot": "323597963"
+}
+```?11†L182-L189?
+
+**Execution Error Codes:** The Ultra execute endpoint may return specific `code` values for certain failures. For example, `-1` indicates a missing or expired `requestId`, `-2` an invalid signed transaction (e.g. not properly signed), `-3` invalid message bytes (using the wrong field from order response)?13†L199-L207?. There are also codes for aggregator vs RFQ swap failures (e.g. `-1000` for transaction failed to land, `-1003` for not fully signed, etc.)?13†L211-L219??13†L219-L227?. Refer to Jupiter’s documentation for a full list of error codes.
+
+**Note:** If you prefer not to use Jupiter’s `/execute` service, you can broadcast the transaction yourself. In that case, use Solana’s RPC (`sendRawTransaction`) and monitor confirmation as shown in the docs?40†L133-L142??40†L145-L153?.
+
+### GET `/ultra/v1/balances/<publicKey>`
+
+**Description:** Fetches the **token balances** for a given Solana wallet address (public key)?54†L60-L68?. This is a convenient lookup that returns all token accounts and balances for the user.
+
+**Authorization:** No key needed. Base URL: `https://lite-api.jup.ag/ultra/v1/balances`.
+
+**URL Path Parameter:**  
+- **`<publicKey>`** (string, required): The base58 wallet address whose token balances to retrieve?54†L62-L69?.
+
+**Example Request:**  
+
+```js
+const balances = await (
+  await fetch('https://lite-api.jup.ag/ultra/v1/balances/3X2LFoTQecbpqCR7G5tL1kczqBKurjKPHhKSZrJ4wgWc')
+).json();
+console.log(JSON.stringify(balances, null, 2));
+```?54†L66-L73?
+
+**Response Structure:** Returns a JSON object where each key is a token symbol (if available) or mint address, and the value is an object with fields:  
+- **`amount`** (string): raw token amount (no decimals applied) held by the user?54†L79-L87?.  
+- **`uiAmount`** (number): token amount in human-readable units (decimals applied)?54†L79-L87?.  
+- **`slot`** (number): the slot at which the balance was fetched?54†L79-L87?.  
+- **`isFrozen`** (boolean): whether the token account is frozen?54†L81-L87?.
+
+**Example Response:**  
+
+```json
+{
+  "SOL": {
+    "amount": "0",
+    "uiAmount": 0,
+    "slot": 324307186,
+    "isFrozen": false
+  },
+  "EPjFW...Dt1v": {
+    "amount": "1500000",
+    "uiAmount": 1.5,
+    "slot": 324307186,
+    "isFrozen": false
+  }
+}
+```?54†L79-L87?
+
+(In the above example, the wallet has 0 SOL and 1.5 USDC.)
+
+**Error Handling:** If an invalid address is provided, a `400` error with an error message (e.g., `{"error": "Invalid address"}`) is returned?54†L89-L94?.
+
+### GET `/ultra/v1/shield`
+
+**Description:** Provides **token information and security warnings** (“Shield” data) for one or more token mints?55†L64-L72?. This is used to identify potentially malicious or risky tokens before interacting with them. The response includes warnings such as not verified, low organic activity, freeze authority present, etc., for each mint provided?55†L92-L100??55†L112-L120?.
+
+**Authorization:** No key needed. 
+
+**Query Parameters:**  
+- **`mints`** (string, required): Comma-separated list of token mint addresses to check?55†L65-L72?. You may provide multiple mint addresses in one request.
+
+**Example Request:**  
+
+```js
+const shieldInfo = await (
+  await fetch('https://lite-api.jup.ag/ultra/v1/shield?mints=So11111111111111111111111111111111111111112,EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v,someTokenAddress')
+).json();
+```?55†L73-L81?
+
+**Response Structure:** Returns an object with a single key `"warnings"`. The value is an object where each key is one of the input mint addresses and the value is an array of warning objects for that token?55†L92-L100??55†L112-L120?. Each warning object has:  
+- **`type`** (string): The category of warning (e.g. `NOT_VERIFIED`, `LOW_ORGANIC_ACTIVITY`, `HAS_FREEZE_AUTHORITY`, `HAS_MINT_AUTHORITY`, `NEW_LISTING`, etc.)?55†L93-L101??55†L112-L120?.  
+- **`message`** (string): A human-readable explanation of the warning?55†L95-L103??55†L113-L121?.  
+- **`severity`** (string): Severity level, e.g. `"info"` or `"warning"`?55†L95-L103??55†L113-L119?.
+
+**Example Response:**  
+
+```json
+{
+  "warnings": {
+    "someTokenAddressForEducationalPurposes": [
+      { "type": "NOT_VERIFIED", "message": "This token is not verified...", "severity": "info" },
+      { "type": "LOW_ORGANIC_ACTIVITY", "message": "This token has low organic activity", "severity": "info" },
+      { "type": "NEW_LISTING", "message": "This token is newly listed", "severity": "info" }
+    ],
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": [
+      { "type": "HAS_FREEZE_AUTHORITY", "message": "The authority's owner can freeze this token account", "severity": "warning" },
+      { "type": "HAS_MINT_AUTHORITY", "message": "The authority's owner can mint more tokens", "severity": "info" }
+    ],
+    "So11111111111111111111111111111111111111112": []
+  }
+}
+```?55†L92-L100??55†L112-L120?
+
+*(In the above, an unverified token shows several info-level warnings, USDC shows warnings that its mint has freeze and mint authorities, and SOL shows no warnings.)*
+
+**Note:** The set of possible warnings may expand over time?55†L83-L91?. Refer to the Shield documentation for a full list of warning types.
+
+### GET `/ultra/v1/search`
+
+**Description:** Searches for tokens by symbol, name, or mint address and returns matching token information?57†L62-L70?. This endpoint is essentially a token lookup service, useful for implementing token search bars or auto-complete when users select tokens in a UI?57†L62-L70?. It returns token metadata and stats similar to the Token API (see Token API V2 below).
+
+**Authorization:** No key needed.
+
+**Query Parameters:**  
+- **`query`** (string, required): The search term – this can be a symbol (e.g. “SOL”), name, or full/partial mint address.  
+  - You can comma-separate multiple queries to fetch specific mints in one request (up to 100 mint addresses)?57†L71-L79?.  
+  - Searching by symbol or name will return up to 20 results by default (use more specific queries for additional results)?57†L71-L79?.
+
+**Example Request:**  
+
+```js
+const searchResponse = await (
+  await fetch('https://lite-api.jup.ag/ultra/v1/search?query=So11111111111111111111111111111111111111112')
+).json();
+```?57†L77-L84?
+
+**Response Structure:** Returns an **array of token objects** matching the query?57†L82-L90?. Each token object includes fields such as:  
+- **`id`** (string): Mint address of the token?57†L99-L107?.  
+- **`name`** (string): Token name?57†L99-L107?.  
+- **`symbol`** (string): Token symbol?57†L99-L107?.  
+- **`icon`** (string): URL of the token’s icon image (if available)?57†L101-L107?.  
+- **`decimals`** (integer): Decimal precision of the token?57†L107-L115?.  
+- **`circSupply`**, **`totalSupply`** (numbers): Circulating and total supply?57†L107-L115?.  
+- **`holderCount`** (number): Number of holders (addresses)?57†L113-L120?.  
+- **`isVerified`** (boolean): Whether the token is verified by Jupiter’s lists?57†L119-L127?.  
+- **`tags`** (array): Tags categorizing the token (e.g. `community`, `verified`, etc.)?57†L123-L130?.  
+- **`organicScore`** (number) and **`organicScoreLabel`**: A metric Jupiter uses to indicate the token’s organic trading activity level?57†L119-L127?.  
+- **`fdv`** and **`mcap`** (numbers): Fully diluted valuation and market cap, if available?50†L182-L185?.  
+- **`usdPrice`** (number): Current price in USD?50†L182-L188?.  
+- **`liquidity`** (number): Current on-chain liquidity (in USD) available for the token?50†L185-L188?.  
+- **`stats5m`, `stats1h`, `stats6h`, `stats24h`**: Objects containing recent trading statistics over different intervals (price change, liquidity change, volume change, volumes, number of trades, etc.)?50†L188-L196??50†L230-L238?.  
+
+**Example Response:** (single result example for SOL, truncated)  
+
+```json
+[
+  {
+    "id": "So11111111111111111111111111111111111111112",
+    "name": "Wrapped SOL",
+    "symbol": "SOL",
+    "icon": "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So111.../logo.png",
+    "decimals": 9,
+    "circSupply": 531207433.3986673,
+    "totalSupply": 603724547.3627878,
+    "holderCount": 2342610,
+    "audit": {
+      "mintAuthorityDisabled": true,
+      "freezeAuthorityDisabled": true,
+      "topHoldersPercentage": 1.2422471238911812
+    },
+    "organicScore": 98.92390784896082,
+    "organicScoreLabel": "high",
+    "isVerified": true,
+    "tags": [ "community", "strict", "verified" ],
+    "fdv": 87824499429.22047,
+    "mcap": 77275352037.79674,
+    "usdPrice": 145.47114211747515,
+    "priceBlockId": 349038717,
+    "liquidity": 89970631.83880953,
+    "stats5m": {
+      "priceChange": 0.02117,
+      "liquidityChange": -0.0123,
+      "volumeChange": 4.8551,
+      "buyVolume": 14644327.1884,
+      "sellVolume": 14743625.0239,
+      "...": "..."
+    },
+    "stats24h": {
+      "priceChange": 1.5076,
+      "liquidityChange": 2.4173,
+      "volumeChange": -2.1516,
+      "buyVolume": 4273248565.256824,
+      "sellVolume": 4306065610.69747,
+      "...": "..."
+    },
+    "updatedAt": "2025-06-25T05:02:21.034234634Z"
+  }
+]
+```?57†L99-L107??57†L115-L124?
+
+*(Above, only a portion of the SOL data is shown. The actual response includes extensive stats for multiple timeframes.)*
+
+### GET `/ultra/v1/routers`
+
+**Description:** Returns the list of **available routing engines (routers)** that Ultra API can use?2†L55-L60?. (Currently, Jupiter’s Ultra uses the **Juno** liquidity engine, including Metis and RFQ routing, as well as potentially third-party sources?6†L75-L83?.) This endpoint’s response enumerates the router names or identifiers available.
+
+**Authorization:** No key needed.
+
+**Response:** An array or object listing router names. (For example, it may include entries like `"Juno"` (aggregated engine), `"JupiterZ"` (RFQ engine), etc.) *This endpoint’s exact output format is not explicitly documented, but it is intended for informational use.*?2†L55-L60?
+
+## Swap API (v6)
+
+The **Swap API (v6)** is Jupiter’s earlier, lower-level swap API that directly interfaces with the Jupiter Metis v1 routing engine?14†L59-L67?. It allows fine-grained control over swap transactions, at the cost of more complexity compared to Ultra API. Swap API is recommended if you need custom instruction composition, CPI integration, or manual control of slippage, routing, etc?14†L79-L88?. Otherwise, prefer Ultra API for simplicity?14†L75-L83?. Base endpoints: `https://lite-api.jup.ag/swap/v1/*` (Lite) or `https://api.jup.ag/swap/v1/*` (Pro, with API key).
+
+### GET `/swap/v1/quote`
+
+**Description:** Fetches a **swap quote** for a given input/output token pair and amount. The quote includes the optimal route plan, projected output amount, price impact, slippage tolerance, and other details?15†L73-L81??15†L123-L131?, but does *not* create or execute a transaction. This is typically the first step: get a quote, then use it to build and execute a swap transaction.
+
+**Authorization:** Lite (no key) or Pro (with key).  
+**Endpoint:** `GET https://lite-api.jup.ag/swap/v1/quote` (use `api.jup.ag` for Pro)?15†L53-L60?.
+
+**Required Query Parameters:**  
+- **`inputMint`** (string): Mint address of the input token (source)?15†L97-L100?.  
+- **`outputMint`** (string): Mint address of the output token (destination)?15†L99-L102?.  
+- **`amount`** (string): The amount of input token (in base units, e.g. atomic units) to swap?15†L100-L107?. This should be the integer amount *before* decimals (also called “raw” amount or lamports for SOL)?15†L100-L107?.  
+
+**Optional Query Parameters:**  
+- **`slippageBps`** (integer): Slippage tolerance in basis points (e.g. 100 = 1% slippage allowed)?15†L101-L107?. If omitted, a default may be used.  
+- **`platformFeeBps`** (integer): An integrator’s platform fee in basis points, if you wish to charge your users a fee?17†L182-L190?. If set, you must also provide a `feeAccount` when building the swap transaction to receive the fee?17†L182-L190?.  
+- **`feeAccount`** (string): Token account address to receive the platform fee (if `platformFeeBps` is set)?17†L182-L190?.  
+- **`restrictIntermediateTokens`** (boolean): If `true`, restricts routing so that intermediate hops use only highly liquid tokens (reducing risk of failure)?17†L168-L176?. Defaults to `false`.  
+- **`onlyDirectRoutes`** (boolean): If `true`, only consider direct one-hop routes (single AMM)?17†L189-L197?. (Note: may result in no quote or worse pricing in many cases?17†L201-L204?.)  
+- **`maxAccounts`** (integer): Limit the maximum number of token accounts (AMM accounts) used in the swap’s inner instructions?17†L208-L216?. This can help keep transactions within size limits when routing through many pools?17†L222-L230? (use with care – too low can exclude the best routes?17†L229-L237?).  
+- **`asLegacyTransaction`** (boolean): If `true`, request the quote suitable for a legacy (v0) transaction instead of a versioned transaction with address tables?17†L175-L183?. Use this if the wallet doesn’t support versioned transactions (for compatibility)?17†L175-L183?.
+
+**Example Request:** (Quote for swapping 1 SOL to USDC with 0.5% slippage, restricting intermediate tokens)  
+
+```js
+const quoteResponse = await (
+  await fetch('https://lite-api.jup.ag/swap/v1/quote?inputMint=So11111111111111111111111111111111111111112&outputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&amount=100000000&slippageBps=50&restrictIntermediateTokens=true')
+).json();
+console.log(JSON.stringify(quoteResponse, null, 2));
+```?15†L113-L121?
+
+**Response Structure:** On success, returns a JSON object containing the quote details:  
+- **`inputMint`**, **`outputMint`**: Echo back the input/output mint addresses?15†L125-L133?.  
+- **`inAmount`** (string): The input amount used (raw units)?15†L125-L133?.  
+- **`outAmount`** (string): *Best* output amount achievable for the given input (raw units of output token)?15†L125-L133?. This assumes zero slippage impact; it is effectively the expected output if the price holds.  
+- **`otherAmountThreshold`** (string): The minimum output amount considering the slippageBps. For an ExactIn swap, this is typically `outAmount * (1 - slippage)` (i.e., what Jupiter guarantees at execution or the swap will abort)?15†L127-L135?.  
+- **`swapMode`** (string): `"ExactIn"` or `"ExactOut"` indicating whether the quote is for swapping a fixed input amount (ExactIn) or requesting a fixed output amount (ExactOut). (Swap API primarily uses ExactIn.)  
+- **`slippageBps`** (integer): The slippage tolerance applied (in bps)?15†L131-L135?.  
+- **`priceImpactPct`** (string): The estimated price impact percentage of this trade (as a decimal string)?9†L113-L121?.  
+- **`platformFee`**: If a platform fee is applied, details of that fee (may be `null` if none)?15†L131-L134?.  
+- **`routePlan`**: An array describing the swap route. Each element represents a segment of the route (one AMM swap), with fields:  
+  - `swapInfo` (object) – details of the AMM/pool: `ammKey` (identifier of the pool program or market)?15†L135-L143?, `label` (name of the AMM, e.g. "Meteora DLMM")?15†L137-L145?, `inputMint`, `outputMint` for that segment, and `inAmount`, `outAmount` for that segment, plus any `feeAmount` and `feeMint` taken by that AMM?15†L135-L143?.  
+  - `percent` (number) – what percentage of the trade flows through this route segment?15†L135-L143? (for multi-route splits). If a single route, this is 100.  
+  - *(Note:* For a simple 1-hop route, `routePlan` will have one element at 100%. For multi-hop or split routes, multiple elements will be present.)*
+
+**Example Response:** (truncated)  
+
+```json
+{
+  "inputMint": "So11111111111111111111111111111111111111112",
+  "inAmount": "100000000",
+  "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "outAmount": "16198753",
+  "otherAmountThreshold": "16117760",
+  "swapMode": "ExactIn",
+  "slippageBps": 50,
+  "platformFee": null,
+  "priceImpactPct": "0",
+  "routePlan": [
+    {
+      "swapInfo": {
+        "ammKey": "5BKxfWMbmYBAEWvyPZS9esPducUba9GqyMjtLCfbaqyF",
+        "label": "Meteora DLMM",
+        "inputMint": "So11111111111111111111111111111111111111112",
+        "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "inAmount": "100000000",
+        "outAmount": "16198753",
+        "feeAmount": "24825",
+        "feeMint": "So11111111111111111111111111111111111111112"
+      },
+      "percent": 100
+    }
+  ],
+  "contextSlot": 299283763,
+  "timeTaken": 0.015257836
+}
+```?15†L125-L133??15†L135-L143?
+
+*(Above: The quote shows 100,000,000 lamports of SOL could yield ~16,198,753 USDC lamports, i.e. ~16.198753 USDC, with 0.5% slippage tolerance. It chose a single route through a Meteora DLMM pool.)*
+
+**Notes:**  
+- The `outAmount` in the quote is the best price *at the time of quote*. The slippageBps does **not** reduce this number; slippage is a tolerance for execution?17†L154-L161?. The actual executed amount will be at least `otherAmountThreshold` (accounting for slippage) or the swap will fail.  
+- `restrictIntermediateTokens`, `onlyDirectRoutes`, and `maxAccounts` can influence route selection (potentially yielding a less optimal price)?17†L169-L177??17†L201-L204? – use these options only if needed (e.g. to avoid obscure tokens or transaction size issues).  
+- If `maxAccounts` is used, note that it’s an *approximate* limit on the accounts used by the swap instructions only, not including setup/cleanup instructions?17†L222-L230?. Setting it too low can exclude certain AMMs (e.g. Meteora DLMM might require >30 accounts, so a maxAccounts of 30 would drop it)?17†L228-L236?. Jupiter recommends a value like 64 if needed?17†L225-L232? and adjusting via requote if the transaction fails due to size?17†L217-L224?.
+
+### POST `/swap/v1/swap` (Build Swap Transaction)
+
+**Description:** Creates a **swap transaction** (unsigned) based on a quote and user wallet. This is a **transaction builder** – you supply the quote and any additional parameters, and Jupiter returns a compiled transaction (with all necessary instructions) ready to be signed and sent. This is the second step after obtaining a quote. The endpoint will return a base64 transaction that executes the swap according to the quote.
+
+**Authorization:** Lite or Pro (with key).  
+**Endpoint:** `POST https://lite-api.jup.ag/swap/v1/swap`?18†L53-L57?.
+
+**Request Body (JSON):**  
+- **`quoteResponse`** (object, required): The quote result object obtained from `/quote`. You can pass the entire quote JSON, or at minimum the fields it expects (typically the quote JSON is used directly)?18†L119-L127?.  
+- **`userPublicKey`** (string, required): The user’s wallet public key (this will be the fee-payer and source/destination of funds in the transaction)?18†L125-L130?.  
+- **Additional Optional Fields to optimize transaction landing**?18†L129-L137?:  
+  - **`dynamicComputeUnitLimit`** (boolean): If `true`, the API will estimate and set an appropriate compute unit limit for the transaction (using Solana’s Compute Budget instruction)?18†L129-L137?. This can improve success rate by ensuring enough compute units.  
+  - **`dynamicSlippage`** (boolean): If `true`, enables **Dynamic Slippage** – Jupiter will adjust slippage in real-time (via simulation) to maximize success while protecting price?18†L131-L139?. This is a legacy feature; Ultra’s RTSE has largely superseded it?6†L123-L131?, but it remains available in Swap API.  
+  - **`prioritizationFeeLamports`** (object): An object specifying a **priority fee** to add to the transaction for faster inclusion. The example shows a nested structure: `{ priorityLevelWithMaxLamports: { maxLamports: 1000000, priorityLevel: "veryHigh" } }`?18†L133-L141?. This means you are willing to pay up to 0.01 SOL as a priority fee at a "veryHigh" priority level (Jupiter’s API will decide the exact fee up to that max). You can adjust this as needed or omit for no extra fee.
+
+**Example Request:** (Using fetch with quote and extra parameters for compute budget and priority fee)  
+
+```js
+const swapResponse = await (
+  await fetch('https://lite-api.jup.ag/swap/v1/swap', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      quoteResponse: quoteResponse,        // The object from GET /quote
+      userPublicKey: wallet.publicKey,     // User's wallet address
+      // Additional parameters to optimize transaction landing:
+      dynamicComputeUnitLimit: true,
+      dynamicSlippage: true,
+      prioritizationFeeLamports: {
+        priorityLevelWithMaxLamports: {
+          maxLamports: 1000000,
+          priorityLevel: "veryHigh"
+        }
+      }
+    })
+  })
+).json();
+
+console.log(swapResponse);
+```?18†L119-L127??18†L129-L137?
+
+**Response Structure:** If successful (`200 OK`), returns a JSON object with the unsigned transaction and related info:  
+- **`swapTransaction`** (string): The base64-encoded swap transaction, containing all necessary instructions to perform the swap?18†L147-L155?. This transaction is not yet signed by the user.  
+- **`lastValidBlockHeight`** (number): The last valid block height for which the transaction will be valid?18†L149-L157? (from Solana `getLatestBlockhash`). You should sign and send the transaction before this block height is exceeded.  
+- **`prioritizationFeeLamports`** (number): The actual prioritization fee (in lamports) that was applied in the transaction?18†L149-L157?.  
+- **`computeUnitLimit`** (number): The compute unit limit set for the transaction (if dynamic compute limit was enabled)?18†L152-L160?.  
+- **`prioritizationType`** (object): Details on how the prioritization fee was applied (e.g. via a compute budget instruction)?18†L153-L160?.  
+- **`dynamicSlippageReport`** (object): If `dynamicSlippage` was true, this object reports the slippage used. It includes: `slippageBps` (your requested slippage), `otherAmount` (the other amount threshold), `simulatedIncurredSlippageBps` (the slippage actually incurred in simulation), `heuristicMaxSlippageBps`, etc. This helps understand how slippage was adjusted?18†L159-L168?.  
+- **`simulationError`** (string or null): If the API simulated the transaction and it failed, this may contain an error message (otherwise null)?18†L161-L168?.
+
+**Example Response:** (truncated)  
+
+```json
+{
+  "swapTransaction": "AQAAAAAA...AAA==",
+  "lastValidBlockHeight": 279632475,
+  "prioritizationFeeLamports": 9999,
+  "computeUnitLimit": 388876,
+  "prioritizationType": {
+    "computeBudget": {
+      "microLamports": 25715,
+      "estimatedMicroLamports": 785154
+    }
+  },
+  "dynamicSlippageReport": {
+    "slippageBps": 50,
+    "otherAmount": 20612318,
+    "simulatedIncurredSlippageBps": -18,
+    "amplificationRatio": "1.5",
+    "categoryName": "lst",
+    "heuristicMaxSlippageBps": 100
+  },
+  "simulationError": null
+}
+```?18†L147-L155??18†L159-L168?
+
+The key output is the `swapTransaction` string – this should be decoded and **signed by the user’s wallet**. After signing, you can either send it via your own RPC or use Jupiter’s execute endpoint for Swap API (see next). If you wish to build the transaction differently (e.g., only get instructions), see the advanced options below.
+
+### POST `/swap/v1/swap-instructions` (Advanced)
+
+**Description:** An alternative to `/swap` that returns the **individual instructions** rather than a full transaction. This is useful for advanced use-cases like composing the swap into a larger transaction or calling via CPI (Cross-Program Invocation) from your own Solana program?20†L184-L192?. The parameters for `/swap-instructions` are the same as for `/swap` (it accepts `quoteResponse`, `userPublicKey`, etc.), but instead of a transaction, it returns the instructions and address lookup table addresses.
+
+**Authorization:** Same as `/swap` (Lite or Pro).
+
+**Response Structure:** On success, returns a JSON object with fields:  
+- **`setupInstructions`**, **`swapInstruction`**, **`cleanupInstruction`**: These are base64-encoded instructions (or structured data representing them) for the different phases of the swap?20†L223-L231? – e.g., setting up token accounts (ATA creation if needed), the main swap instruction, and post-swap cleanup (like unwrapping SOL if needed).  
+- **`computeBudgetInstructions`**: Instructions to setup the compute budget, if applicable (e.g., priority fee or compute unit limit instructions)?20†L223-L231?.  
+- **`tokenLedgerInstruction`**: If using token ledger (an optional logging mechanism), this might be provided?20†L223-L230?.  
+- **`addressLookupTableAddresses`**: An array of addresses of any address lookup tables (ALTs) that should be used when compiling the transaction?20†L229-L237?. These should be added when assembling a versioned transaction so the transaction can reference those large tables of addresses.  
+
+**Usage:** The response is meant to be used by developers who understand Solana transactions. The docs provide sample code for deserializing each instruction and assembling a `VersionedTransaction` manually?20†L233-L242??20†L275-L283?. After constructing the transaction message with the provided instructions and ALTs, you sign it and send it as usual?20†L275-L283??20†L286-L288?.
+
+**Note:** For most integrators, using the `/swap` endpoint (which returns a complete transaction) is simpler. Use `/swap-instructions` only if you need to embed Jupiter’s swap instructions in a custom transaction or program.
+
+### POST `/swap/v1/execute` (Send Swap Transaction)
+
+**Description:** Jupiter’s Swap API also provides an execute endpoint to send a **signed swap transaction** to the network (similar to Ultra’s execute). This is not explicitly documented as a separate guide in v6 docs (the Ultra execute covers similar ground), but it exists in the API reference. After you sign the transaction returned by `/swap`, you can POST it to `/swap/v1/execute` with the same format (signedTransaction base64). The usage and response format mirror the Ultra `/execute` endpoint described above: you will receive a status, signature, and possibly error code.
+
+**Authorization:** Requires Pro plan if using `api.jup.ag` (for higher rate limits), otherwise use `lite-api.jup.ag`.
+
+**Request Body:** `{ signedTransaction: <base64>, ... }` (no requestId is needed for Swap API execution, because the transaction itself contains everything and the Swap API doesn’t use requestId the way Ultra does).
+
+**Response:** Returns success or failure status with transaction signature and any error info (same structure as Ultra execute)?11†L163-L171??11†L182-L189?.
+
+*(For brevity, refer to the **Ultra API** execute section for an example. The semantics are the same: Jupiter will broadcast the signed transaction and report the result.)*
+
+### Additional Swap API Features and Guides
+
+- **Adding Fees to Swap:** You can include integrator fees in Swap API as well, via the `platformFeeBps` and `feeAccount` parameters when quoting and building transactions?17†L182-L190?. See **Add Fees to Swap** guide for details on setting up accounts and collecting fees?14†L121-L128?.  
+- **Payments Through Swap:** Swap API can be used to facilitate payments (by swapping user’s tokens during payment). See **Payments Through Swap** guide for patterns on using the Swap API for e.g. allowing a user to pay in token A while merchant receives token B?14†L33-L41??14†L122-L128?.  
+- **Requote with Lower Max Accounts:** If a swap transaction fails due to transaction size, you can requote with a `maxAccounts` parameter. Jupiter’s guide on requoting with lower max accounts provides a step-by-step on detecting large transactions and adjusting `maxAccounts` accordingly?17†L217-L224??17†L229-L237?.  
+- **SDK Integrations:** Jupiter offers SDKs and examples, including a **Solana Unity SDK** example for game developers to integrate swaps?14†L33-L39? and a **Swap Terminal** (pre-built UI) integration guide?14†L35-L39?. These are beyond the core API endpoints but are available as resources.
+
+- **Common Errors & Responses:** The documentation includes an **API Responses** section enumerating common error messages and codes for Swap API?14†L41-L44?. For example, errors about invalid mint, insufficient output, etc., are listed with explanations. If an API call fails, refer to these for guidance?53†L33-L41??53†L51-L58?.
+
+## Lend API (Jupiter Lend)
+
+The **Jupiter Lend API** provides programmatic access to Jupiter’s lending/borrowing platform, including depositing assets to earn yield (“Earn”) and borrowing against collateral (“Borrow”). The Lend API interacts with on-chain programs (Jupiter’s lending programs) by building transactions for deposit, withdraw, etc. **Note:** As of mid-2025, the **Earn** API is in beta, and the **Borrow** API is work-in-progress (not yet fully released)?25†L39-L47??31†L39-L42?.
+
+**Program IDs:** Jupiter Lend comprises multiple on-chain programs. For reference, the program IDs are: `LIQUIDITY_PROGRAM` (`jupeiUmn818Jg1ekPURTpr4mFo29p46vygyykFJ3wZC`), `LENDING_PROGRAM` (`jup3YeL8QhtSx1e253b2FDvsMNC87fDrgQZivbrndc9`), and others for risk management, oracle, and vaults?25†L41-L49?. These are mostly informational for developers interacting at the program level.
+
+### Earn API (Deposit & Withdraw)
+
+The Earn API allows users to **deposit assets** into Jupiter’s lending pools to earn yield, and **withdraw assets** from those pools. Each deposit yields a vault token (representing the user’s share in the pool). The API supports both operations specified by exact amount of underlying asset or by vault shares.
+
+**Base URL:** `https://lite-api.jup.ag/lend/v1/earn/*`
+
+#### POST `/lend/v1/earn/deposit`
+
+**Description:** Creates a transaction for depositing a specific **amount of an asset** into the Earn protocol (lending pool). The user provides an asset mint and amount; the API returns an unsigned transaction that, when executed, will transfer that amount from the user to the pool and credit the user with the corresponding vault tokens.
+
+**Authorization:** Lite or Pro (with key). 
+
+**Request Body:** (JSON)  
+- **`asset`** (string, required): The mint address of the asset to deposit (e.g. USDC mint for depositing USDC)?29†L169-L177?.  
+- **`amount`** (string, required): The amount of the asset to deposit, in raw base units (e.g. `100000` for 0.1 USDC if USDC has 6 decimals)?29†L169-L177?.  
+- **`signer`** (string, required): The user’s wallet public key (this will be the source of funds and will need to sign the transaction)?29†L169-L177?.
+
+**Example Request:**  
+
+```js
+const depositTxResponse = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/deposit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      asset: "<AssetMint>",
+      amount: "100000",        // e.g. 100000 raw units = 0.1 token if 6 decimals
+      signer: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+```?29†L163-L171??29†L173-L181?
+
+This returns `depositTransactionResponse` (unnamed above) which contains the unsigned transaction.
+
+#### POST `/lend/v1/earn/withdraw`
+
+**Description:** Creates a transaction to **withdraw a specific amount of asset** from the Earn pool (redeeming the corresponding vault tokens). The user specifies how much of the underlying asset they want back.
+
+**Request Body:**  
+- **`asset`** (string, required): Mint address of the asset to withdraw (same as deposit asset)?29†L179-L187?.  
+- **`amount`** (string, required): Amount of the asset to withdraw (in base units)?29†L179-L187?.  
+- **`signer`** (string, required): User’s wallet public key?29†L179-L187?.
+
+**Example Request:**  
+
+```js
+const withdrawTxResponse = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/withdraw', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      asset: "<AssetMint>",
+      amount: "100000",       // e.g. withdraw 0.1 token
+      signer: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+```?29†L179-L187?
+
+Both `/deposit` and `/withdraw` return an object containing an unsigned transaction (base64) that the user should sign and send.
+
+#### POST `/lend/v1/earn/mint`
+
+**Description:** Creates a transaction to **deposit by vault shares** – i.e. “mint” a certain number of vault tokens. The user specifies how many vault tokens (shares) they want, and the API calculates the required underlying asset amount to deposit to mint those shares.
+
+**Request Body:**  
+- **`asset`** (string, required): Mint address of the asset to deposit (same as above)?29†L217-L224?.  
+- **`shares`** (string, required): The number of vault shares to mint (in base units of the vault token)?29†L217-L224?.  
+- **`signer`** (string, required): User’s wallet public key?29†L217-L224?.
+
+**Example Request:**  
+
+```js
+const mintTxResponse = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/mint', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      asset: "<AssetMint>",
+      shares: "100000",      // number of vault token shares to mint
+      signer: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+```?29†L209-L218??29†L231-L238?
+
+This will create a transaction that transfers the required underlying assets from the user and mints 100000 shares of the vault token to the user.
+
+#### POST `/lend/v1/earn/redeem`
+
+**Description:** Creates a transaction to **withdraw by shares** – i.e. redeem a specified number of vault token shares for the underlying asset. The user provides how many vault tokens to burn, and gets back the corresponding amount of asset.
+
+**Request Body:**  
+- **`asset`** (string, required): Mint address of the asset whose vault shares are to be redeemed?29†L225-L233?.  
+- **`shares`** (string, required): Number of vault token shares to redeem (base units of vault token)?29†L231-L238?.  
+- **`signer`** (string, required): User’s wallet public key?29†L231-L238?.
+
+**Example Request:**  
+
+```js
+const redeemTxResponse = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/redeem', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      asset: "<AssetMint>",
+      shares: "100000",     // vault shares to redeem
+      signer: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+```?29†L225-L233??29†L231-L238?
+
+Again, the response contains an unsigned transaction for the user to sign and submit.
+
+**Response Structure for Deposit/Withdraw/Mint/Redeem:** Each of these endpoints (`deposit`, `withdraw`, `mint`, `redeem`) returns a JSON with at least:  
+- **`requestId`** (string): an ID for the request (useful for tracking or executing via a generic execute endpoint, if provided).  
+- **`transaction`** (string): base64-encoded unsigned transaction to perform the action?41†L94-L102??41†L98-L106? (or an array of transactions in some cases, but generally one transaction).  
+
+For example, a successful `/deposit` response might look like: 
+
+```json
+{ 
+  "requestId": "cbc021a6-8a61-49cd-8c5a-9ea29fc2dd4d",
+  "transaction": "AQAAAAAA...AAAA==" 
+}
+```?42†L96-L104?
+
+A failed response will contain an error message and code, similar to other endpoints (e.g., `{"code":400,"error":"Failed to deserialize account data: ...","status":"Bad Request"}`)?42†L111-L118?.
+
+After obtaining the transaction, the client should **sign it with the user’s wallet** and send it to the Solana network. You can either do this manually via RPC (`sendRawTransaction`) or potentially via a Jupiter execute endpoint. (Jupiter’s Ultra/Recurring execute endpoints might not cover Lend at this time; the Lend documentation encourages the developer to send the transaction directly.)
+
+#### Building Instructions vs Transaction:
+
+Similar to Swap API, the Lend API allows you to get just the instructions instead of full transactions by using an `-instructions` variant of the endpoint. For example, you can POST to `/lend/v1/earn/deposit-instructions` to get the instructions for a deposit, rather than a full transaction?29†L250-L258??29†L259-L267?. The parameters remain the same; the response will contain an array of instructions and needed accounts, which advanced developers can incorporate into a larger transaction.
+
+The documentation shows how to take the `deposit-instructions` response (`instructions` array) and manually construct a `VersionedTransaction` with them?29†L263-L271??29†L307-L315?. This is useful if you want to batch multiple actions or handle signing differently. However, for most use cases, the ready-made transactions from the endpoints above are sufficient.
+
+### Earn Data Endpoints (Tokens, Positions, Earnings)
+
+In addition to transaction-building endpoints, the Earn API provides **data endpoints** to query the state of the lend program, such as available tokens and user positions:
+
+- **GET `/lend/v1/earn/tokens`**: Returns information about all tokens available in Jupiter Lend’s Earn program?30†L363-L371??30†L373-L381?. This includes the underlying asset details, supply, rates, liquidity, etc., for each supported asset. (This is useful to display the list of lendable assets with APY, etc.)
+
+- **GET `/lend/v1/earn/positions?users=<user1>,<user2>,...`**: Returns the Earn positions for one or multiple users?30†L379-L387?. Each user’s positions include the vault (asset) identifier, the amount of shares they hold, the underlying asset amount, and other position data (e.g., allowances or pending rewards)?30†L379-L387??30†L389-L397?. Provide one or more `users` (wallet addresses) as query parameters (comma-separated) to get their positions.
+
+- **GET `/lend/v1/earn/earnings?user=<user>&positions=<pos1>,<pos2>,...`**: Returns the **earnings (rewards)** for specific positions of a user?30†L392-L400?. The `positions` query should list position account addresses (as returned by the positions endpoint) and the `user` query is the owner address. The response will detail how much reward or interest each position has earned.
+
+These endpoints allow an application to display a user’s deposit status and earnings.
+
+**Example: Fetch all tokens info**  
+
+```js
+const vaultsInfo = await (await fetch('https://lite-api.jup.ag/lend/v1/earn/tokens')).json();
+```?30†L369-L375?
+
+**Example: Fetch user positions**  
+
+```js
+const userPositions = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/positions?users=Fg6z...EBk9,9wdr...GNjL')
+).json();
+```?30†L379-L387?
+
+This would return an object listing positions for the two given user addresses.
+
+**Example: Fetch earnings for positions**  
+
+```js
+const userEarnings = await (
+  await fetch('https://lite-api.jup.ag/lend/v1/earn/earnings?user=Fg6z...EBk9&positions=PositionPubKey1,PositionPubKey2')
+).json();
+```?30†L392-L400?
+
+This returns reward details for the specified positions belonging to the user.
+
+*(Note: The Lend API is complex; ensure the user’s wallet has approved any necessary transfers (e.g., using Solana’s `approve` if needed for token spending, though Jupiter’s transactions likely include needed transfer instructions). Also, as of the doc, Borrow endpoints are not live yet.*)
+
+### Borrow API (Coming Soon)
+
+The **Borrow API** is under development. It will allow users to borrow assets by providing collateral (vaults). As of this documentation, the Borrow API endpoints (like creating borrow vaults, depositing collateral, withdrawing collateral, borrowing or repaying assets) are **not yet available** via the API. The Jupiter docs indicate to “stay tuned” for the Borrow API?31†L39-L42?. Once live, it will likely include endpoints similar in style to Earn (e.g., `/lend/v1/borrow/...` for creating vaults, depositing collateral, borrowing, etc.).
+
+*(For now, integrators can interact with Jupiter’s on-chain borrow program via Anchor or RPC directly. The docs suggest using the Anchor IDL for the Perpetuals program as a stop-gap in the meantime?3†L43-L51?.)*
+
+## Trigger API (Limit Orders)
+
+The **Trigger API** enables the creation of **limit orders** on Solana using Jupiter’s infrastructure?32†L45-L53?. A trigger order is an order to swap when certain conditions (price reaching a target) are met, effectively allowing limit buys/sells. These orders are created off-chain via Jupiter’s API and executed on-chain when triggered by Jupiter’s price monitor. The API provides endpoints to create, execute, cancel, and query these orders.
+
+**Base URL:** `https://lite-api.jup.ag/trigger/v1/*` (Pro at `api.jup.ag/trigger/v1/*` with key).
+
+### POST `/trigger/v1/createOrder`
+
+**Description:** Creates a **new trigger (limit) order**. This returns an unsigned transaction for the order creation, which when signed and sent, places the limit order on Jupiter’s system. The order will wait until execution conditions are met (target price) and then execute automatically (by Jupiter’s backend). **Important:** In the latest API version, trigger orders are a two-step process: you *create* the order to place it, then *execute* it (either via API or manually) when conditions are met?33†L55-L63?. This two-step ensures the user signs the initial creation and later the execution.
+
+**Authorization:** Lite or Pro (with key). Endpoint: `POST /trigger/v1/createOrder`?33†L49-L57?.
+
+**Request Body:**  
+- **`inputMint`** (string, required): Mint address of the input token (the token the user wants to swap *from* in the limit order)?33†L103-L111?.  
+- **`outputMint`** (string, required): Mint address of the output token (the token the user will receive if the order executes)?33†L103-L111?.  
+- **`maker`** (string, required): The user’s wallet address that will **hold the order** (maker account). In practice, this will be the same as the user’s address placing the order?33†L103-L111?.  
+- **`payer`** (string, required): The address responsible for paying the transaction fee for order creation. Often the same as `maker` (user’s wallet)?33†L103-L111?.  
+- **`params`** (object, required): Contains the core order parameters:  
+  - **`makingAmount`** (string, required): The amount of `inputMint` to swap (raw units)?33†L107-L115?. This is the amount the user is offering to trade.  
+  - **`takingAmount`** (string, required): The amount of `outputMint` the user wants in return (raw units)?33†L107-L115?. This effectively sets the limit price: the ratio `takingAmount`/`makingAmount` is the worst price the user is willing to accept. The order will only execute if the market can provide at least this much output for the given input.  
+  - **`slippageBps`** (integer, optional): Slippage to allow on execution in bps. **By default (and on Jupiter UI for limit orders), this is 0** (Exact mode)?32†L95-L104??33†L83-L91? – meaning the order executes at the exact trigger price or better, with no additional slippage. If you set this to a value, you are effectively saying you’d allow some slippage beyond the limit price for potentially higher success; this corresponds to “Ultra” mode on the UI?32†L95-L104?. If omitted, assume 0 (Exact).  
+  - **`expiredAt`** (integer, optional): An expiration time for the order in Unix timestamp (seconds)?33†L109-L117?. If set, the order will expire (become cancellable or not executable) after this time if not executed. If null or not provided, the order will not expire.  
+  - **`feeBps`** (integer, optional): Referral fee in bps (if you as an integrator want to earn fees on the swap). If you include this, you **must** have a `feeAccount` set up (see below)?33†L89-L97?. Otherwise, omit or set to 0.  
+- **`computeUnitPrice`** (string, optional): This controls the priority fee for execution. Setting `"auto"` will let Jupiter decide an optimal compute unit price (usually recommended)?33†L115-L120?. Alternatively, you could specify a value in micro-lamports/compute unit, but using `"auto"` is simplest.  
+- **`feeAccount`** (string, optional): The referral token account for the **output mint** where your fee will be sent?33†L117-L120?. Required if `feeBps` is set. This account must exist and be registered in Jupiter’s referral program for the order to include the fee?33†L89-L97?.  
+- **`wrapAndUnwrapSol`** (boolean, optional): Default `true`. If trading SOL, setting this to true will automatically wrap SOL to SPL WSOL and unwrap back to SOL for the user, simplifying SOL trades?33†L117-L120?. Usually keep this true.
+
+**Note:** The Trigger API V1 is a new iteration (the older path was `/limit/v2` which is being deprecated)?33†L47-L55?. In V1:
+  - There is now an explicit `/execute` endpoint (next section).  
+  - `createOrder` now returns a `requestId` (to use with execute)?33†L55-L63?.  
+  - The `cancelOrder` endpoint only cancels one order at a time, and a new `cancelOrders` exists to cancel multiple.  
+  - The response field `tx` was renamed to `transaction` (or `transactions`)?33†L57-L64?.
+
+**Example Request:**  
+
+```js
+const createOrderResponse = await (
+  await fetch('https://api.jup.ag/trigger/v1/createOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      inputMint: inputMint.toString(),
+      outputMint: outputMint.toString(),
+      maker: walletAddress,   // your wallet
+      payer: walletAddress,   // paying fees from same wallet
+      params: {
+        makingAmount: "1000000",   // e.g. 1,000,000 raw units (~1 token if 6 decimals)
+        takingAmount: "300000",    // e.g. wants at least 0.3 of output token
+        // slippageBps: 0,        // (optional) default 0 for exact execution
+        // expiredAt: 1700000000, // (optional) Unix timestamp expiry
+        // feeBps: 50,           // (optional) referral fee bps
+      },
+      computeUnitPrice: "auto",
+      // feeAccount: "<your fee token ATA>",  // required if feeBps set
+      // wrapAndUnwrapSol: true             // default true
+    })
+  })
+).json();
+```?33†L95-L104??33†L106-L114?
+
+**Response Structure:** On success, returns a JSON with:  
+- **`order`** (string): The key (address) of the created trigger order account?33†L138-L142?. This identifies the order for future queries or cancellation.  
+- **`transaction`** (string): Base64-encoded unsigned transaction for creating the order?33†L138-L142?. The user **must sign and send this transaction** to place the order on-chain.  
+- **`requestId`** (string): An ID for this order request, which is used to execute the order later?33†L139-L142?. (This links the create and execute calls.)  
+
+**Example Response:**  
+
+```json
+{
+  "order": "CFG9Bmppz7eZbna96UizACJPYT3UgVgps3KkMNNo6P4k",
+  "transaction": "AQAAAAAA......AA==",
+  "requestId": "370100dd-1a85-421b-9278-27f0961ae5f4"
+}
+```?33†L138-L142?
+
+If the response contains this data, you should then sign the `transaction` and send it to the network to officially place the order. The order will then be active (Jupiter’s backend will monitor prices for it).
+
+In case of errors (e.g., invalid parameters), you may get an error response with a message. For example, if `makingAmount` is too small (Jupiter requires a minimum value around ~$5): 
+
+```json
+{
+  "error": "invalid create order request",
+  "cause": "input mint making amount must be at least 5 USD, received: 2",
+  "code": 400
+}
+```?33†L145-L152?
+
+This indicates the order was not created because the amount was below the allowed minimum.
+
+### POST `/trigger/v1/execute`
+
+**Description:** Executes a **previously created trigger order**. This endpoint is used once Jupiter has indicated the order’s conditions are met (or you decide to execute it manually). You provide the signed transaction (for execution) and the `requestId` of the order. Jupiter will broadcast the signed execution transaction to fulfill the order. In practice, Jupiter’s systems will call this when the market price hits the order’s target, but integrators can also call it if they retrieve the transaction to execute themselves.
+
+**Authorization:** Lite/Pro as usual. Endpoint: `POST /trigger/v1/execute`.
+
+**Request Body:**  
+- **`signedTransaction`** (string, required): The base64-encoded signed transaction to execute the order?40†L93-L101?. This transaction would have been provided by Jupiter when the order is ready to execute. (It is **not** the same as the createOrder transaction; it’s a separate transaction specifically to do the swap at execution time.)  
+- **`requestId`** (string, required): The unique requestId returned from the `createOrder` call for this order?40†L89-L97?.
+
+**Usage:** Typically, after placing an order, you (or Jupiter) will wait until the price condition is met. At that time, Jupiter can generate the execution transaction (likely containing the swap instructions) and either execute it automatically (if you’re using Jupiter’s automation) or provide it for manual execution. The `requestId` ties the execution to the order created earlier.
+
+**Example Request:**  
+
+```js
+const execResponse = await (
+  await fetch('https://lite-api.jup.ag/trigger/v1/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      signedTransaction: signedExecTxBase64,
+      requestId: createOrderResp.requestId
+    })
+  })
+).json();
+```?40†L93-L101?
+
+**Response Structure:** Similar to Ultra/Recurring execute, returns:  
+- **`status`** (string): `"Success"` or `"Failed"` indicating if the order execution swap succeeded?40†L109-L117??40†L122-L130?.  
+- **`signature`** (string): The Solana transaction signature of the executed swap?40†L112-L119??40†L122-L130?.  
+- **`order`** (string or null): The order account ID that was executed. On success, it may provide the order ID; on failure this might be null?40†L114-L122??40†L124-L129?. (In failure cases, the order might still remain pending or might have failed to execute.)  
+- **`error`** (string or null): If status is Failed, an error message might be provided?40†L124-L130? (e.g., "Insufficient funds for the operation requested." if the user’s funds or conditions changed).
+
+**Example Successful Response:**  
+
+```json
+{
+  "signature": "M1uvubYaR8PtzcjeL9mCkVgmxamJK6wYqqVM7MTuX6djL79QpJD54U5hLqL3v97TiT7j7de3nYZLL...",
+  "status": "Success",
+  "order": "4DWzP4TdTsuwvYMaMWrRqzya4UTFKFoVjfUWNWh8zhzd",
+  "error": null
+}
+```?40†L112-L119?
+
+**Example Failed Response:**  
+
+```json
+{
+  "signature": "5jyc18T918oGUhkcqaXLfe1srCiQ1MLdi2oTLLwXHTRi...",
+  "status": "Failed",
+  "order": null,
+  "error": "Insufficient funds for the operation requested."
+}
+```?40†L122-L130?
+
+*(A failed execution might occur if, for example, the user’s token balance changed and they no longer have the input tokens, or if the price moved away by the time execution was attempted.)*
+
+**Manual Execution:** If you prefer not to rely on Jupiter’s execute endpoint, you can also take the unsigned execution transaction (when provided by Jupiter) and broadcast it yourself via RPC after signing, similar to handling Ultra swaps. The docs provide sample code to sign and send the transaction via `sendRawTransaction`?40†L133-L142??40†L145-L153?.
+
+### POST `/trigger/v1/cancelOrder` and `/trigger/v1/cancelOrders`
+
+**Description:** These endpoints generate transactions to **cancel limit orders**. Use `/cancelOrder` to cancel a single order, or `/cancelOrders` to cancel multiple orders in one transaction (batch cancellation). Canceling an order returns the user’s funds (the deposit placed in the order) back to them.
+
+**Request (common fields):**  
+- **`order`** (string, required for cancelOrder): The order account ID to cancel?41†L79-L87?. This is the `order` string returned on order creation.  
+- **`orders`** (array of strings, required for cancelOrders): A list of order account IDs to cancel (for the batch endpoint).  
+- **`user`** (string, required): The wallet address of the user who owns the order(s)?41†L83-L90?.  
+- **`recurringType`** (string, *for Recurring API only*): *Not applicable to Trigger API* – ensure you’re calling the correct endpoint (Trigger vs Recurring). For Trigger API, no recurringType is needed (that field is used in Recurring API).
+
+**Endpoints:**  
+- `POST /trigger/v1/cancelOrder` – cancels one order?34†L53-L60?.  
+- `POST /trigger/v1/cancelOrders` – cancels multiple orders at once?34†L53-L60?.
+
+**Example Request (single cancel):**  
+
+```js
+const cancelResp = await (
+  await fetch('https://lite-api.jup.ag/trigger/v1/cancelOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      order: "<OrderAccountToCancel>",
+      user: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+```?41†L79-L87?
+
+**Example Request (batch cancel):**  
+
+```js
+const cancelBatchResp = await (
+  await fetch('https://lite-api.jup.ag/trigger/v1/cancelOrders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      orders: ["<Order1>", "<Order2>", "..."],
+      user: wallet.publicKey.toBase58()
+    })
+  })
+).json();
+
+    Response Structure: Similar to createOrder, returns:
+- requestId: an ID for the cancellation request.
+- transaction (or transactions): base64-encoded unsigned transaction that, when executed, will cancel the specified order(s)[26]. The user should sign and send this transaction to effect the cancellation.
+
+    For a single cancel example:
+
+    {
+  "requestId": "36779346-ae51-41e9-97ce-8613c8c50553",
+  "transaction": "AQAAAAAAA...AAA=="
+}
+```?41†L95-L103?
+
+After signing and sending this transaction, the order `CFG9...` (for example) would be canceled and the tokens returned.
+
+The response for batch cancel (`cancelOrders`) would similarly provide a combined transaction (or potentially an array if too many orders involve multiple transactions).
+
+**Important:** The `cancelOrder` endpoint only cancels one order per transaction?41†L74-L82?. If you have many orders to cancel at once, use `cancelOrders` to get a batch transaction.
+
+**Execute Cancel:** Cancel transactions also need to be executed (i.e., sent to the network after signing). You can either send them yourself or theoretically use the `/execute` endpoint with the `requestId` (though typically, you would just send it directly). The docs note you can use the same Execute endpoint or manual send for these as for normal execute?41†L120-L127?.
+
+### GET `/trigger/v1/getTriggerOrders`
+
+**Description:** Retrieves the list of **trigger orders** for a given account, either currently active or historically executed. This allows you to query what orders a user has open or completed.
+
+**Query Parameters:**  
+- **`user`** (string, required): The wallet address whose orders to fetch?44†L57-L65?.  
+- **`orderStatus`** (string, required): Either `"active"` (to get open orders) or `"history"` (to get past executed/canceled orders)?44†L63-L71?.  
+- **`page`** (integer, optional): Page number for pagination (10 orders per page)?44†L57-L65?. If not provided, defaults to page 1.  
+- **`recurringType`** (string, optional): Not applicable for Trigger API (this is relevant for Recurring API). You can ignore or set to `all` if required by the endpoint (Trigger API might ignore it).  
+- **`includeFailedTx`** (boolean, optional): If `true`, include orders that had failed execution attempts as well (likely for history)?44†L63-L68?.
+
+**Example Requests:**  
+- Get active orders for user:  
+  ```js
+  const openOrders = await (await fetch('https://lite-api.jup.ag/trigger/v1/getTriggerOrders?user=YourWalletAddress&orderStatus=active')).json();
+  ```  
+- Get order history for user:  
+  ```js
+  const pastOrders = await (await fetch('https://lite-api.jup.ag/trigger/v1/getTriggerOrders?user=YourWalletAddress&orderStatus=history')).json();
+  ```  
+
+**Response:** The response will contain an array or object listing the orders. Each order entry likely includes details such as: order account address, input/output mints, amounts, target price or ratio (perhaps as `makingAmount` and `takingAmount` again), the current status (open, executed, canceled), and timestamps (created time, executed time if done, etc.). The exact schema isn’t fully shown in the snippet, but it is a "new format" introduced with the v1 API?33†L59-L63?.
+
+For example, an active order might be represented with fields: `orderId`, `inputMint`, `outputMint`, `remainingAmount` (if partially filled), etc., whereas historical orders would include whether they executed successfully or expired.
+
+*(The docs did not show a JSON example, but expect an array of orders or an object like `{ data: [ {...order1}, {...order2}, ...], pagination: {...} }`.)*
+
+Use this endpoint to display to a user all their open orders and possibly their history of completed trades via Trigger API.
+
+**Best Practices & Notes:**  
+- The **Best Practices** section of Trigger API docs suggests approaches like always using 0 slippage for precise execution unless you explicitly want “Ultra” mode (with slippage for higher success)?32†L93-L101?. It also clarifies how Jupiter’s UI modes map to API parameters (`slippageBps: 0` for exact mode, nonzero for ultra mode)?32†L93-L101?.  
+- **Fees:** Trigger orders can include integrator fees (`feeBps`) just like swaps, but note Jupiter’s own fees (0.03% on stable pairs, 0.1% otherwise) still apply to the trade?32†L81-L89?.  
+- **Order Expiry:** It’s wise to set an `expiredAt` if you don’t want orders to persist indefinitely. Otherwise, users must cancel them manually.  
+- **Minimum Amounts:** Ensure the `makingAmount` meets Jupiter’s minimum (roughly equivalent to $5 USD)?33†L147-L150? or the API will reject it.  
+- **Cancellation:** If an order is no longer wanted, be sure to cancel it to unlock the funds. An executed order will automatically release funds (swapped to output or returned if unfilled), but an active one holds the input in the order account.  
+- **Monitoring:** When using Trigger API, you rely on Jupiter’s off-chain price monitoring to execute the order. There could be slight delays or race conditions in volatile markets; not every order will fill if price only touches briefly and then retreats. Use history data to inform users if an order was missed or expired unfilled.
+
+## Recurring API (Recurring Swap Orders)
+
+The **Recurring API** allows creation of **recurring swap orders** – automated dollar-cost averaging (DCA) or value averaging strategies, where a user can schedule periodic swaps either on a time basis or triggered by price changes?36†L47-L55??36†L59-L67?. In simpler terms, a user can set up an order to, for example, buy $100 of SOL every day (time-based) or invest more when price drops (price-based), etc., and Jupiter’s infrastructure will execute these automatically over time.
+
+**Base URL:** `https://lite-api.jup.ag/recurring/v1/*` (Pro at `api.jup.ag/recurring/v1/*`).
+
+Two types of recurring orders are supported: **Time-based** (execute at regular intervals) and **Price-based** (execute when price moves by certain increments). The API uses a unified `createOrder` endpoint for both; you specify parameters for either time or price strategy.
+
+### POST `/recurring/v1/createOrder`
+
+**Description:** Creates a **recurring order** (either time-based or price-based) and returns an unsigned transaction to set up that order?37†L60-L68?. The user must sign and send this transaction to initiate the recurring strategy. The order will then live on Jupiter’s system and execute over time.
+
+**Authorization:** Lite/Pro.
+
+**Request Body:**  
+- **`user`** (string, required): The user’s wallet address (funds will be taken from this wallet for each swap)?37†L98-L105?. This user will also receive the outputs of each swap.  
+- **`inputMint`** (string, required): Mint address of the token to spend in each swap cycle?37†L98-L105?.  
+- **`outputMint`** (string, required): Mint address of the token to acquire in each swap cycle?37†L98-L105?.  
+- **`params`** (object, required): Contains either a `time` object or a `price` object, determining the strategy:  
+
+  **Time-based strategy (`params.time`):**?37†L71-L79?  
+  - **`inAmount`** (string, required): The total amount of input token the user plans to invest over the entire plan (raw units)?37†L101-L109?. This amount will be split across the recurring swaps.  
+  - **`numberOfOrders`** (integer, required): The total number of swap executions to perform?37†L101-L109?.  
+  - **`interval`** (integer, required): Time between each order in seconds?37†L105-L112?. e.g., `86400` for daily, `604800` for weekly, etc.  
+  - **`minPrice`** (string or null, optional): A minimum price threshold (in terms of output per input) – if the price goes below this, perhaps skip or adjust? (The documentation mentions it, but likely if provided, it might not execute below this price – effectively a safeguard)?37†L107-L112?. It can be `null` for no minimum price condition.  
+  - **`maxPrice`** (string or null, optional): A maximum price threshold – if price goes above this, maybe skip execution. `null` for no max?37†L107-L112?.  
+  - **`startAt`** (integer or null, optional): Unix timestamp when to start the first swap?37†L109-L113?. If `null`, start immediately upon order creation. If a timestamp is given, the first swap will wait until that time.  
+
+  *How it works:* The API will calculate **amount per order** = `inAmount / numberOfOrders`?37†L79-L87?. This fixed chunk will be swapped each interval. The total time to complete = `numberOfOrders * interval`?37†L83-L90? (so essentially after that many intervals the plan ends). The user needs to have `inAmount` ready (either all at once or deposit per cycle – Jupiter likely takes the `inAmount` into an escrow and then uses it per cycle).
+
+  **Price-based strategy (`params.price`):**?37†L119-L127?  
+  - **`depositAmount`** (string, required): The initial amount of input token to deposit now into the recurring order (raw units)?37†L149-L157?. This sets up the pool of funds to use for recurring buys.  
+  - **`incrementUsdcValue`** (string, required): The increment in USD value for each cycle?37†L151-L158?. Essentially, how much more USD worth of the input token to spend each time the price condition triggers. For example, if you set 10 USDC (in raw units, e.g. `10000000` for 10.0) as increment, every time the price condition is met, the order will spend an amount of input token worth an additional 10 USDC. This is used for value averaging strategies (buy more when price drops to keep value increasing by fixed increments).  
+  - **`interval`** (integer, required): Minimum time between each price-based execution, in seconds?37†L153-L158?. Even if price moves rapidly, it won’t execute more often than this interval. E.g., 86400 for at most once per day.  
+  - **`startAt`** (integer or null, optional): Start time for the strategy (same idea as time-based, null to start immediately)?37†L155-L158?.
+
+  *How it works:* Price-based orders are **open-ended** (no fixed number of orders)?37†L127-L134?. They will continue until you cancel or run out of funds. Each time the output token’s price (relative to input) changes such that the value of input held has dropped by `incrementUsdcValue` (or however the strategy is defined), the order will execute to invest that incremental amount. Jupiter automatically withdraws output tokens to the user’s wallet on each execution?37†L131-L138?. The user can deposit more or withdraw input funds at any time using the deposit/withdraw endpoints (below) to extend or pull out of the strategy.
+
+**Example Request (Time-based):** Schedule 2 swaps of USDC->SOL, 10 USDC total, one per day (so 5 USDC each day):  
+
+```js
+const createOrderResp = await (
+  await fetch('https://lite-api.jup.ag/recurring/v1/createOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user: wallet.publicKey.toBase58(),
+      inputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",   // USDC
+      outputMint: "So11111111111111111111111111111111111111112",  // SOL
+      params: {
+        time: {
+          inAmount: 104000000,      // 104 USDC cents = 1.04 USDC total (example)
+          numberOfOrders: 2,
+          interval: 86400,         // 1 day in seconds
+          minPrice: null,
+          maxPrice: null,
+          startAt: null            // start immediately
+        }
+      }
+    })
+  })
+).json();
+```?37†L91-L99??37†L100-L108?
+
+*(The numbers in this example are illustrative; in the doc they show 1,000 USDC over 10 orders in 10 days)?37†L79-L87?.*
+
+**Example Request (Price-based):** Set up a price-based order to invest an initial 11 USDC of USDC into SOL, and every day if SOL price drops such that another 1 USDC can be invested, do so:  
+
+```js
+const createOrderResp = await (
+  await fetch('https://lite-api.jup.ag/recurring/v1/createOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user: wallet.publicKey.toBase58(),
+      inputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",    // USDC
+      outputMint: "So11111111111111111111111111111111111111112",   // SOL
+      params: {
+        price: {
+          depositAmount: 110000000,      // 110,000,000 raw = 110 USDC cents = 1.1 USDC?
+          incrementUsdcValue: 10000000,  // 10,000,000 = 0.1 USDC increments (example)
+          interval: 86400,               // check at most once per day
+          startAt: null
+        }
+      }
+    })
+  })
+).json();
+```?37†L139-L147??37†L149-L158?
+
+**Response Structure:** On success, returns:  
+- **`requestId`** (string): Unique ID for this recurring order (for use in execute calls, though recurring orders likely auto-execute via Jupiter’s automation)?39†L183-L189?.  
+- **`transaction`** (string): Base64 transaction to create the recurring order?39†L183-L190?.  
+- Possibly an `order` or some identifier of the recurring order (not explicitly shown, but likely Jupiter keeps track by user and maybe an order key on chain).
+
+**Example Response:**  
+
+```json
+{
+  "requestId": "1d1f3586-eb72-4337-8c7e-1bbb9870ee4b",
+  "transaction": "AQAAAAAA...AAAA=="
+}
+```?39†L183-L191?
+
+Sign and send this transaction to establish the recurring order.
+
+Once the recurring order is created and the transaction confirmed, Jupiter’s backend will handle **execution automatically** according to the schedule or price triggers. For each execution, the user will have to have funds available (for time-based, Jupiter likely already took `inAmount` into a vault; for price-based, the `depositAmount` is held and used incrementally).
+
+### POST `/recurring/v1/execute`
+
+**Description:** While recurring orders are typically executed by Jupiter automatically, there is an `execute` endpoint, similar to Ultra/Trigger, possibly for manual or immediate execution. If you have a signed execution transaction for a scheduled order (perhaps to execute it ahead of schedule or manually), you could use this. The **Recurring API’s execute** endpoint functions like Ultra’s: you provide a signed transaction and requestId.
+
+However, in practice, you likely won’t need to call this for recurring orders – Jupiter does it for you at the right times. It’s documented for completeness or if integrators want to trigger executions themselves.
+
+**Request Body:**  
+- `signedTransaction`: base64 string of the signed execution transaction (the transaction that actually performs a swap for one occurrence)?40†L93-L101?.  
+- `requestId`: the ID of the recurring order (from createOrder response)?40†L89-L97?.
+
+**Response:** Returns success/failure status and signature of the execution, identical to the Ultra/Trigger execute responses described earlier?40†L109-L117??40†L122-L130?.
+
+*(Refer to the **Execute Order** section under Ultra API for response format; it will include `"status"`, `"signature"`, etc., similar to those examples.)*
+
+### POST `/recurring/v1/cancelOrder`
+
+**Description:** Cancels a recurring order (stops any future executions and returns remaining funds). Use this to terminate a recurring DCA or price-based strategy.
+
+**Request Body:**  
+- **`order`** (string, required): The ID of the recurring order to cancel (likely the on-chain account or an order ID provided).  
+- **`user`** (string, required): The user’s wallet address (owner of the order)?41†L83-L90?.  
+- **`recurringType`** (string, required): Either `"time"` or `"price"`, indicating the type of the recurring order to cancel?41†L85-L88?. This ensures the cancellation logic knows which kind of order to cancel.
+
+The Cancel endpoint for recurring is very similar to Trigger’s, but requires specifying the type.
+
+**Example Request:** Cancel a time-based order:  
+
+```js
+const cancelResp = await (
+  await fetch('https://lite-api.jup.ag/recurring/v1/cancelOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      order: "<RecurringOrderAccount>",
+      user: wallet.publicKey.toBase58(),
+      recurringType: "time"
+    })
+  })
+).json();
+```?41†L79-L87?
+
+**Response:** Returns a transaction to reclaim funds and mark the order as canceled. Format:  
+
+```json
+{
+  "requestId": "abcde-....",
+  "transaction": "AQAAAAAA....=="
+}
+```?41†L95-L103?
+
+Sign and send this transaction to effect the cancellation. After cancellation, any remaining unspent input funds in the order will be returned to the user’s wallet.
+
+*(If you had a price-based order with, say, unused deposit funds, canceling will return those. If a time-based order had funds escrowed for future swaps, those are returned.)*
+
+### POST `/recurring/v1/priceDeposit` and `/recurring/v1/priceWithdraw`
+
+For **price-based recurring orders**, you can deposit additional funds or withdraw unused funds at any time:
+
+- **POST `/recurring/v1/priceDeposit`**: Adds more input tokens to an existing price-based recurring order?42†L58-L66?. Use this if the user wants to increase the amount of funds available for the strategy (e.g., top up the DCA pool to continue buying more over time).
+
+  **Request Body:**  
+  - `order` (string): The order ID of the price-based recurring order to fund?42†L87-L90?.  
+  - `user` (string): User’s wallet address?42†L87-L90?.  
+  - `amount` (string): Amount of input token to deposit (raw units)?42†L87-L90?.
+
+  The response will be a transaction to deposit that amount from the user into the order’s pool.
+
+  **Example:**  
+
+  ```js
+  const depResp = await (
+    await fetch('https://lite-api.jup.ag/recurring/v1/priceDeposit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order: "<OrderId>",
+        user: wallet.publicKey.toBase58(),
+        amount: "1000000"  // deposit additional 1.0 (if 6 decimals) 
+      })
+    })
+  ).json();
+  ```?42†L79-L87?
+
+  This returns a transaction to move 1 token (in raw units) from the user to the order.
+
+- **POST `/recurring/v1/priceWithdraw`**: Withdraws input funds from a price-based order without closing it?43†L59-L67?. This lets the user take out some or all of the remaining funds.
+
+  **Request Body:**  
+  - `order` (string): The order ID to withdraw from?43†L91-L99?.  
+  - `user` (string): User’s wallet address?43†L91-L99?.  
+  - `inputOrOutput` (string): Either `"In"` or `"Out"`?43†L91-L99?. **"In"** means you want to withdraw some of the input token (the funds that haven’t been used yet). **"Out"** would imply withdrawing accumulated output tokens from the order’s internal account, but since output tokens are auto-withdrawn after each execution for price-based orders?37†L131-L138?, you will typically use "In".  
+  - `amount` (string, optional): How much to withdraw (raw units). If omitted, it will withdraw **all** remaining funds of that category?43†L79-L87?. (The docs warn that if `amount` is not provided, the transaction will withdraw the full amount of the order)?43†L79-L87?.
+
+  **Example:** Withdraw 1.0 worth of input token from an order:  
+
+  ```js
+  const withdrawResp = await (
+    await fetch('https://lite-api.jup.ag/recurring/v1/priceWithdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order: "<OrderId>",
+        user: wallet.publicKey.toBase58(),
+        inputOrOutput: "In",
+        amount: "1000000"  // withdraw 1.0 (if 6 decimals)
+      })
+    })
+  ).json();
+  ```?43†L83-L92??43†L93-L101?
+
+  This returns a transaction to withdraw that amount to the user’s wallet.
+
+**Responses for deposit/withdraw:** Like others, include `requestId` and `transaction` with an unsigned transaction that must be signed by the user?42†L96-L104??43†L103-L111?. After executing:
+- A deposit will move the specified `amount` from user’s wallet into the order (increasing funds for future cycles).  
+- A withdraw will return the specified `amount` to the user and reduce the funds in the order. If the `amount` equals all remaining funds and `inputOrOutput` is "In", effectively the user has pulled out all unspent funds but the order might technically still exist (perhaps needing cancellation to fully remove, unless an empty order auto-expires).
+
+**Note:** `priceWithdraw` with `inputOrOutput: "Out"` would withdraw any held output tokens in the order. However, as mentioned, in V3 Jupiter auto-withdraws output each execution, so usually there are no accumulated output tokens to withdraw (hence the focus is on "In").
+
+### GET `/recurring/v1/getRecurringOrders`
+
+**Description:** Fetches recurring orders for a user, similar to Trigger’s getTriggerOrders. It lists the user’s active recurring orders or past ones.
+
+**Query Parameters:**  
+- `user` (string, required): User’s wallet address?44†L57-L65?.  
+- `orderStatus` (string, required): `"active"` for ongoing orders, `"history"` for completed/ended orders?44†L63-L71?.  
+- `recurringType` (string, optional): `"time"`, `"price"`, or `"all"` – filter by type or get all?44†L63-L68?.  
+- `includeFailedTx` (boolean, optional): Include any failed transactions in history if `true`?44†L65-L68?.  
+- `page` (integer, optional): Page number for pagination (if many orders).
+
+**Example:**  
+
+```js
+const activeRecurring = await (
+  await fetch('https://lite-api.jup.ag/recurring/v1/getRecurringOrders?user=YourWallet&orderStatus=active&recurringType=all')
+).json();
+```?44†L79-L87?
+
+**Response:** Likely returns an array of orders or an object with order data. Each order entry would include whether it’s time or price, details of the schedule or increments, how much has been executed so far, how much remains, etc., as well as identifiers for the order. For history entries, it might show final status (completed, canceled) and any leftover funds returned.
+
+For instance, an active time-based order might show: `{ type: "time", inputMint: ..., outputMint: ..., totalAmount: ..., amountPerOrder: ..., executed: X of N orders done, nextExecutionAt: ..., ... }`. A price-based might show current deposit remaining, increment, etc.
+
+*(Since no explicit JSON is given, treat it as a query interface to show users their plans.)*
+
+**Best Practices & Notes:**  
+- **Fees:** Currently, Recurring API does **not support integrator fees** on swaps?36†L87-L93?. So you cannot charge a referral fee on recurring orders (Jupiter’s own fee of 0.1% still applies on each swap though).  
+- **Monitoring:** Recurring swaps run automatically. Jupiter charges 0.1% fee on each swap executed via Recurring API?36†L87-L95?.  
+- **Cancellation vs Withdraw:** If a user wants to stop a price-based plan but maybe leave funds for later, they could withdraw funds (`priceWithdraw`) without canceling, effectively pausing the activity (because no funds to execute). But to truly stop it, use cancelOrder. For time-based, cancel if they want to stop early.  
+- **Partial completion:** Time-based orders naturally end after the set number of cycles. Price-based orders go indefinitely until canceled.  
+- **Notifications:** As an integrator, you may want to inform users to ensure they have sufficient funds in the order. Jupiter’s docs note that price-based orders won’t close automatically when funds run out; they’ll just pause. Users can deposit more to continue or cancel. Also, if price-based orders have output auto-withdrawn, users will see output tokens appear in their wallet after each execution.  
+
+## Token API
+
+The **Token API** provides endpoints to query token metadata, perform token verification, and retrieve token lists. It’s essentially Jupiter’s token discovery and info service. The latest version is **V2** (Beta) with enriched data, while **V1** is deprecated as of August 2025?48†L47-L55?.
+
+**Use Cases:** Validate if a mint is a legitimate token, fetch token name/symbol/icon, get lists of verified tokens, trending tokens, etc., which can be used to populate token pickers or show token info in your app.
+
+### Token API V2 (current)
+
+**Base URL:** `https://lite-api.jup.ag/tokens/v2`
+
+V2 offers multiple endpoints: **search by query**, **filter by tag**, **get category**, **get recent** tokens. All endpoints return token data objects with fields described below.
+
+#### GET `/tokens/v2/search?query=<term>`
+
+**Description:** Search tokens by symbol, name, or mint. Returns up to 20 results by default for text queries?49†L79-L87??49†L81-L89?, or up to 100 if querying multiple specific mint addresses. This is similar to Ultra’s search but can be used standalone.
+
+**Query Param:** `query` – string to search. Can be a full or partial token symbol/name, or one or multiple mint addresses (comma-separated)?49†L79-L87?.
+
+**Example:**  
+
+```js
+const results = await (await fetch('https://lite-api.jup.ag/tokens/v2/search?query=SOL')).json();
+
+    This might return tokens like SOL, mSOL, etc.
+
+    (Response format and fields are discussed under “Response Fields” below.)
+
+    
+    GET /tokens/v2/tag?query=<tag>
+
+    Description: Get all tokens that have a specific tag[28]. Tags classify tokens (e.g., verified, lst, etc.).
+
+    Query Param: query – the tag name. Supported tags in V2 include: - verified – community/Jupiter verified tokens[29],
+- lst – liquid staked tokens list[29],
+- token-2022 – tokens using the Token-2022 program,
+- potentially others like community or strict if defined internally.
+
+    This returns an array of token objects matching that tag (could be large; e.g., verified returns all verified tokens).
+
+    Example:
+
+    js const verifiedTokens = await (await fetch('https://lite-api.jup.ag/tokens/v2/tag?query=verified')).json();[30]
+
+    
+    
+    GET /tokens/v2/<category>/<interval>?limit=<N>
+
+    Description: Get top tokens by certain categories over a time interval[31]. Categories include: - toporganicscore – tokens with highest Organic Score (an indicator of genuine activity)[32], - toptraded – most traded tokens, - toptrending – tokens with big recent increases in activity.
+
+    Path Parameters:
+- <category>: one of toporganicscore, toptraded, toptrending[33].
+- <interval>: one of time intervals 5m, 1h, 6h, 24h[33]. This interval defines the window over which “top” is measured (except for organic score which might be more static but possibly updated periodically).
+
+    Query Param: limit – how many results to return (default 50 if not given)[34]. You can adjust to get more or fewer.
+
+    Example:
+
+    js const topOrganic = await (await fetch('https://lite-api.jup.ag/tokens/v2/toporganicscore/24h?limit=100')).json();[35]
+
+    This fetches the top 100 tokens by organic score in the last 24h (with common tokens like SOL/USDC filtered out as note suggests[36]).
+
+    (Note: The API might filter out SOL, USDC etc. from trending categories to surface more interesting tokens[33].)
+
+    
+    
+    GET /tokens/v2/recent
+
+    Description: Get a list of recently listed tokens[37]. “Recent” is defined by when the token’s first liquidity pool was created (not just when the mint was made)[38]. This is useful to find new tokens that have just launched/traded.
+
+    Query Param: None for basic use (you can possibly use limit similarly; by default it returns 30)[38].
+
+    Example:
+
+    js const newTokens = await (await fetch('https://lite-api.jup.ag/tokens/v2/recent')).json();[39]
+
+    By default, it returns up to 30 new tokens.
+
+    
+    
+    Token Data Fields (V2 Response)
+
+    All these V2 endpoints return an array of token info objects[40][41]. Each object can include:
+- id: token mint address[42].
+- name: token name[42].
+- symbol: token symbol/ticker[43].
+- icon: URL of token icon image[43].
+- decimals: number of decimals for token[43].
+- circSupply and totalSupply: circulating and total supply (as floating numbers)[44].
+- tokenProgram: which SPL program it’s under (usually the standard Token program, or Token-2022 program)[44].
+- firstPool: an object with id (address of first liquidity pool) and createdAt (ISO timestamp) for that pool[45]. This indicates when/where the token first became liquid.
+- holderCount: number of holders addresses (approximate)[46].
+- audit: an object with certain token audit info: mintAuthorityDisabled (bool), freezeAuthorityDisabled (bool), topHoldersPercentage (the percent of supply held by top holders)[46]. These help assess centralization/trust (e.g., if mint and freeze authorities are renounced).
+- organicScore: numeric score (0-100) for organic activity[47].
+- organicScoreLabel: e.g. "high", "medium", "low" etc., giving a qualitative label to the organic score[47].
+- isVerified: boolean indicating if token is verified by Jupiter’s verification process[48].
+- cexes: array of centralized exchanges where this token is listed (if known)[49]. E.g., ["Binance","Kraken",...] or empty if none.
+- tags: array of tags assigned (like "community", "verified", "lst", etc.)[50].
+- fdv: Fully Diluted Value (market cap if all supply is in circulation)[51].
+- mcap: current Market Cap (circulating supply * price)[51].
+- usdPrice: current price in USD[51].
+- priceBlockId: the block ID (slot or block number) at which the price was last updated[52].
+- liquidity: current on-chain liquidity (in USD) across Jupiter’s pools for this token[53].
+- stats5m, stats1h, stats6h, stats24h: objects containing stats over those intervals[24][25]. Each includes fields like: priceChange (fractional change in price), liquidityChange (change in liquidity), volumeChange (change in volume) – these likely as percentages or factors; and buyVolume, sellVolume (total volume bought/sold), buyOrganicVolume, sellOrganicVolume (volume excluding wash trades perhaps), numBuys, numSells, numTraders, numOrganicBuyers, numNetBuyers (how many more buyers than sellers)[24][25]. These give a detailed picture of trading activity.
+- ctLikes and smartCtLikes: perhaps crowd sentiment metrics (maybe number of social media likes or something from “CoinTalk”? – Not entirely clear, but they have values e.g. 4232 and 522 in example for SOL)[54]. Possibly related to social sentiment.
+- updatedAt: timestamp of last data update for this token entry[54].
+
+    This is a superset of fields; not all tokens or endpoints might return everything (e.g., tags might be empty array if none). But this is what to expect.
+
+    Example Response (excerpt):
+
+    json [ { "id": "So11111111111111111111111111111111111111112", "name": "Wrapped SOL", "symbol": "SOL", "icon": "https://.../So111.../logo.png", "decimals": 9, "circSupply": 531207433.3986673, "totalSupply": 603724547.3627878, "tokenProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "firstPool": { "id": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2", "createdAt": "2021-03-29T10:05:48Z" }, "holderCount": 2342610, "audit": { "mintAuthorityDisabled": true, "freezeAuthorityDisabled": true, "topHoldersPercentage": 1.2422471238911812 }, "organicScore": 98.92390784896082, "organicScoreLabel": "high", "isVerified": true, "cexes": ["Binance","Bybit","OKX","Upbit","Bitget","Kraken","KuCoin","MEXC","Gate.io"], "tags": ["community","strict","verified"], "fdv": 87824499429.22047, "mcap": 77275352037.79674, "usdPrice": 145.47114211747515, "priceBlockId": 349038717, "liquidity": 89970631.83880953, "stats5m": { "priceChange": 0.02117, "liquidityChange": -0.01230, "volumeChange": 4.8551, "buyVolume": 14644327.1883, "sellVolume": 14743625.0239, ... }, "stats24h": { "priceChange": 1.5076, "liquidityChange": 2.4173, "volumeChange": -2.1516, "buyVolume": 4273248565.2568, "sellVolume": 4306065610.69747, ... }, "ctLikes": 4232, "smartCtLikes": 522, "updatedAt": "2025-06-25T05:02:21.034234634Z" } ][41][49]
+
+    (This example is for SOL from an earlier section, but demonstrates the richness of data V2 provides.)
+
+    
+    
+    Token API V2 Reference & Changes
+
+    V2 simplifies output to a single price (usdPrice) instead of multiple prices like V1 did[55]. It intentionally provides one authoritative price per token to avoid confusion[56].
+
+    Some data from V1 (like separate buy/sell price, confidence, etc.) are not present in V2 directly. For more detailed pricing info (like depth or confidence), one should use the Price API or the Swap quote endpoint[57] (or see the note referencing a research post about how V2 was derived[58]).
+
+    The Organic Score is a new metric in V2 to help gauge how "real" a token’s activity is[59].
+
+    
+    
+    
+    Token API V1 (deprecated)
+
+    Base URL: https://lite-api.jup.ag/tokens/v1 – This version is deprecated by Aug 1, 2025[27]. New integrations should use V2.
+
+    For historical context or if needed:
+
+    V1 had endpoints:
+- GET /tokens/v1/token/<mint>: Fetch token info by mint[60]. Returns basic info (address, name, symbol, logoURI, tags, creation time, authorities, etc.)[61][62]. (The example shows Jupiter token details, including tags and extension like coingeckoId)[61][63].
+- GET /tokens/v1/market/<marketAddress>/mints: Given a liquidity pool/market address, returns the two token mints involved in that market[64][65].
+- GET /tokens/v1/mints/tradable: Returns a list of all token mints that are tradable on Jupiter (passed Jupiter’s liquidity checks)[66][67]. This essentially lists all tokens you can get a quote for.
+- GET /tokens/v1/tagged/<tag>: Returns a list of token mints (with some info) that have a given tag[68][69]. In V1, the format might include the token info objects or just list of mints. The example shows usage of tag lst (liquid staked tokens)[70]. Possibly multiple tags could be combined by comma, as hint suggests (in V1 you could do that)[71].
+
+    V1’s output was simpler. For example, /token/<mint> gave one object with fields such as: json { "address": "...", "name": "...", "symbol": "...", "decimals": 6, "logoURI": "...", "tags": [ "...", "..." ], "daily_volume": ..., "created_at": "...", "freeze_authority": "...", "mint_authority": "...", "permanent_delegate": "...", "minted_at": "..." , "extensions": { "coingeckoId": "..." } }[61][63]
+
+    Lists like /mints/tradable or /tagged/... returned arrays of either mint addresses or objects. E.g., tradable returned an array of mint addresses[72][73]. Tagged likely returned objects (the guide suggests it returns "token mints (with information)" for tagged tokens[68]).
+
+    Important: V1 is deprecated. It had fewer data points and required more client-side work to interpret (e.g., separate endpoint to check tags). V2 consolidates and extends these. If you’re using V1, plan migration to V2.
+
+    
+
+    
+    
+    
+    Price API
+
+    The Price API provides token price data for tokens on Solana. It aims to be a single source of truth for token prices across Jupiter and integrator platforms[74]. It considers on-chain swap prices and oracle prices for reference assets to produce a reliable USD price for each token.
+
+    
+    Price API V3 (current, Beta)
+
+    Base URL: https://lite-api.jup.ag/price/v3 (Pro: api.jup.ag/price/v3)
+
+    V3 simplifies and improves the Price API by focusing on last traded price and applying various heuristics to ensure accuracy[75]. It returns a single price (USD) per token, rather than the richer but sometimes confusing data of V2.
+
+    Endpoint: GET /price/v3?ids=<mint1>,<mint2>,...
+
+    Query Parameters:
+- ids (string, required): Comma-separated list of token mint addresses for which to retrieve prices[76]. You can request multiple at once (up to 50 mints per query)[77].
+
+    Example Request:
+
+    js const prices = await (await fetch('https://lite-api.jup.ag/price/v3?ids=So11111111111111111111111111111111111111112,JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN')).json();[78]
+
+    Response Structure: Returns a JSON object where keys are the mint addresses requested, and values are objects containing:
+- usdPrice (number): The price of the token in USD[79].
+- blockId (integer): The slot or block number as of which this price is computed[80]. Use this to know how recent the price is.
+- decimals (integer): The token’s decimals (useful to interpret other data or for formatting)[80].
+- priceChange24h (number): The 24-hour price change percentage (as a decimal fraction)[81]. This indicates how much the price moved in the last day.
+
+    It does not provide separate bid/ask or depth – just the price. Jupiter derived this by starting from known reliable tokens (like SOL via Pyth or Switchboard or etc.) and propagating prices through swap pools, with filters for manipulation[82].
+
+    Example Response:
+
+    json { "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": { "usdPrice": 0.4056018512541055, "blockId": 348004026, "decimals": 6, "priceChange24h": 0.5292887924920519 }, "So11111111111111111111111111111111111111112": { "usdPrice": 147.4789340738336, "blockId": 348004023, "decimals": 9, "priceChange24h": 1.2907622140620008 } }[79][81]
+
+    (Above: JUP token at ~$0.4056, and SOL at ~$147.4789, along with their 24h changes and data block.)
+
+    Characteristics of V3:
+- It gives one price per token (USD). This price is the last swapped price on Solana, anchored to reliable tokens like SOL which use external oracle input[75]. Essentially, Jupiter tracks swaps and uses a core set of trusted tokens to compute others.
+- It applies heuristics to avoid spoofed prices (ignoring wash trades, tiny pools, etc.)[83][84]. - The priceChange24h is useful to show trend. If a token hasn’t traded in 7 days, it likely won’t have a price (the API might not list it)[85].
+- If a token is flagged as unreliable (low liquidity, potential manipulation, etc.), Price API might not provide a price at all to prevent showing a wrong number[85]. In such cases, the response just won’t have that token, or you’ll know it can’t be priced reliably.
+
+    Limitations:
+- You can query up to 50 tokens per call[77].
+- If you query a token with no recent trading activity (last 7 days) or which is flagged (by heuristics) as too risky, you may get no price for it[85].
+- The V3 focuses on USD price. If you need more info like volumes or multiple quote currencies, consider using Swap API’s quote for specific pairs or refer to historical data.
+
+    Comparison to V2: V2 (deprecated) provided more detail: it had buy and sell prices, confidences, depth info, etc., but it was complex and sometimes led to different interpretations of price[86]. V3 streamlines this by doing the heavy logic internally and outputting one price. If you need something like mid-price vs last price, Jupiter suggests using the Swap API’s /quote which effectively gives you an actionable price (with slippage etc.), or refer to Jupiter’s research post on how V2 was derived if needed[58].
+
+    
+    
+    Price API V2 (deprecated)
+
+    Base URL: https://lite-api.jup.ag/price/v2
+
+    V2 provided extensive price info, including “extraInfo” with depth and confidence. It’s deprecated by August 2025 in favor of V3[87].
+
+    Key endpoints in V2 were:
+- GET /price/v2?ids=<mint1>,<mint2>,... (with optional vsToken=<mint> and showExtraInfo=true parameters)[88][89].
+- By default, prices were quoted vs USDC (if no vsToken given)[89]. It returned a JSON with a "data" field containing each requested token’s price info.
+- If vsToken specified, it would price relative to that token instead of USD (e.g., get SOL price in terms of SRM, etc.)[90][91].
+- If showExtraInfo=true, the response included rich info: both buy/sell prices, last swap price, current quote price, confidence, depth, etc.[92][93].
+
+    An example basic response (with no extra info, vs USDC) looked like:
+
+    json { "data": { "<Mint1>": { "id": "<Mint1>", "type": "derivedPrice", "price": "210.195311500" }, "<Mint2>": { "id": "<Mint2>", "type": "derivedPrice", "price": "1.084247" } }, "timeTaken": 0.00488491 }[94][95]
+
+    This shows the derived price (likely mid-price) of two tokens vs USDC.
+
+    With showExtraInfo=true, the data object for each token became much larger, e.g.:
+
+    json { "id": "<Mint>", "type": "derivedPrice", "price": "...", "extraInfo": { "lastSwappedPrice": { "lastJupiterSellAt": <timestamp>, "lastJupiterSellPrice": "...", "lastJupiterBuyAt": ..., "lastJupiterBuyPrice": "..." }, "vwap": { ... }, "currentPrice": { "buy": "...", "sell": "...", "mid": "...", ... }, "confidence": "...", "depth": { "buy": "...", "sell": "..." }, "etc...": "..." } }[96][97]
+
+    It included buy/sell prices, volumes, etc. But as mentioned, this caused different platforms to use different fields as "the price", leading to inconsistency[86]. Thus V3’s simplification.
+
+    Migration: For current integrations, use Price API V3 for a straightforward price. If more detail is needed (like order book depth or multiple quote currencies), one might combine Jupiter’s data with an external source or use the Swap API to simulate trades of various sizes for effective price and slippage.
+
+    
+
+    This concludes the comprehensive overview of Jupiter’s API endpoints across Ultra, Swap, Lend, Trigger, Recurring, Token, and Price services. Each section is designed to cover different aspects of the Jupiter ecosystem, from low-level swap execution to high-level automated strategies. Always ensure to check Jupiter’s official docs for any updates (given some parts are beta) and follow best practices for rate limiting and error handling when integrating these APIs.
+
+    
+    
+    
+    
+    
+
+    
+    [1] API Setup
+
+    https://dev.jup.ag/docs/api-setup
+
+    [2] [3] Ultra API
+
+    https://dev.jup.ag/docs/ultra-api/
+
+    [4] Get Shield
+
+    https://dev.jup.ag/docs/ultra-api/get-shield
+
+    [5] order | Jupiter Developer Docs
+
+    https://dev.jup.ag/docs/api/ultra-api/order
+
+    [6] [7] [9] [10] [14] [15] [16] [17] Get Order
+
+    https://dev.jup.ag/docs/ultra-api/get-order
+
+    [8] [18] [19] Get Quote
+
+    https://dev.jup.ag/docs/swap-api/get-quote
+
+    [11] [20] Create Order
+
+    https://dev.jup.ag/docs/trigger-api/create-order
+
+    [12] [13] Add Fees To Ultra
+
+    https://dev.jup.ag/docs/ultra-api/add-fees-to-ultra
+
+    [21] [22] [23] Execute Order
+
+    https://dev.jup.ag/docs/ultra-api/execute-order
+
+    [24] [25] [28] [30] [31] [32] [33] [34] [35] [36] [37] [38] [39] [40] [41] [42] [43] [44] [45] [46] [47] [48] [49] [50] [51] [52] [53] [54] V2
+
+    https://dev.jup.ag/docs/token-api/v2
+
+    [26] Trigger API Schema | Jupiter Developer Docs
+
+    https://dev.jup.ag/docs/api/trigger-api
+
+    [27] Token API
+
+    https://dev.jup.ag/docs/token-api/
+
+    [29] [60] [61] [62] [63] [64] [65] [66] [67] [68] [69] [70] [71] [72] [73] V1 (Deprecated)
+
+    https://dev.jup.ag/docs/token-api/v1
+
+    [55] [56] [57] [58] [59] [75] [76] [77] [78] [79] [80] [81] [85] [86] Price API V3
+
+    https://dev.jup.ag/docs/price-api/v3
+
+    [74] [82] [83] [84] [87] About Price API
+
+    https://dev.jup.ag/docs/price-api/
+
+    [88] [89] [90] [91] [92] [93] [94] [95] [96] [97] Price API V2 (Deprecated)
+
+    https://dev.jup.ag/docs/price-api/v2
+
+    
+    
+  

@@ -1,0 +1,77 @@
+Recommended DEX List for Solana Triangular Arbitrage Bot (July 2025)
+====================================================================
+
+Priority   | Protocol     | Market Model           | Volume*        | Why Important
+-----------------------------------------------------------------------------------
+Must-have  | Raydium      | AMM + order book       | ~1B USD / 24h  | ≈50%
+                                                                      share;
+                                                                      prime for
+                                                                      memecoins
+                                                                      & majors
+           | Orca         | CL‑AMM                 | 0.7–0.9B / 24h | Tight
+                                                                      spreads;
+                                                                      3.6B
+                                                                      weekly
+                                                                      leader
+           | Meteora      | Dynamic CL‑AMM         | 0.5–0.6B / 24h | Fast‑growi
+                                                                      ng hub; #2
+                                                                      since Q2
+                                                                      2025
+           | Jupiter      | Aggregator             | —              | Key
+                                                                      router;
+                                                                      split
+                                                                      orders &
+                                                                      atomic
+                                                                      swaps
+Strong 2   | Phoenix      | Order book (LOB)       | ~250M / month  | On‑chain
+                                                                      LOB; often
+                                                                      deeper
+                                                                      than
+                                                                      OpenBook
+           | OpenBook     | Order book             | 100–200M / 24h | Useful for
+                                                                      large
+                                                                      orders;
+                                                                      Serum
+                                                                      legacy
+           | Lifinity     | Concentrated PMM       | 2–3B / week    | Ultra‑low
+                                                                      slippage
+                                                                      for
+                                                                      mid‑caps
+           | Saber        | Stable‑swap AMM        | 0.8B / week    | Best for
+                                                                      stablecoin
+                                                                      triangles
+Optional   | PumpSwap     | AMM (launchpad)        | 200–300M / 24h | Fresh
+                                                                      memecoins;
+                                                                      variable
+                                                                      liquidity
+           | Crema+       | CL‑AMM                 | <100M / 24h    | Niche
+                                                                      pairs;
+                                                                      enable for
+                                                                      max
+                                                                      coverage
+
+*Volumes from DefiLlama / Dune / CryptoRank, latest weeks 2025.
+
+How to Use:
+  - Build price graph:
+      · For AMMs (Raydium, Orca, Meteora, etc.) pull reserves & CL data.
+      · For LOBs (Phoenix, OpenBook) pull top-of-book depth.
+      · Treat Jupiter as extra edge with quote + fee.
+
+  - Prioritization:
+      · Scan 'Must-have' triangles first (>85% of volume).
+      · Add 'Strong 2' for deeper liquidity on big trades.
+      · Enable 'Optional' only if daily volume >50M USD.
+
+  - Fallback Routing:
+      · If atomic Raydium->Phoenix->Orca fails, try Raydium->Jupiter->Orca.
+      · Switch LOB leg to CL-AMM (Phoenix<->Lifinity) if depth thin.
+
+  - Re-evaluate:
+      · Refresh volume stats daily; auto-disable DEX below threshold.
+      · Alert when new DEX exceeds volume bar (easy to add via SPL).
+
+Summary:
+  Combining Raydium, Orca, Meteora, Jupiter, Phoenix, OpenBook,
+  and Lifinity covers ~95% of Solana spot flow and all pricing models.
+  Add others only for diversification or when their volume grows.

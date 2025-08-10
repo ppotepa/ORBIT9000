@@ -1,0 +1,289 @@
+
+
+    
+    
+    
+    
+    Coinbase Exchange API Reference
+
+    
+    Authentication and API Access
+
+    API Keys and Signing: Coinbase Exchange provides API keys (with a key, secret, and passphrase) for authenticating private endpoints. All private REST requests must include HTTP headers: CB-ACCESS-KEY (your API key), CB-ACCESS-PASSPHRASE (your passphrase), CB-ACCESS-TIMESTAMP (current UNIX time in seconds), and CB-ACCESS-SIGN (HMAC-SHA256 signature)[1][2]. The signature is computed by concatenating timestamp + HTTP method + request path + request body (if any), hashing with your secret key, and Base64-encoding the result[2]. The timestamp must be within 30 seconds of server time, so using the GET /time endpoint is recommended to sync clocks[3]. When creating API keys on the Coinbase Exchange website, you can assign key permissions (e.g. view, trade, transfer, manage) to restrict what actions the key can perform[4].
+
+    Private vs Public Endpoints: Private (trading/account) endpoints require authentication and allow placing orders or accessing account data[5]. Public (market data) endpoints do not require auth and provide market information[5]. Rate limits apply per IP for public calls and per profile for private calls (e.g. 10 requests/sec for public, 15 requests/sec for private, with bursts allowed)[6][7]. Exceeding limits returns HTTP 429 Too Many Requests[8].
+
+    WebSocket Authentication: The Exchange WebSocket feed (wss://ws-feed.exchange.coinbase.com) supports authenticated channels for user-specific data. To authenticate a WebSocket connection, you generate the same signature and timestamp as a REST request (use the request path /users/self/verify and the GET method for the prehash string)[9]. Send a WebSocket subscribe message that includes your API key, passphrase, timestamp, and the signature[9][10]. For example:
+
+    {
+  "type": "subscribe",
+  "product_ids": ["BTC-USD"],
+  "channels": [{ "name": "full" }],
+  "key": "<API_KEY>",
+  "passphrase": "<PASSPHRASE>",
+  "timestamp": "<TIMESTAMP>",
+  "signature": "<SIGNATURE>"
+}
+
+    Authenticating on the WebSocket is required for certain channels (e.g. "full", "user", "level2", "level3") and yields extra data fields in messages (like user_id and profile_id on your orders)[11][12]. Authentication also enables receiving private feed messages such as your stop order triggers and expanded order data[13]. Unauthenticated WebSocket subscriptions are allowed for public market data (e.g. ticker or level2 books), but Coinbase recommends authenticating to get the enhanced information[13].
+
+    
+    
+    Market Data APIs (Public)
+
+    Coinbase Exchange offers a set of public REST endpoints for market data, which do not require authentication[14]. These allow you to retrieve market information such as trading pairs, order books, trade history, and price statistics.
+
+    List Trading Pairs: GET /products – Returns a list of all available trading pairs (market products) on the exchange with their details[15]. Each product entry includes fields like id (e.g. "BTC-USD"), base_currency, quote_currency, price increments (quote_increment), size increments (base_increment), minimum notional for orders (min_market_funds), trading status, and flags for modes like post_only or limit_only[15][16]. For example, a product might be: "id": "BTC-USD", "base_currency": "BTC", "quote_currency": "USD", "display_name": "BTC/USD", "quote_increment": "0.01", "base_increment": "0.00000001", "min_market_funds": "10", "status": "online", ...[15].
+
+    Get Product Details: GET /products/{product_id} – Fetches information for a single trading pair (same fields as above, for the specified product). This is useful to retrieve the min/max order size or increment rules for a specific market.
+
+    Order Book Snapshot: GET /products/{product_id}/book?level={level} – Retrieves a snapshot of the current order book for a product. The level parameter controls the depth/detail:
+
+    Level 1: Top of book (best bid and ask only).
+
+    Level 2: Top 50 bids and asks (aggregated by price).
+
+    Level 3: Full order book (non-aggregated, individual orders).
+The response includes arrays of bids and asks, each as [price, size, num_orders] (for level 2) or including order IDs (for level 3). Level 1 also includes best_bid and best_ask prices. For example, a level 1 book for BTC-USD in auction mode may contain auction info in addition to best bids/asks[17][18].
+
+    Recent Trades: GET /products/{product_id}/trades – Provides a list of the most recent trades (executed orders) for the product. Each entry includes trade time, trade_id, price, size, and side (buy/sell). This can be used to observe the latest fills on the market.
+
+    Ticker (24H Stats): GET /products/{product_id}/ticker – Returns a 24-hour rolling price summary for the product, including the last trade price (last), best bid and ask, 24h volume, and possibly the 24h low and high prices[19]. This gives a quick snapshot of the market’s current state (tick data).
+
+    Historic Candles: GET /products/{product_id}/candles – Returns historical price data for charting. You can usually specify query parameters such as start/end times or granularity (e.g. 60, 300, 900 seconds, etc.) to retrieve OHLCV (Open, High, Low, Close, Volume) data for the product. The response is an array of time buckets.
+
+    Product Stats: GET /products/{product_id}/stats – Provides extended statistics for the product, including the 24-hour stats and a 30-day rolling window[20]. The JSON response includes fields: open, high, low, last (last trade price), volume (24h volume in base currency), and volume_30day (30-day volume). For example, "open": "5414.18", "high": "6441.37", "low": "5261.69", "volume": "53687.76764233", "last": "6250.02", "volume_30day": "786763.72930864", ...[21][22]. (Note: volumes are in base currency, and prices are in quote currency[23].)
+
+    Currencies: GET /currencies – Lists all currencies (assets) supported on the exchange. Each entry includes currency id (e.g. "BTC"), full name, min_size (minimum trade or transfer size), and status (online or offline) among other details. This can be used to get metadata about each asset (fiat and crypto). For instance, the status field indicates if deposits or trading are enabled for that currency[24][25].
+
+    Exchange Fees: GET /fees – (Authenticated) Returns your current maker & taker fee rates and your 30-day trading volume. The response typically includes maker_fee_rate, taker_fee_rate (as decimals), and usd_volume (your trailing 30-day volume) which determine your fee tier. (This endpoint requires auth with any key permission and is tied to your profile’s volume.)
+
+    Wrapped Assets: GET /wrapped-assets – Returns info on any wrapped assets (if applicable) and conversion rates. (For example, if Coinbase supports wrapped tokens pegged to others, their rates or underlying asset might be provided here.)
+
+    WebSocket Market Data Feed: Coinbase Exchange offers a high-throughput WebSocket feed for real-time market data[26]. Clients can subscribe to various channels to receive live updates:
+
+    Connect to wss://ws-feed.exchange.coinbase.com (for production; use wss://ws-feed-public.sandbox.exchange.coinbase.com for the sandbox environment). No authentication is needed for public data channels.
+
+    Subscription Message: To subscribe, send a JSON message specifying product IDs and channels. For example, to subscribe to the ticker and level2 book for BTC-USD and ETH-USD:
+
+    {
+  "type": "subscribe",
+  "product_ids": ["BTC-USD", "ETH-USD"],
+  "channels": ["ticker", "level2"]
+}
+
+    Available Channels: The Exchange supports multiple channels:
+
+    ticker – real-time price updates for each matched trade (one message per trade or per periodic update, including best bid/ask and last price).
+
+    matches – a feed of every trade match (buyer and seller info, price, size, time) for subscribed products.
+
+    level2 – incremental order book updates at the aggregated level. After an initial snapshot (obtained via the REST /book endpoint or the snapshot message on this channel), you will receive l2update messages for every change in the top 50 bids/asks.
+
+    full – the complete order flow, including all individual order events (received, open, done, match, change) for the product. This channel provides the most granular data (order-level book), and if authenticated, it will include your own order events with user_id and profile_id[12].
+
+    heartbeat – a simple heartbeat sent once per second for a product, containing sequence number and last trade ID[27][28]. Useful for connection liveness and sequence monitoring.
+
+    status – a snapshot of all products and currencies statuses, sent periodically. It lists all products with their status (online/offline) and increments, and all currencies with their details[29][24].
+
+    auction – (if applicable) updates on auction-mode books (for markets that open/close via auctions).
+
+    user – (authenticated required) personal account updates, such as your active orders and fills. This channel will send messages for order lifecycle events (open, done, match) that involve your orders only[11].
+
+    level3 – full order book updates with non-aggregated orders (including order IDs) for advanced use, and level2_batch / ticker_batch for batch updates. (Level 3 and certain advanced channels may also require auth or higher privileges.)
+
+    Message Format: WebSocket messages are JSON objects. For example, a ticker message includes type: "ticker", product_id, price, last_size, best_bid, best_ask, volume_24h, etc. A l2update contains a list of changes (bids or asks with new size or price removal). Sequence numbers are included to help clients detect missed messages and maintain book consistency[30]. It’s recommended to verify sequence continuity and resync via REST if any gap is detected.
+
+    Throughput and Limits: The WebSocket feed provides high-frequency updates. Inbound messages (subscribe/unsubscribe commands) are rate-limited to 10 messages per second (burst up to 1000 in short intervals)[31]. Each account is limited to 10 simultaneous subscriptions per channel-product combination (e.g. up to 10 subscriptions to BTC-USD level2) unless a higher limit is purchased[32]. This means a single user can open multiple sockets or subscriptions, but by default cannot subscribe to the same product’s channel more than 10 times concurrently[32]. These limits ensure fair use of the real-time feed.
+
+    
+    
+    Trading APIs (Orders & Fills)
+
+    The Trading API allows placing and managing orders on the exchange. All trading endpoints are private and require authentication (an API key with the "trade" permission)[33]. Trading operations use the base URL https://api.exchange.coinbase.com for REST. Below are the key endpoints for order management:
+
+    Place New Order: POST /orders – Submit a new order to buy or sell. You can place limit orders or market orders (and other order types like stop orders via extra parameters). A simple example request JSON for a limit buy order is:
+
+    {
+  "product_id": "BTC-USD",
+  "side": "buy",
+  "price": "30000.00",
+  "size": "0.01",
+  "type": "limit",
+  "post_only": true,
+  "client_oid": "de305d54-75b4-431b-adb2-eb6b9e546014"
+}
+
+    This would place a limit buy for 0.01 BTC at $30,000, post-only (will not take liquidity), with a client-provided order ID. The response will include an id (server-assigned order UUID) and echo back the order parameters, plus additional fields like status (e.g. "open"), settled (if the trade is fully settled), filled_size (amount filled so far), fill_fees, and timestamps[34][35]. A successful submission returns HTTP 200 with the order JSON. Note: either size (base currency amount) or funds (quote currency amount) must be specified for an order – for market orders, you typically set funds (max quote currency to spend) instead of price[36][37]. Additional optional parameters include time_in_force policies (GTC by default, or GTT/IOC/FOK) and stop orders (stop price) if needed. An API key can have up to 500 open orders per profile on a single product[38].
+
+    Cancel Order: DELETE /orders/{order_id} – Cancel a previously placed order by its ID. If the order is successfully canceled, the response will include the canceled order’s id (or client_oid if that was used)[39][40]. If the order was already filled or canceled, you will get an error with a message indicating the order could not be canceled[41]. It’s recommended to include the product_id as a query parameter when canceling (e.g. DELETE /orders/<id>?product_id=BTC-USD) to avoid race conditions in case the order was just filled[42]. You may also cancel using a client_oid by prefixing it with client: in place of the ID[43][44]. This endpoint requires the API key to have the “trade” permission[33].
+
+    Cancel All Orders: DELETE /orders – Cancels all open orders in the current profile (or optionally all orders for a specific product if product_id query param is provided). This returns an array of IDs of orders that were canceled. Use with caution, as it will remove all your pending orders.
+
+    List Orders: GET /orders – Retrieves a list of your current open orders (and optionally recently filled/canceled orders if filters or pagination are used). By default, it may return only open orders. You can supply query parameters like status=active or status=done and product_id=BTC-USD to filter. The results are paginated (cursor pagination), so you can use before or after parameters with order IDs to page through results[45]. Each order object in the list includes the same fields as the order placement response (id, price, size, filled_size, status, etc.). Note: If an order is fully filled or canceled and had no matches, its details might no longer be available via GET (the order could be purged from the active list)[46].
+
+    Get Order by ID: GET /orders/{order_id} – Fetches a single order’s status by ID. This will include the order details and current status (open, pending, done with reason, etc.). If the order is not found (for example, it was never yours or it’s been purged after completion), a 404 error is returned[46].
+
+    List Fills (Trade History): GET /fills – Retrieves a list of recent fills (executed trades) for your profile. This includes both maker and taker orders that have matched. By default it may return your most recent fills across all products, but you can filter by order_id or product_id in query parameters to get fills for a specific order or market. Each fill record includes: trade_id, product_id, price, size, fee, side (from your perspective, e.g. "buy" means you bought), liquidity (T or M for taker/maker), created_at timestamp, and the order_id it relates to. Use this to track completed trades and calculate executed volume and fees. This endpoint is cursor-paginated as well. (The fills endpoint has a custom rate limit of 10 requests/sec per profile)[47].
+
+    WebSocket for Orders: While orders cannot be placed via WebSocket, you can subscribe to private WebSocket channels to monitor your orders in real-time. The "user" channel (authenticated) will send you feed messages for the lifecycle of your orders (open, fills, done)[11], and the "full" channel when authenticated will also show your orders’ events embedded in the public flow with user-specific fields[12]. This can be used to receive instant confirmations of order fills or cancellations without polling the REST API. Additionally, a "balance" channel exists to stream real-time changes to your account balances as orders are filled (if supported).
+
+    
+    
+    Accounts and Wallet Connectivity
+
+    Coinbase Exchange accounts hold your funds in different currencies. The API provides endpoints to query balances, manage crypto addresses, and connect with your Coinbase main account or payment methods for transfers. All these endpoints require authentication (generally the “view” or “transfer” permission on the API key).
+
+    List Accounts (Balances): GET /accounts – Returns all trading accounts associated with your profile (one account per currency)[48]. Each account object has an id (UUID for the account), currency code, balance (total funds), available (funds available to trade or withdraw), and hold (funds on hold, e.g. reserved for open orders)[49][50]. For example, an account entry might look like: { "id": "7fd0abc0-e5ad-4cbb-8d54-f2b3f43364da", "currency": "USD", "balance": "1000.00", "hold": "100.00", "available": "900.00", "profile_id": "8058d771-...","trading_enabled": true }[49][51]. The profile_id indicates which trading profile the account belongs to (API keys are scoped to a profile). Note: Coinbase Exchange supports multiple profiles (sub-accounts) per user for separation of funds/trading strategies[52]. This endpoint is typically permitted with either view or trade API key permission[53].
+
+    Get Account by ID: GET /accounts/{account_id} – Fetches a single account’s details (same info as above: balance, hold, etc.) by the account’s UUID. Use this if you already know an account_id (for example, from the list) and want to refresh just that one. Requires the account’s profile to match the API key’s profile[54][55].
+
+    Account History (Ledger): GET /accounts/{account_id}/ledger – Provides the transaction ledger for an account, which is a chronological log of activity (deposits, withdrawals, trades, fees) that affected the account’s balance. Each entry has an id, created_at, amount (positive or negative), balance (new balance after the entry), and a type (such as transfer, match, fee, etc.), along with details depending on type (for example, a trade will reference the order and trade id, a transfer will reference the withdrawal or deposit id). Use this to build an account statement or audit changes over time.
+
+    Holds: GET /accounts/{account_id}/holds – Lists funds on hold for the account (e.g. due to open orders or pending withdraws). Each hold has an id, created_at, amount and a reference to why it’s held (type and associated order or transfer). When an order is canceled or executed, the hold is released (or partially released). This helps you reconcile why your full balance might not be available[56][57].
+
+    Profiles: GET /profiles – Lists your trading profiles. Each profile has an id, name, active flag, and whether it is the default profile. Balances are segregated by profile. API keys are tied to a specific profile (the one under which they were created). You can use this endpoint to get profile IDs for use in certain API calls (some transfer endpoints allow specifying a target profile_id). There is also GET /profiles/{profile_id} to get a specific profile, and POST /profiles to create a new profile (if supported). Most users will have a default profile only.
+
+    Coinbase Wallets: GET /coinbase-accounts – Lists your Coinbase (consumer app) accounts that are linked to your exchange profile[48]. These are the wallets on Coinbase.com (e.g. your Coinbase USD wallet, or crypto wallets) that you can use to transfer funds to/from the Exchange. Each entry includes a Coinbase account id, the currency, balance, and a flag available_on_consumer indicating if that wallet is active on Coinbase’s consumer platform[58][59]. For example: { "id": "OXT", "currency": "OXT", "balance": "0.00000000", "name": "OXT Wallet", "type": "wallet", "available_on_consumer": true, "active": true }[58][59]. (In this case, the id appears to be the currency code for that wallet on Coinbase.) These accounts are read-only from the Exchange API; they’re used in transfer endpoints described below. Note: Coinbase accounts are separate from Exchange trading accounts – you must explicitly transfer funds between them to move assets into or out of trading[52].
+
+    Generate Crypto Address: POST /coinbase-accounts/{account_id}/addresses – Creates a new deposit address for a Coinbase account (crypto wallet) so you can deposit crypto directly to Coinbase Exchange[60][61]. You need to specify the Coinbase account_id (from the /coinbase-accounts list) and the profile_id of your exchange profile, plus the target crypto network if applicable (some assets support multiple networks)[61]. The response will include a newly generated crypto address and metadata. For example, it returns an object with an id (address identifier), the address itself, network, and perhaps a deposit_uri and warnings if applicable (e.g. only send specific asset to this address)[62][63]. Use this endpoint to get a deposit address for transferring crypto from an external wallet into your Coinbase Exchange account. (Alternatively, you can generate deposit addresses from the Coinbase side or use an existing address from the address book, described next.)
+
+    Address Book (Whitelist): Coinbase Exchange allows whitelisting withdrawal addresses via the Address Book. Endpoints include:
+
+    GET /address-book – Retrieves all addresses saved in your address book[64]. Each entry includes an id, the crypto address, the currency asset, an optional nickname label, the date added, and flags like is_verified_self_hosted_wallet (whether the address was verified as belonging to you for Travel Rule purposes)[65][66]. For example: { "id": "e9c483b8-c502-11ec-9d64-0242ac120002", "address": "1JmYrFBLMSCLBwoL87gdQ5Qc9MLvb2egKk", "currency": "ETH", "label": "My Wallet", "address_book_added_at": "2019-02-06T22:27:50.221Z", "is_verified_self_hosted_wallet": false }[65][67].
+
+    POST /address-book – Add a new address to the book (you provide the address and currency, plus optional label and beneficiary details if required).
+
+    DELETE /address-book/{id} – Remove an address from the address book.
+
+    Using the address book is optional but can be required for withdrawals depending on security settings (some accounts only allow withdrawing to pre-whitelisted addresses). It also integrates with compliance requirements: a field like business_name or beneficiary_name may be present if provided for Travel Rule regulations[68].
+
+    User Account Info: GET /users/self/verify – A private endpoint that returns information about the API key’s user account (such as user id, profile id, email verification status, etc.). This is also the endpoint used in the WebSocket auth signature. It’s primarily for checking that your API setup is correct and for retrieving your user id if needed. (Requires auth; typically any permission will suffice.)
+
+    
+    
+    Funding (Deposits & Withdrawals)
+
+    Funding endpoints enable moving money in and out of Coinbase Exchange. These include crypto transfers, fiat transfers to bank or card, and internal transfers between your Coinbase and Exchange accounts. All funding endpoints require the API key to have the “transfer” permission[69]. The base URL is the same (api.exchange.coinbase.com). Below are the major funding actions:
+
+    Crypto Withdrawals: POST /withdrawals/crypto – Withdraw cryptocurrency from your exchange account to an external crypto address[70]. The request JSON requires: an amount, currency (asset code), and the destination crypto_address. You can also specify the profile_id (source profile; default is your key’s profile)[71][72]. If the asset uses destination tags or memos (e.g. XRP, XLM), you should provide the destination_tag and set no_destination_tag to false (or true if the address truly has no tag)[71][73]. Optional fields include network (if the currency supports multiple blockchains), and a boolean add_network_fee_to_total to indicate if the network fee should be added on top of the amount (default false, meaning fee is deducted from the amount). Travel Rule: If the withdrawal amount is large and triggers Travel Rule requirements, you must include a travel_rule_data object with information about the originator (you) and beneficiary (recipient) such as names, addresses, DOB, etc.[74][75]. The API may reject a crypto withdrawal above a certain threshold unless this info is provided (depending on jurisdictions). The response for a successful withdrawal will include an id (transfer id), the payout amount, fee, etc., for example: { "id": "transfer_id", "amount": "100.00", "currency": "BTC", "payout_at": "2023-07-30T12:00:00Z", "fee": "0.0005", "subtotal": "99.9995" }[76][77]. That indicates the withdrawal was scheduled (payout_at) or completed. This endpoint requires transfer permission and your API key profile must be the default if you omit profile_id (some withdrawal types only work on default profile)[78].
+
+    Crypto Deposit Address (Exchange): There isn’t a direct “deposit” endpoint for crypto because deposits are achieved by sending crypto to an address. Use Generate Crypto Address (under Coinbase Accounts, as described above) to get a deposit address for your exchange account. You can then send crypto from an external wallet to that address. Alternatively, if you have crypto in your Coinbase consumer wallet, use the internal transfer endpoint below.
+
+    Internal Transfer (Coinbase <> Exchange):
+
+    POST /deposits/coinbase-account – Deposits funds from your Coinbase (consumer) account into your exchange account[79]. You provide the Coinbase account_id (from /coinbase-accounts) and an amount and currency. This moves funds instantly between the two platforms (within your own accounts) within daily limits. For example, deposit USD from your Coinbase USD wallet to Exchange USD balance.
+
+    POST /withdrawals/coinbase-account – Withdraws funds from your exchange back to your Coinbase wallet[80]. Similar inputs: a Coinbase account_id, amount, and currency. This is useful for moving crypto or fiat into Coinbase for selling or using in the Coinbase app. These internal transfers typically do not incur blockchain fees since they are off-chain internal movements.
+
+    Fiat Transfers (Bank/Card):
+
+    GET /payment-methods – Lists your linked external payment methods (such as bank accounts) that can be used for fiat deposits or withdrawals[81]. Each payment method has an id (GUID), a type (e.g. ach_bank_account, card), the currency it supports (e.g. USD), and other details. You need the payment method id for the following endpoints.
+
+    POST /deposits/payment-method – Deposit fiat from a linked bank or card into your Exchange account. Provide the amount, currency, and the payment_method_id of the source. This will initiate, for example, an ACH transfer from your bank into Exchange USD balance[82]. The response will contain a transfer id and status (and an ETA if applicable).
+
+    POST /withdrawals/payment-method – Withdraw fiat from Exchange to an external payment method (like withdraw USD to your bank)[83]. Provide amount, currency, and the payment_method_id of your bank. The response will confirm the withdrawal details (id, amount, fee, etc.)[84][85]. For example: { "id": "withdrawal_id", "amount": "100.00", "currency": "USD", "payout_at": "2025-07-30T01:45:00Z", "fee": "0.15" }. Only the default profile can use payment method transfers via the API[69].
+
+    Fee Estimate: GET /withdrawals/fee-estimate?currency=<code>&crypto_address=<address> – Gets an estimate of the network fee for withdrawing a given cryptocurrency to the specified address[86]. This helps you determine how much fee would be incurred (especially for networks with dynamic fees). You must specify the currency (asset) and the destination address; the API returns the estimated fee in that currency.
+
+    Travel Rule Information: POST /transfers/travel – If you intend to withdraw a large amount of crypto requiring Travel Rule data (information about the beneficiary and originator), you can separately submit that information via this endpoint (or include it in the withdrawal call as shown above). The payload includes the sender and receiver details as required by regulations. After providing the info, you can proceed with the withdrawal. The specifics of when this is needed depend on jurisdictions and are detailed in Coinbase’s compliance documentation.
+
+    Transfer History: GET /transfers – Retrieves a history of deposits and withdrawals for your profile. Each entry will indicate the type (deposit or withdrawal), the amount, currency, payout or completion time, and status. This is useful to track pending and completed fund movements. You can also get a single transfer by id via GET /transfers/{transfer_id} to check its status.
+
+    All funding endpoints require the “transfer” permission on the API key[69]. For security, certain withdrawal endpoints might only work with a default profile API key and not with a subordinate profile[78]. Always ensure your API key has the correct permissions and profile scope for the transfer you intend.
+
+    
+
+    Each of these API endpoints and features is documented in detail in the official Coinbase Exchange API docs[87][10]. This reference has covered the major categories – authentication, market data, trading, account/wallet management, and funding transfers – to help developers quickly find endpoint information. For complete details (such as additional parameters, error codes, and new features like FIX API or advanced order types), consult the Coinbase Exchange API documentation[88][36]. With this API, developers can integrate trading, data monitoring, and fund management for Coinbase Exchange into their applications in a secure and programmatic way.
+
+    Sources: Coinbase Exchange Developer Documentation[87][34], Coinbase API Reference (REST & WebSocket)[1][9], and Coinbase Developer Platform resources.
+
+    
+    
+    
+    
+
+    
+    [1] [2] [3] [4] Exchange REST API Authentication - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/rest-api/authentication
+
+    [5] [14] [26] [87] [88] Welcome to Exchange APIs - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/introduction/welcome
+
+    [6] [7] [8] [47] Exchange REST API Rate Limits - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/rest-api/rate-limits
+
+    [9] [10] [11] [12] [13] Exchange WebSocket Authentication - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/websocket-feed/authentication
+
+    [15] [16] [17] [18] Get all known trading pairs - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-all-known-trading-pairs
+
+    [19] Get product ticker - Coinbase Docs
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker
+
+    [20] [21] [22] [23] Get product stats - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-stats
+
+    [24] [25] [27] [28] [29] Exchange WebSocket Channels - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/websocket-feed/channels
+
+    [30] [31] [32] Exchange WebSocket Rate Limits - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/websocket-feed/rate-limits
+
+    [33] [39] [40] [41] [42] [43] [44] [46] Cancel an order - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/orders/cancel-an-order
+
+    [34] [35] [36] [37] [38] Create a new order - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/orders/create-new-order
+
+    [45] Exchange REST API Pagination - Coinbase
+
+    https://docs.cdp.coinbase.com/exchange/rest-api/pagination
+
+    [48] [58] [59] Get all Coinbase wallets - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/coinbase-accounts/get-all-coinbase-wallets
+
+    [49] [50] [51] [52] [53] [54] [55] [56] [57] Get all accounts for a profile - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/accounts/get-all-account-profile
+
+    [60] [61] [62] [63] Generate crypto address - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/coinbase-accounts/generate-crypto-address
+
+    [64] [65] [66] [67] [68] Get address book - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/address-book/get-address-book
+
+    [69] [81] [82] [83] [84] [85] [86] Withdraw to payment method - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/transfers/withdraw-to-payment-method
+
+    [70] [71] [72] [73] [74] [75] [76] [77] [78] Withdraw to crypto address - Coinbase
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/transfers/withdraw-to-crypto-address
+
+    [79] Deposit from Coinbase account
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/transfers/deposit-from-coinbase-account
+
+    [80] Withdraw to Coinbase account
+
+    https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/transfers/withdraw-to-coinbase-account
+
+    
+    
+  

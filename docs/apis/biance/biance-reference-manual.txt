@@ -1,0 +1,673 @@
+
+
+    
+    
+    
+    
+    Binance API Reference (Comprehensive Guide, mid-2025)
+
+    
+    Overview and Base URLs
+
+    Binance provides a rich set of REST and WebSocket APIs covering Spot trading, Margin trading, Futures (USD?-M and COIN-M), Savings/Earn, Staking, Wallet, and more. The main REST base endpoints are:
+
+    Spot & Margin: https://api.binance.com (with aliases api1.binance.com through api4.binance.com for load balancing[1]).
+
+    USD?-M Futures: https://fapi.binance.com[2]
+
+    COIN-M Futures: https://dapi.binance.com[3]
+
+    Vanilla Options: https://vapi.binance.com (for Binance Vanilla Options API).
+
+    Testnet environments: e.g. Spot Testnet at https://testnet.binance.vision and Futures Testnet at https://testnet.binancefuture.com[4][5].
+
+    All endpoints return JSON by default (optionally Specialized Binary Encoding for market data)[6]. Timestamps are in milliseconds (or microseconds if requested via X-MBX-TIME-UNIT header)[7]. Data is generally returned in ascending order (oldest first)[6].
+
+    
+    
+    Authentication & Security
+
+    API Keys: Binance API uses API keys for authenticated requests. API keys must be included via the X-MBX-APIKEY HTTP header for any endpoints that require authentication[8]. Binance supports three API key types: HMAC SHA256, RSA, and Ed25519 keys[9].
+
+    HMAC (SHA256): Uses a shared secret key (provided by Binance) to sign requests using HMAC SHA256[10]. This was the traditional method; however, HMAC keys are now considered less secure (shared secret) and are deprecated in favor of asymmetric keys[11].
+
+    RSA (2048/4096-bit): Uses an RSA key pair. You upload your RSA public key to Binance and use your RSA private key to sign the payload (using RSA-SHA256 signature, then Base64 encoding)[12][13]. The signature is sent along with the request (URL-encoded). Binance verifies using the stored public key. RSA signatures are larger and slightly slower than Ed25519[14][15].
+
+    Ed25519 (recommended): Uses an Ed25519 key pair for signing. Similar workflow as RSA – you register the Ed25519 public key and sign requests with the Ed25519 private key[16]. Ed25519 signatures are very fast and compact, providing strong security with smaller key size[17][18]. Binance recommends using Ed25519 for best performance and security[19].
+
+    SIGNED Endpoints: For private endpoints (marked SIGNED, e.g. those with security types TRADE or USER_DATA), a signature is required[20]. The signature is computed over the query string (or request body) of the request. Specifically:
+1. 
+    Include a timestamp (timestamp) in the request (milliseconds or microseconds) to prevent replay[21]. Optionally include recvWindow (maximum 60000ms, default 5000ms) to specify how long the request is valid[22].
+2. 
+    Construct a payload string of all parameters (query string or body) sorted in any order (order doesn’t matter) and concatenated as key=value pairs joined by &[23].
+3. 
+    Sign the payload using your key:
+4. 
+    For HMAC: use your API secret key to create an HMAC SHA256 hex digest[24].
+5. 
+    For RSA: sign the payload using RSA PKCS#1 v1.5 with SHA-256, then Base64-encode the signature[25][26].
+6. 
+    For Ed25519: sign the payload with Ed25519 private key and Base64-encode the result (Ed25519 signatures are inherently a fixed 64-byte length before encoding).
+7. 
+    Send the signature as part of the request – either as a query param signature=<sig> or in the request body for POST/DELETE (along with timestamp and other params)[27][28]. Also include your API Key in the X-MBX-APIKEY header[8].
+
+    Example (HMAC): To illustrate, a signed order placement (POST /api/v3/order) with HMAC: you might compute the signature of symbol=LTCBTC&side=BUY&...&timestamp=1499827319559 using your secret, then append &signature=<signature> in the query string. A cURL example is given below (HMAC SHA256):[29]
+
+    curl -H "X-MBX-APIKEY: <yourApiKey>" -X POST "https://api.binance.com/api/v3/order" \
+ -d 'symbol=LTCBTC&side=BUY&type=LIMIT&timeInForce=GTC&quantity=1&price=0.1&recvWindow=5000&timestamp=1499827319559&signature=c8db56825ae71d6d79447849e617115f4a920fa2acdcab2b053c4b2838bd6b71'
+
+    (In this example, the signature c8db...b71 is the HMAC-SHA256 of the query payload, using the given secret)[30].
+
+    For RSA/Ed25519, the process is similar except you generate a Base64 signature and URL-encode it in the request. Binance’s documentation provides sample code (e.g. using OpenSSL) for generating RSA signatures and the equivalent cURL command with the Base64-encoded signature[31][32].
+
+    Endpoint Security Types: Binance documentation labels each endpoint with a security type: NONE (no auth), USER_STREAM (requires API key but no signature), TRADE and USER_DATA (require API key and signature)[33][20]. By default, API keys can access all secure endpoints, but you can configure keys with restricted permissions (e.g. only enable TRADE endpoints on a given key)[34].
+
+    Timing: The timestamp is validated against Binance server time. The request is accepted if serverTime - timestamp <= recvWindow and the timestamp is not ahead of server time by more than 1 second[21][35]. If your request takes too long in transit and falls outside the recvWindow, the server will reject it (so it’s advisable to keep recvWindow small but sufficient, e.g. 5000ms)[36].
+
+    
+    
+    Spot Trading API (REST)
+
+    The Spot API provides endpoints for market data, trading, and account management on the Binance spot exchange. The base endpoint is api.binance.com for production. All Spot API requests are prefixed by either /api/ for core endpoints or /sapi/ for certain account/sub-account endpoints. Below we outline each category of endpoints, their methods, parameters, and usage.
+
+    
+    General Endpoints (System)
+
+    Test Connectivity – GET /api/v3/ping – A simple ping to the REST API. No parameters. Returns an empty {} on success[37]. (Weight: 1)
+
+    Server Time – GET /api/v3/time – Get the current server time (in UNIX epoch ms). No params. Response: {"serverTime": <ms>}[38][39]. (Weight: 1)
+
+    Exchange Information – GET /api/v3/exchangeInfo – Fetches current exchange trading rules, rate limits, and symbol list[40]. Parameters: optional symbol (e.g. ?symbol=BNBBTC) or symbols (array of symbols) to filter, and optional permissions to filter by listing type (e.g. spot, margin, etc)[41][42]. Response: includes rateLimits (e.g. request weight limits, order rate limits) and an array of symbols with their details (like status, base/quote asset, precision, allowed order types, filters, etc.)[43][44]. For example, each symbol entry shows permissions (SPOT, MARGIN, etc.), supported order types (LIMIT, MARKET, STOP_LOSS, etc.), and various trading rules or filters (price, lot size, notional minimums)[45][46].
+
+    
+    
+    Market Data Endpoints (Public)
+
+    These endpoints provide public market data such as order book snapshots, recent trades, candlesticks, and ticker info. These do not require API key.
+
+    Order Book (Depth) – GET /api/v3/depth – Returns the order book (bids/asks) for a given symbol. Params: symbol (required) and limit (optional, default 100, max 5000) to specify depth[47]. Weight varies with limit: for example, limit=100 costs 5 weight, up to limit=5000 costs 250 weight[48]. Response: JSON with lastUpdateId and arrays of bids and asks, each as [price, qty] pairs[49]. For example: "bids": [ ["4.00000000","431.00000000"], ... ][50].
+
+    Recent Trades – GET /api/v3/trades – Gets recent trades (up to last ~500-1000). Params: symbol (required), limit (optional, default 500, max 1000)[51]. Weight: 1 (recent trades) or 5? (Actually docs show weight 25 for recent trades[52]). Response: Array of trade objects: each has id, price, qty, quoteQty, time (ms), isBuyerMaker (whether buyer was maker), and isBestMatch[53]. Example: {"id":28457,"price":"4.00000100","qty":"12.00000000","quoteQty":"48.000012","time":1499865549590,"isBuyerMaker":true,"isBestMatch":true}[53].
+
+    Old Trade Lookup – GET /api/v3/historicalTrades – Gets older trades beyond the recent trades cache. Params: symbol (required), limit (optional, default 500, max 1000), and optional fromId (trade ID to fetch from)[54]. Weight: 5 (or 10) per request. Note: This endpoint requires API key (USER_DATA) if you want to access beyond recent trades. Response format is same as /trades[55].
+
+    Aggregated Trades – GET /api/v3/aggTrades – Returns aggregated trade list, where trades that occurred at the same price, consecutively, are aggregated into one record. Params: symbol (required). Optional: fromId (aggregate trade ID to start from), startTime, endTime (in ms), and limit (default 500, max 1000)[56]. If none of fromId/startTime provided, it returns the most recent trades[57]. Response: array of aggregate trades, e.g.: {"a": 26129, "p": "0.01633102", "q": "4.70443515", "f": 27781, "l": 27781, "T": 1498793709153, "m": true, "M": true} where a=aggregated trade ID, p=price, q=quantity, f=first trade ID in agg, l=last trade ID, T=timestamp, m=was buyer the maker, M=ignore[58]. (Weight: 1)
+
+    Kline/Candlestick Data – GET /api/v3/klines – Retrieve candlestick bars for a symbol. Params: symbol (required), interval (required, e.g. 1m, 5m, 1h, 1d, etc.), startTime and endTime (optional window in ms), and limit (optional, default 500, max 1000)[59]. Returns an array of klines, each kline as [ openTime, open, high, low, close, volume, closeTime, quoteAssetVolume, numberOfTrades, takerBuyBaseVolume, takerBuyQuoteVolume, ignore ]. (Weight: 2) Intervals supported range from 1s up to 1M (1 month)[60].
+
+    Current Average Price – GET /api/v3/avgPrice – Gets current average price for a symbol (computed over the last 5 minutes). Params: symbol (required). Response: {"mins":5,"price":"9.35751834"} (example). (Weight: 1)
+
+    24hr Ticker Price Change Statistics – GET /api/v3/ticker/24hr – Returns 24-hour rolling window stats for a symbol or all symbols. Params: symbol (optional; if omitted, returns an array for all symbols). Response: includes fields like priceChange, priceChangePercent, weightedAvgPrice, prevClosePrice, lastPrice, lastQty, bidPrice, askPrice, open/close/high/low prices of day, volume, quoteVolume, and count (trade count)[61]. (Weight: 1 for single symbol; heavier if all symbols).
+
+    Symbol Price Ticker – GET /api/v3/ticker/price – Latest price for a symbol (or all symbols). Param: symbol optional. Response: {"symbol": "BNBBTC", "price": "0.0025"} (or array of such objects if no symbol param). (Weight: 1)
+
+    Symbol Order Book Ticker – GET /api/v3/ticker/bookTicker – Best bid/ask for a symbol (or all symbols). Param: symbol optional. Response: {"symbol": "BNBBTC", "bidPrice": "0.0024", "bidQty": "100", "askPrice": "0.0026", "askQty": "200"} (or array of such for all symbols). (Weight: 1)
+
+    (Additional market data endpoints include rolling window price change stats (an endpoint to get statistics for arbitrary window via ticker with windowSize param), and historical Klines via the data API, but those above are the primary ones.)
+
+    
+    
+    Spot Account & Trading Endpoints (Private)
+
+    These endpoints require API key and (for trading or user data) a signature. They cover placing and managing orders, querying account information, and user data streams.
+
+    Placing Orders:
+- New Order – POST /api/v3/order (TRADE) – Place a new spot order[20]. This is the primary order endpoint for Spot trading. Parameters:
+- symbol (STRING, required) – the trading pair, e.g. BNBBTC.
+- side (ENUM, required) – BUY or SELL.
+- type (ENUM, required) – order type (e.g. LIMIT, MARKET, STOP_LOSS_LIMIT, TAKE_PROFIT_LIMIT, etc.).
+- Additional params depend on type: e.g. for LIMIT must send timeInForce (GTC/IOC/FOK), quantity, price. For MARKET, at minimum quantity or quoteOrderQty. Stop orders require stopPrice, etc.
+- newClientOrderId (STRING, optional) – user-defined ID.
+- icebergQty (DECIMAL, optional) for iceberg orders.
+- newOrderRespType (ENUM, optional) – ACK, RESULT, or FULL (controls how much info is returned: ACK = order id only, RESULT = order info, FULL = order info + fills)[62][63].
+- recvWindow (LONG, optional) and timestamp (LONG, required) as with all signed requests.
+
+    Response: If successful, returns order details. Format depends on newOrderRespType:
+- ACK: minimal, e.g. {"symbol":"BTCUSDT","orderId":28,"clientOrderId":"6gCrw2kRUAF...","transactTime":1507725176595}[63].
+- RESULT: includes execution status (but no fills), e.g. with status, executedQty, etc[64][65].
+- FULL: includes detail and any trade fills (commission info)[66][67]. For example, a MARKET order FULL response might include: "status": "FILLED", "executedQty": "0.001", "cummulativeQuoteQty": "65.98253", ... "fills": [ { "price": "65982.53", "qty": "0.001", "commission": "0.06598253", "commissionAsset": "USDT", "tradeId": 3570680726 } ][68][67].
+
+    Test New Order – POST /api/v3/order/test – Same parameters as New Order, but this endpoint simply validates the order and returns an empty response {} if the order would be accepted. It does not actually place the order. Useful for testing your signature and parameters. (No weight cost, or minimal.)
+
+    Cancel Order – DELETE /api/v3/order – Cancel an active order by symbol and either orderId or origClientOrderId. Also accepts newClientOrderId (to set for the cancel action) and recvWindow/timestamp. Returns canceled order info (orderId, clientOrderId, executedQty, etc).
+
+    Cancel All Orders – DELETE /api/v3/openOrders – Cancels all active orders on a given symbol (you must provide the symbol). Returns an array of canceled orders. (Weight: 1 per order canceled, max 100 per request.)
+
+    Cancel OCO – DELETE /api/v3/orderList – Cancel an entire OCO (One-Cancels-the-Other) order list by symbol and either orderListId or listClientOrderId. Returns details of the canceled OCO orders.
+
+    New OCO – POST /api/v3/order/oco – Place a pair of orders in an OCO. Params include: symbol, side, quantity, price (for limit leg), stopPrice (for stop leg), and optional stopLimitPrice (for stop-limit leg), etc. Returns an orderListId and details of both orders if successful.
+
+    Querying & Account Info:
+- Query Order – GET /api/v3/order – Check status of a specific order. Params: symbol and either orderId or origClientOrderId. Returns order details (same fields as in order placement). Weight: 2.
+
+    Current Open Orders – GET /api/v3/openOrders – Get all open orders (optional param symbol to filter by symbol). Weight: 3 for all symbols, 1 for a single symbol. Returns array of open orders.
+
+    All Orders – GET /api/v3/allOrders – Get all orders (active, canceled, filled) for a symbol. Params: symbol required. Optional orderId (to start from), startTime, endTime, limit (default 500, max 1000). Weight: 10. Useful for fetching historical orders.
+
+    Account Information – GET /api/v3/account – Detailed account info (USER_DATA). Returns your balances for every asset and account-level data like maker/taker commission rates, whether trading is enabled, etc. Example fields: makerCommission, takerCommission, buyerCommission, sellerCommission, canTrade, canWithdraw, canDeposit, and an array balances (each with asset, free, locked amounts)[69]. Weight: 5.
+
+    Account Trade List – GET /api/v3/myTrades – Get trade history for a specific symbol (USER_DATA). Params: symbol (required), optional startTime, endTime, fromId, limit (default 500). Returns an array of trades with details: tradeId, price, qty, quoteQty, commission, commissionAsset, time, whether buyer/maker, and orderId. Weight: 5.
+
+    User Data Stream (Listen Key):
+- Start User Data Stream – POST /api/v3/userDataStream (API Key in header, no signature) – Establishes a user data stream and returns a listenKey. This listenKey is used to receive account updates via WebSocket (see WebSockets section). The key is valid for 60 minutes.
+- Keepalive User Data Stream – PUT /api/v3/userDataStream – Keep the stream alive (extend for 60 more minutes). Send a PUT with the listenKey.
+- Close User Data Stream – DELETE /api/v3/userDataStream – Invalidate the listenKey.
+
+    When connected to the User Data WebSocket (wss, using the listenKey), you will receive push events for account updates: order execution reports (e.g. fills or status updates), balance updates, and others like OCO status. These events help you keep your app in sync with account activity in real-time. (See WebSockets section for event formats.)
+
+    
+    
+    Margin Trading API (Cross & Isolated Margin)
+
+    Binance’s Margin API (part of the Spot API, under /sapi endpoints) allows trading with borrowed funds. There are two modes: Cross Margin (one margin account for all symbols) and Isolated Margin (separate margin account per trading pair). Many Spot endpoints have margin-enabled equivalents. You must enable “Margin Trading” on your API key to use these endpoints[70].
+
+    Key differences: Margin trading endpoints often reside under /sapi/v1/margin/. They generally mirror spot endpoints but may require extra parameters (like isIsolated=true/false) and support additional features (auto borrowing/repaying). The security is SIGNED (HMAC or RSA/Ed25519) for most. Below are major categories:
+
+    Query Margin Account Details – GET /sapi/v1/margin/account – Returns cross-margin account info: margin level, total asset/debt, and a list of assets with their free/locked/borrowed info[71]. If using isolated margin, see next.
+
+    Isolated Margin Account Details – GET /sapi/v1/margin/isolated/account – Details of isolated margin accounts for each symbol (or specific symbol if provided). Includes each pair’s margin level, assets, liabilities, etc.
+
+    Get All Margin Assets – GET /sapi/v1/margin/allAssets – Lists all assets supported for margin trading (and whether they can be borrowed, etc.)[72]. Similarly, Get All Margin Pairs (/sapi/v1/margin/allPairs) lists all margin-enabled trading pairs and their configuration (like marginable leverage, etc.).
+
+    Query Margin Price Index – GET /sapi/v1/margin/priceIndex – (For isolated) current index price for the pair (used in margin level calc). Param: symbol.
+
+    Margin Orders:
+- New Margin Order – POST /sapi/v1/margin/order – Place an order on margin. Params: Similar to spot order (symbol, side, type, quantity, price, etc.) with extra options: isIsolated (set "TRUE" for isolated pair, default FALSE for cross)[73], and sideEffectType (e.g. NO_SIDE_EFFECT (normal), MARGIN_BUY (auto-borrow enabled), AUTO_REPAY or AUTO_BORROW_REPAY)[74]. The sideEffectType dictates whether the order will automatically borrow or repay after execution[74]. For example, a MARGIN_BUY order will borrow the quote asset as needed.
+- If AUTO_BORROW_REPAY is used, the system will borrow then repay in one step if possible.
+- timeInForce, newOrderRespType, etc., function as in spot.
+- Response: Same structure as spot new order (ACK/RESULT/FULL). In FULL, margin-specific fields appear if applicable: e.g. "marginBuyBorrowAmount" and "marginBuyBorrowAsset" show if an auto-borrow occurred[75]. An example FULL response snippet for a FILLED margin order: "isIsolated": true, "marginBuyBorrowAmount": 5, "marginBuyBorrowAsset": "BTC" indicating 5 BTC was borrowed[75].
+
+    Margin Order Cancel/Query – Use analogous endpoints under /sapi/v1/margin: e.g. Cancel Margin Order (DELETE /sapi/v1/margin/order), Query Margin Order (GET /sapi/v1/margin/order), Open Orders (GET /sapi/v1/margin/openOrders), All Orders (GET /sapi/v1/margin/allOrders – weight 200)[76], etc. These accept isIsolated as needed.
+
+    OCO in Margin – POST /sapi/v1/margin/order/oco and related GET/DELETE for OCO are available, with similar parameters plus isIsolated.
+
+    Margin Account Actions:
+- Borrow Asset – POST /sapi/v1/margin/loan – Borrow funds on Cross or Isolated margin. Params: asset, amount, and isIsolated & symbol if isolated. Response: a tranId (transaction ID for the loan).
+- Repay Asset – POST /sapi/v1/margin/repay – Repay borrowed funds. Params similar to loan. Reducing your liability increases free balance of that asset.
+
+    Query Max Borrow/Max Transfer – GET /sapi/v1/margin/maxBorrowable and /sapi/v1/margin/maxTransferable – These return how much you can borrow of an asset (given your account’s collateral) and how much can be transferred out from margin, respectively. Useful to avoid errors.
+
+    Asset Transfers: You can transfer assets between your margin account and other accounts (spot or isolated):
+
+    Cross Margin Transfer – POST /sapi/v1/margin/transfer – Transfer between your spot wallet and cross margin account. Params: asset, amount, type (1 for spot->margin, 2 for margin->spot).
+
+    Isolated Margin Transfer – POST /sapi/v1/margin/isolated/transfer – Transfer between spot and an isolated margin account of a specific symbol. Params: asset, symbol, transFrom/transTo (e.g. "SPOT" to "ISOLATED_MARGIN"), and amount.
+
+    Get Transfer History – GET /sapi/v1/margin/transfer (for cross) and /sapi/v1/margin/isolated/transfer (for isolated) – query past transfer records.
+
+    Margin Account Information:
+- Cross Margin Account Details – (mentioned above) shows your overall margin level. Key fields: totalAssetOfBtc, totalLiabilityOfBtc, and marginLevel (e.g. marginLevel = total assets / total liabilities). If marginLevel falls below certain thresholds, you may face liquidation.
+- Isolated Margin Account Details – provides per-symbol margin info, including each pair’s margin level and asset balances.
+
+    Liquidation and Other:
+- Margin Liquidation Record – GET /sapi/v1/margin/forceLiquidationRec – Query past forced liquidations on your margin account (if any).
+- Interest History – GET /sapi/v1/margin/interestHistory – interest charged on borrowed assets.
+
+    Note: When a margin order is executed, if it increases your liability (e.g., you bought on margin or sold an asset you borrowed), the debt is recorded in your margin account. You must repay to reduce liabilities. The API will throw errors if you exceed margin limits or attempt invalid operations (e.g., borrowing an unsupported asset). Common margin errors include -3027 NOT_VALID_MARGIN_ASSET (asset not margin-enabled)[77], -3028 NOT_VALID_MARGIN_PAIR (pair not margin-enabled)[78], or -3041 BALANCE_NOT_CLEARED (insufficient balance to place order)[79]. These error codes and messages help to troubleshoot issues with margin trades. For example, an error {"code": -3064, "msg": "Limit price needs to be within (-15%,15%) of current index price for this margin trading pair."} indicates your order price was outside the allowed price band for low-liquidity margin pairs[80][81].
+
+    
+    
+    Futures API (USD?-M and COIN-M)
+
+    Binance offers two types of futures: USD?-M Futures (margin in USDT or BUSD) and COIN-M Futures (margin in the base coin, e.g. BTC). The APIs for both are similar but use different endpoints and some different parameters. Key base URLs:
+- USDT-M Futures base URL: https://fapi.binance.com (for REST)[2], and WebSocket base wss://fstream.binance.com for market streams[82].
+- COIN-M Futures base URL: https://dapi.binance.com[3], and WebSocket base wss://dstream.binance.com for COIN-M streams[83].
+
+    General Info: Both futures APIs share similar mechanics. All requests require an API Key for private endpoints and signatures for TRADE/USER_DATA (just like spot) but use separate API keys from your Spot account (you need to enable futures trading on the API key). All timestamps are in ms, and the rate limit headers and handling (429/418) are analogous to Spot[84][85]. The futures /fapi/v1/exchangeInfo and /dapi/v1/exchangeInfo return futures-specific rate limits and contract specifications[86].
+
+    Contracts: Futures symbols are not identical to spot symbols (e.g. BTCUSDT exists on both, but on futures it represents a futures contract). COIN-M symbols might include expiry dates (for delivery futures, e.g. BTCUSD_PERP for perpetual or BTCUSD_210930 for a quarterly contract).
+
+    Market Data (Futures): Endpoints are similar to spot but under /fapi/v1/ or /dapi/v1/. For example:
+- Order Book – GET /fapi/v1/depth (or /dapi/v1/depth for COIN-M) with symbol and limit (max 5000).
+- Recent Trades – GET /fapi/v1/trades – recent trade list.
+- Historical Trades – GET /fapi/v1/historicalTrades (requires API Key).
+- Agg Trades – GET /fapi/v1/aggTrades.
+- Klines – GET /fapi/v1/klines (same intervals as spot).
+- 24hr Ticker – GET /fapi/v1/ticker/24hr (and /ticker/price, /ticker/bookTicker analogues for futures).
+- Funding Rate History – GET /fapi/v1/fundingRate – unique to futures, lists historical funding rates for a symbol.
+- Premium Index – GET /fapi/v1/premiumIndex – current index price, mark price, and next funding rate for a symbol (or all symbols if no param).
+- Exchange Info – GET /fapi/v1/exchangeInfo – returns contract specifications and futures-specific filters (like lot size, price filters, maximum leverage per symbol, etc.), plus rate limit info for futures[86].
+
+    Account/Trade (Futures): These endpoints allow placing orders on futures, querying positions, etc. Notable differences from Spot: futures orders have a positionSide (for hedge mode long/short positions), do not use timeInForce for MARKET orders (only for limit), and have parameters like reduceOnly and closePosition. Some highlights:
+
+    New Order – POST /fapi/v1/order – Place a futures order. Params:
+
+    symbol, side (BUY/SELL), type (LIMIT, MARKET, STOP, TAKE_PROFIT, etc.), quantity (in contract units or asset, depending on contract type), price if limit, timeInForce if needed (GTC/IOC/FOK).
+
+    positionSide (optional, default "BOTH" for one-way mode; or "LONG"/"SHORT" if hedge mode enabled).
+
+    reduceOnly (BOOLEAN, optional) – true if this order should only reduce an existing position.
+
+    closePosition (BOOLEAN, for STOP/TP orders – true if order should close out position completely).
+
+    stopPrice for stop orders; workingType (mark price or last price trigger) and priceProtect (to avoid triggering due to large last price swings) for conditional orders.
+
+    As with spot, newClientOrderId, newOrderRespType (ACK, RESULT or FULL), etc.
+
+    Response: If RESULT or FULL, includes fields like avgPrice, executedQty, etc. Futures FULL will also include commissionAsset and commission in fills, as well as realizedProfit. Example:
+
+
+    {
+  "orderId": 258518, 
+  "symbol": "BTCUSDT", 
+  "status": "FILLED",
+  "clientOrderId": "abc", 
+  "price": "0", 
+  "avgPrice": "20000.0", 
+  "origQty": "0.001", 
+  "executedQty": "0.001",
+  "cumQuote": "20.000", 
+  "timeInForce": "GTC", 
+  "type": "MARKET", 
+  "side": "BUY",
+  "positionSide": "BOTH",
+  "workingType": "CONTRACT_PRICE",
+  "updateTime": 1625237200000
+}
+
+    (Note: cumQuote is the cumulative quote asset spent or received, equivalent to spot’s cummulativeQuoteQty.)
+
+    Leverage & Margin: Futures allow setting leverage per symbol: POST /fapi/v1/leverage to adjust leverage (e.g. 20x) for a symbol, and POST /fapi/v1/marginType to switch between cross margin and isolated margin mode for a symbol. These endpoints require symbol and desired leverage or marginType.
+
+    Query Order / Cancel Order(s): Similar to spot, use GET /fapi/v1/order and DELETE /fapi/v1/order (with orderId or origClientOrderId). Bulk cancel: DELETE /fapi/v1/allOpenOrders to cancel all for a symbol. There’s also POST /fapi/v1/batchOrders for placing or canceling multiple orders in one call (it expects an array of orders as JSON).
+
+    Open Orders / All Orders: GET /fapi/v1/openOrders (optional symbol) and GET /fapi/v1/allOrders similar to spot.
+
+    Account Information – GET /fapi/v2/account – (Note: there’s v2 for futures account) Gives current futures account balances, positions, and overall margin status. Response includes per asset balance (with crossWalletBalance, etc.), and an array of position objects for each symbol with fields like positionSide, positionAmt (positive = long, negative = short in one-way mode), entryPrice, unrealizedProfit, leverage, and whether isolated or cross margin.
+
+    Position Risk – GET /fapi/v2/positionRisk – Similar info as account, focused on positions and margin risk. Each entry includes margin maintenance requirements and liquidation price if available.
+
+    User Trades – GET /fapi/v1/userTrades – Past trades for a futures account, similar to spot’s myTrades but with futures fields (realized PnL, etc.).
+
+    Other Futures Functions:
+- Income History – GET /fapi/v1/income – View account’s income history (like funding fee, realized profits, insurance fund credits, etc.). Params: can filter by incomeType (e.g. FUNDING_FEE).
+- Force Liquidation History – GET /fapi/v1/forceOrders – Past force-liquidations (yours or, with no parameters, system-wide liquidations if you have permission).
+- ADL Quantile – GET /fapi/v1/adlQuantile – Returns your ADL (Auto-Deleveraging) ranking for each symbol/position, indicating the likelihood of ADL.
+
+    Futures User Data Streams: Similar to Spot, there’s POST /fapi/v1/listenKey to get a futures listenKey for user stream, and PUT to keep alive. When connected, you get account updates and order updates in real-time. For USD-M futures, user events (ORDER_TRADE_UPDATE, ACCOUNT_UPDATE, etc.) will arrive via WebSocket. These events have detailed JSON including position changes and wallet balance changes[87].
+
+    
+    
+    Other API Categories
+
+    Beyond Spot/Margin and Futures, Binance offers APIs for various other products and services. Below is a summary:
+
+    Convert (Spot Convert API) – Endpoints for converting assets (as on the Convert portal). This includes: GET /sapi/v1/convert/exchangeInfo (list available convert pairs and limits)[88], POST /sapi/v1/convert/getQuote (request a quote to convert X amount of asset A to asset B), POST /sapi/v1/convert/acceptQuote (execute the conversion within the quote validity), and GET /sapi/v1/convert/tradeFlow (query past convert conversions/orders)[89]. There are also endpoints for convert limit orders (e.g. /convert/limit/order to place a limit convert order). Convert endpoints require API key and signature (USER_DATA).
+
+    Leveraged Tokens (BLVT) – Binance Leveraged Token API endpoints (under /sapi/v1/blvt/). For example: GET /sapi/v1/blvt/tokenInfo gives info on available BLVT tokens (like BULL or BEAR tokens, leverage, NAV, etc.), POST /sapi/v1/blvt/subscribe to purchase leveraged tokens, POST /sapi/v1/blvt/redeem to redeem, and GET subscription/redemption records. These require API key and some are signed (for user-specific actions).
+
+    Options (Vanilla Options) – Binance Vanilla Options API uses a separate base (vapi.binance.com). Endpoints include GET /vapi/v1/optionInfo (info on available option contracts), GET /vapi/v1/ticker (option ticker data), POST /vapi/v1/order (place option orders), GET /vapi/v1/position (option positions), etc. Authentication and signing are similar (API key via header, signed payload). Vanilla options allow buying/selling European-style options on certain underlyings.
+
+    Crypto Loans – Endpoints under /sapi/v1/loan/ for Binance Crypto Loans product. For example: POST /sapi/v1/loan/borrow to borrow funds against collateral, POST /sapi/v1/loan/repay to repay, and GET endpoints for loan orders, statuses, and interest. These are signed requests.
+
+    Savings & Simple Earn – Binance rebranded Savings to Simple Earn. The API offers endpoints to subscribe, redeem, and query earnings for flexible and locked products:
+
+    Flexible Products List – GET /sapi/v1/simple-earn/flexible/list – get list of available flexible saving products (with details like APR%)[90][91].
+
+    Locked Products List – GET /sapi/v1/simple-earn/locked/list – get available locked-term products (with durations, interest rates, etc.)[92].
+
+    Flexible Subscription – POST /sapi/v1/simple-earn/flexible/subscribe – subscribe (purchase) a flexible saving product[93]. Params: productId or asset, amount.
+
+    Flexible Redemption – POST /sapi/v1/simple-earn/flexible/redeem – redeem from flexible (usually two types: fast or standard redemption, possibly via an extra param).
+
+    Locked Subscription – POST /sapi/v1/simple-earn/locked/subscribe – subscribe to a locked product for a fixed term[94]. Params might include redeemTo (e.g. if you want interest to go to spot wallet or into flexible after maturity)[95].
+
+    Set Auto-Subscribe – e.g. POST /sapi/v1/simple-earn/locked/setAutoSubscribe to automatically re-subscribe at maturity.
+
+    Position & Quota – GET /sapi/v1/simple-earn/flexible/position (your current flexible holdings) and /sapi/v1/simple-earn/locked/position for locked holdings. Also .../personalLeftQuota endpoints to check remaining quota for a product (how much more you can subscribe).
+
+    History – Endpoints like GET /sapi/v1/simple-earn/flexible/history/subscriptionRecord, /redemptionRecord, and similarly for locked, to retrieve past subscription and redemption history.
+
+    These Earn endpoints all require signed requests (USER_DATA) because they deal with user’s funds. The responses typically include details of the subscription or position (e.g. for positions: asset, amount, accrued interest, etc.).
+
+    Staking – Separate from Simple Earn, the Staking API (/sapi/v1/staking) covers locked staking and other staking products. Key endpoints:
+
+    Get Staking Product List – GET /sapi/v1/staking/productList – lists available staking products. You can filter by product type (STAKING, F_DEFI for DeFi staking, etc.) and asset. Returns details like duration, interest, etc.[96].
+
+    Purchase Staking Product – POST /sapi/v1/staking/purchase – stake a specified amount of an asset in a staking product (e.g. 30-day locked staking for ADA). Params: product, productId, amount.
+
+    Redeem Staking – POST /sapi/v1/staking/redeem – redeem from a staking product. (If it’s locked staking, redeeming might have a notice period or loss of rewards if early, depending on product.)
+
+    Staking Positions – GET /sapi/v1/staking/position – query your current staking positions. Can filter by product or asset. Returns an array of active stakes (with asset, amount staked, reward so far, next interest payoff, etc.).[97]
+
+    Staking History – GET /sapi/v1/staking/stakingRecord – records of staking subscriptions or redemptions.
+
+    Auto-Staking – POST /sapi/v1/staking/setAutoStaking – set auto-restake on or off for a locked staking position.
+
+    Personal Quota – GET /sapi/v1/staking/personalLeftQuota – how much of a certain product you can still stake (if there are individual caps).
+
+    Note: “Simple Earn” flexible/locked and “Staking” can overlap in concept (both are earn products). Binance’s API distinguishes them likely because “Staking” endpoints might refer to different on-chain staking programs or legacy locked staking, whereas “Simple Earn” covers the newer consolidated savings/staking offerings. Check the product list to decide which to use. (E.g., if you staked via the staking platform, use /staking/position; if via Simple Earn, use the simple-earn endpoints[98].)
+
+    Wallet (Capital) Endpoints: These are under /sapi/v1/capital/ and related, focusing on deposits, withdrawals, and asset details. Key endpoints include:
+
+    System Status – GET /sapi/v1/system/status – Check if the trading system is normal or in maintenance (returns a status and a msg).
+
+    All Coin Information – GET /sapi/v1/capital/config/getall – Fetch details of all coins (assets) available on Binance, including withdrawal and deposit info: e.g. min withdrawal amounts, deposit status, network contract addresses, etc. Useful for figuring out network tags.
+
+    Deposit Address – GET /sapi/v1/capital/deposit/address – Get deposit address for a specific asset (and network). Params: coin (asset like BTC) and optional network (like BTC, ERC20, BEP20, etc.). Returns the address (and tag if applicable)[99]. If no network specified, returns address for the default or primary network.
+
+    Universal Deposit Address List – GET /sapi/v1/capital/deposit/address/list – (Newer endpoint) returns all deposit addresses for an asset across different networks[100]. This is useful since one asset (e.g., USDT) can have multiple networks; this returns each address and tag.
+
+    Deposit History – GET /sapi/v1/capital/deposit/hisrec – Get your deposit history. Can filter by asset, status, and time range.
+
+    Withdraw – POST /sapi/v1/capital/withdraw/apply – Submit a withdrawal request from your spot account to an external address. Parameters: coin, address, amount are required; optional network, addressTag (for tag/memo coins), withdrawOrderId (client-specified id), etc. Security: IP whitelist must be configured for API key to allow withdrawal. Response: returns an id (withdrawal id) if successful.
+
+    Withdraw History – GET /sapi/v1/capital/withdraw/history – Query past withdrawals. Supports filtering by coin, status.
+
+    Account Snapshot – GET /sapi/v1/accountSnapshot – Daily account snapshot (balances) for SPOT, MARGIN, or FUTURES. Useful for historical portfolio analysis or tax purposes. Params: type (SPOT/MARGIN/FUTURES) and optional date. Returns balances and perhaps PnL data for futures.
+
+    Asset Dividend Record – GET /sapi/v1/asset/assetDividend – Query dividend payments (like staking rewards, etc. distributed into your wallet).
+
+    Sub-Accounts API: For corporate or managed accounts, Binance allows a master account to create sub-accounts. The API (under /sapi/v1/sub-account/ or /sapi/v1/managed-subaccount/) provides:
+
+    Managing sub-account assets: e.g. POST /sapi/v1/sub-account/transfer to transfer funds between master and sub accounts.
+
+    Enabling futures/margin for sub-accounts, retrieving sub-account status, assets, deposit addresses, etc. For example: GET /sapi/v1/sub-account/assets to list assets in sub accounts; POST /sapi/v1/sub-account/margin/transfer to transfer margin assets to/from a sub-account[101].
+
+    The sub-account endpoints often have forms like “For Master Account” in their description (master calls to manage sub). They also have IP and request weight limits, which are usually higher-level. For instance, Query Sub-account Assets (GET /sapi/v1/sub-account/assets) returns an array of each sub-account’s balances.
+
+    Fiat and Payment APIs: Binance offers endpoints for fiat payments (for verified accounts) and for Binance Pay:
+
+    Fiat Orders – GET /sapi/v1/fiat/orders – query fiat deposit/withdrawal orders.
+
+    Binance Pay – There is a separate API for Binance Pay (merchant APIs) which uses a different authentication (RSA key pairs and distinct endpoints). Those are not part of the standard API site but offered to merchants for sending/receiving crypto via Pay.
+
+    C2C (P2P Trading) – Endpoints under /sapi/v1/c2c/ allow querying your P2P trading orders (buy/sell offers on Binance P2P platform). E.g. GET /sapi/v1/c2c/orderMatch/listUserOrderHistory to get P2P order history, with parameters for fiat, type, etc.
+
+    Mining – For users of Binance Pool, the API under /sapi/v1/mining/ provides access to mining statistics: revenue, list of miners, hashrate, etc. For example GET /sapi/v1/mining/pub/algoList (list mining algorithms), /sapi/v1/mining/pub/coinList (mining coins), and user-specific: /sapi/v1/mining/payment/list (earnings history), /sapi/v1/mining/statistics/user/status (miner status). These require API key (some maybe IP whitelist).
+
+    BNB Vault & ETH Staking – Binance had specific endpoints for BNB Vault (a yield aggregator) and ETH2.0 staking. For instance, GET /sapi/v1/eth-staking/account – check ETH staking balance[102], GET /sapi/v1/eth-staking/eth/stakingRecord. These are niche and apply if you participated in ETH staking via Binance.
+
+    Rebates & Broker – There are broker APIs for Binance Broker program and rebate endpoints (e.g. /sapi/v1/rebate/taxQuery for rebate tax info). If you’re a broker subaccount, those might apply.
+
+    (The above “other” categories each have full documentation; for brevity, they’re summarized here. Always refer to the official docs for complete parameter lists and up-to-date changes.)
+
+    
+    
+    WebSocket Streams (Market Data)
+
+    Binance WebSocket streams provide realtime market data updates. The base endpoints for spot are: wss://stream.binance.com:9443 (or port 443)[103]. For combined streams, use the /stream endpoint; for individual, /ws. Examples:
+- wss://stream.binance.com:9443/ws/btcusdt@trade for live trades on BTC/USDT.
+- wss://stream.binance.com:9443/stream?streams=btcusdt@aggTrade/ethbtc@depth20@100ms for combined streams (aggregate trades for BTCUSDT and 20-depth updates for ETHBTC).
+
+    Stream Types: (for Spot)
+- Trade Stream: <symbol>@trade – raw trade events. Each message is a JSON like:
+
+    {  
+  "e": "trade",       // Event type  
+  "E": 1672515782136, // Event time  
+  "s": "BNBBTC",      // Symbol  
+  "t": 12345,         // Trade ID  
+  "p": "0.001",       // Price  
+  "q": "100",         // Quantity  
+  "T": 1672515782136, // Trade time  
+  "m": true,          // Is the buyer the market maker?  
+  "M": true           // Ignore (deprecated field)  
+}
+
+    [104]
+
+    Aggregate Trade Stream: <symbol>@aggTrade – aggregated trades (multiple trades combined, as in REST aggTrades). JSON fields: e = "aggTrade", a = aggregate trade ID, p price, q quantity, f first tradeId, l last tradeId, T trade time, m whether buyer was maker.
+
+    Depth Streams: <symbol>@depth<levels>@<interval> – Order book updates. Two forms: partial book snapshots (e.g. @depth20 or @depth5 for top 20/5 levels, sent every <interval> milliseconds) and diff. depth stream (<symbol>@depth or <symbol>@depth@100ms for incremental diff). A depth update event has e: "depthUpdate", and fields U (first update ID), u (final update ID), and b/a arrays of bids and asks to update[105]. You must apply these sequentially to maintain your local order book.
+
+    Kline Stream: <symbol>@kline_<interval> – candlestick updates pushed every second. Each message’s k field contains all the kline info (open, close, high, low, volume, etc., plus whether the kline is final). See example above in code for kline payload[106][107]. Interval examples: 1m, 5m, 1h, 1d, etc.
+
+    24hr Mini-Ticker: <symbol>@miniTicker – 24h rolling stats for one symbol (mini = doesn’t include weighted avg and trade count). Pushed every minute or on any trade (documentation says 1s interval)[108][109]. Contains: symbol, close, open, high, low, volume, quote volume. There’s also All Market Mini-Tickers on one stream: !miniTicker@arr gives an array of mini-ticker events for all symbols that changed in the last second[110][111].
+
+    24hr Ticker Stream: <symbol>@ticker (and !ticker@arr for all symbols) – full 24h stats including price change and count.
+
+    Book Ticker Stream: <symbol>@bookTicker (or !bookTicker for all) – real-time best bid/ask for symbol(s). This stream pushes for every order book change at top of book, useful for best price monitoring or arbitrage.
+
+    WebSocket Technical Details:
+- A single connection can subscribe to multiple streams (combined stream, up to 1024 streams)[112]. - Connection limit: a client IP is limited in how many new connections can be made (e.g. 300 per 5 minutes)[113]. Exceeding this may get your IP banned temporarily. It’s best to reuse combined streams rather than making too many connections.
+- Incoming messages limit: You can send at most 5 messages per second on a WS connection (this includes pings, subscription messages, etc.)[114]. If you exceed, the server disconnects you. So when using the live subscription feature (below), do not spam subscribe/unsubscribe too quickly.
+
+    Ping/Pong: The server will send a ping frame every 20 seconds[115]. You must respond with a pong (within 10 minutes or actually within 1 minute as per docs) to keep the connection alive[116]. The payload of the pong should mirror the ping’s payload. Unsolicited pong frames are allowed (you can ping them too), but won’t reset the timer. If no pong received, server disconnects after ~60 seconds[117][116]. Many client libraries handle this automatically, but it’s crucial to keep in mind.
+
+    24-hour Connection Limit: The server will disconnect any connection after 24 hours continuously open[118][119]. Your application should handle reconnects gracefully (and re-subscribe to needed streams).
+
+    Live Subscriptions: Binance’s WebSocket can subscribe or unsubscribe streams on the fly (without needing to open new connections) by sending a JSON message. For example, to subscribe to streams via an existing connection, send:
+
+    {
+  "method": "SUBSCRIBE",
+  "params": [
+    "btcusdt@aggTrade",
+    "btcusdt@depth"
+  ],
+  "id": 1
+}
+
+    and you’ll receive a response {"result": null, "id": 1} indicating success[120][121]. Unsubscribe works similarly with "method": "UNSUBSCRIBE". You can list current subscriptions with "method": "LIST_SUBSCRIPTIONS"[122][123].
+
+    Message Formats: Most market data events have the structure with e (event type), E (event time), s (symbol), and then fields specific to that event. For depth, trade, kline examples, see above. The combined stream payload wraps the event inside {"stream":"<streamName>","data":{...}}[124]. If you prefer not to have combined format, you can disable it by connecting to each raw stream or using the WS API’s property: sending a {"method":"SET_PROPERTY","params":["combined",false],"id":N} to get raw events even on combined endpoint[125][126]. (By default, combined URL gives combined format with "stream" and "data" wrapper).
+
+    
+    
+    WebSocket User Data Streams (Account)
+
+    For Spot: after creating a user data stream (listenKey), connect to wss://stream.binance.com:9443/ws/<listenKey>. You will receive:
+- outboundAccountPosition – when your balance changes (e.g. after a trade or transfer), giving updated free/locked balances for affected assets.
+- executionReport – order update (new order ack, fill, cancellation, etc.) including details such as orderId, status, filled qty, commission, order type, etc. This is crucial for tracking order statuses in real-time.
+- balanceUpdate – if you earn a fee rebate or other direct balance credit (e.g. via commission rebate, small assets conversion), this event is sent.
+
+    For Margin user data stream (if you pass the margin listenKey), similar events with margin specifics (e.g. MARGIN_CALL event if margin level drops too low, or account update events for margin balances).
+
+    For Futures: connect to wss://fstream.binance.com/ws/<listenKey> (USDM) or wss://dstream.binance.com/ws/<listenKey> (COINM). You’ll receive:
+- ACCOUNT_UPDATE – whenever your account balance or position changes (due to trade, funding fee, etc.). It will detail the changed balances and positions and the reason (e.g. ORDER or FUNDING as the event reason).
+- ORDER_TRADE_UPDATE – whenever an order is submitted, executed, or canceled. It includes fields like orderStatus, lastFilledQty, cumFilledQty, avgPrice, commission etc., plus orderType, timeInForce, and original clientOrderId. This allows real-time order tracking on futures.
+- MARGIN_CALL (if applicable) – warning events when margin level is critical.
+- ACCOUNT_CONFIG_UPDATE – if leverage or margin mode is changed.
+
+    These ensure you can maintain an accurate view of your futures positions and balances without polling REST constantly.
+
+    
+    
+    WebSocket API (Trading via WebSocket)
+
+    In addition to the above data streams, Binance provides a WebSocket API (particularly for Spot at time of writing) that allows sending trading requests (like placing orders) directly via a persistent WebSocket connection instead of REST. This can reduce latency and overhead for high-frequency trading. The base URL for the Spot WebSocket API is wss://ws-api.binance.com:443/ws-api/v3[127] (with port 9443 as alternative)[128].
+
+    Authentication: The WebSocket API requires authentication. You can authenticate by sending an "request": "login" message with your API key and a signature. Specifically, you’ll generate a signature of the challenge or timestamp using your secret (HMAC or RSA/Ed25519) and send it to login over the WS. Binance’s docs detail this under “Session Authentication”[129][130]. Once authenticated, you can invoke the same actions as REST. Notably: market data requests, order requests, account requests and so on, through JSON messages.
+
+    The WebSocket API and REST API are designed to be functionally equivalent[131]. For example, to place an order via WS API, you would send a JSON message like:
+
+    {
+  "id": 123,
+  "method": "order.place",
+  "params": {
+    "symbol": "BTCUSDT",
+    "side": "SELL",
+    "type": "LIMIT",
+    "timeInForce": "GTC",
+    "quantity": "0.001",
+    "price": "25000",
+    "newClientOrderId": "myOrder123"
+  }
+}
+
+    and you’d receive a response with the details or an error. The exact method names and formats can be found in the Binance OpenAPI docs (the WS API has methods for trading, retrieving account info, etc., often mirroring the REST endpoints but with names like order.place, order.cancel, account.getBalance, etc.).
+
+    One advantage of the WebSocket API is that once logged in, you can send many requests quickly (subject to rate limits) without the overhead of HTTP and without re-authenticating each time. It also ensures the order of execution relative to incoming market data (since all over one connection). Binance notes that the REST and WS APIs share the same routing and will return the same responses and error codes[131].
+
+    WebSocket API Rate Limits: The WS API has similar rate limits to REST. For instance, there may be a limit of ~10 orders per second per account (just an example; actual limits are given in the orderRateLimit definitions in exchangeInfo). Those still apply. The WebSocket API also has its own message rate limit (as mentioned, 5 incoming per second to the server)[114]. So if you plan to send a burst of orders, ensure it’s within allowed limits and consider the payload size.
+
+    
+    
+    Handling Rate Limits
+
+    Binance APIs enforce both IP-based rate limits and account-based order limits. In REST responses, you will see headers like X-MBX-USED-WEIGHT-1m (for spot, meaning weight used in the past 1 minute)[132] and for futures, similar headers per interval (e.g., X-MBX-USED-WEIGHT-1m, or specific intervals like 5m, etc.). Each endpoint has a weight (given in the docs), e.g. a simple query might weight 1, whereas pulling 1000 klines might weight 10. If you exceed the allowed weight (e.g. 1200 weight per minute on Spot by default), the API will return HTTP 429 error (too many requests)[133][86]. At that point, you should back off and not continue making requests immediately[134]. Continuously violating limits will lead to a temporary ban: HTTP 418 (banned)[135]. Bans increase in duration (from 2 minutes up to 3 days) if you keep offending[136].
+
+    Binance also has an order rate limit (how many orders you can place per second and per day). For example, spot default is 50 orders per 10 seconds and 160,000 orders per 24h for a regular account (these can vary by account tier). These are returned in the X-MBX-ORDER-COUNT-* headers: e.g. after an order, you might see X-MBX-ORDER-COUNT-10s and X-MBX-ORDER-COUNT-1d with your current usage[137]. If you hit the order rate limit, you’ll get error -1015 "Too many new orders"[138]. The error message will specify the limit. For instance, -1015, "Too many new orders; current limit is %s orders per %s." indicates you should slow down order placement[139]. Your strategy should catch this and implement a cooldown or queue orders.
+
+    Handling 429/418: If you receive a 429 (too many requests), do not spam retries – honor the limit and wait. If you get 418 (banned), you must cease requests from that IP and wait until ban clears. It’s good practice to build in adaptive rate limiting in your application: keep track of the used weight (from headers) and anticipate when you’re near the limit. Also, spread large data requests over time. Use WebSockets for high-frequency market data to avoid heavy REST polling[140][141].
+
+    The exchangeInfo endpoint’s rateLimits array defines various limits: usually "REQUEST_WEIGHT" (e.g. 1200/min), "ORDERS" (e.g. 50/10s), and sometimes "RAW_REQUESTS" (for brute-force calls count)[86]. You should design around the most restrictive. For Futures, similar rules apply (they might allow more weight in some cases, but also have IP limits). Always check the response headers; for example, after each request, header X-MBX-USED-WEIGHT-1m tells how much of the 1-minute quota you’ve used[142].
+
+    
+    
+    Response Handling and Error Codes
+
+    Binance returns HTTP 4XX codes for client errors (e.g. 400 bad request, 401 unauthorized, 403 IP banned by WAF, 404 not found, 418 banned, 429 rate limit)[143]. HTTP 5XX means a server error or timeout on Binance’s side[144]. For example, HTTP 504 or 502 might occur during extreme market volatility.
+
+    When the API returns an error, it often still has a JSON body with a code and message, e.g.:
+
+    { "code": -1121, "msg": "Invalid symbol." }
+
+    as a typical error payload[69]. Error codes are negative integers for Binance-specific errors. Some common ones:
+- -1000 = Generic internal error (e.g. timeout or unknown).
+- -1001 = Disconnected (internal) or take a break (WAF triggered).
+- -1013 = Invalid quantity/price (filter failed: e.g. min notional or lot size). The message will say which filter (e.g. “LOT_SIZE” or “MIN_NOTIONAL”).
+- -2010 = New order rejected (e.g. due to risk or insufficient balance)[145].
+- -2011 = Cancel rejected (order already filled or not found).
+- -2013 = Order does not exist (for query or cancel).
+- -2014 = API-key format invalid (likely trying to use wrong passphrase or key).
+- -2015 = Invalid API-key, IP, or permissions (e.g. using an IP not whitelisted, or key doesn’t have permission).
+
+    There are many more; Binance provides an extensive list in their documentation[146][147]. It’s good practice to handle errors gracefully: check the msg for hints. For instance, error -1121 “Invalid symbol” means you passed a symbol not recognized (check case-sensitivity and spelling)[69]. Error -1015 as mentioned is too many orders (back off and retry later)[139]. -1021 “Timestamp for this request is outside of recvWindow” means your timestamp is off – sync your system time or adjust recvWindow.
+
+    Order rejection vs. execution: A special note – if you get an order placement response that times out or returns an unknown status, it does not always mean the order failed. For example, if you get a 504 or the REST call times out after 10s, the order might still have reached the engine. Binance advises to use the user data stream or query the order status if uncertain[148]. They even have a specific error code -1007 TIMEOUT meaning “Matching engine didn’t respond in time; status unknown”[148]. In such cases, you should query /api/v3/order to confirm if the order was placed, rather than blindly resubmitting and risking duplicate orders.
+
+    
+    
+    SDKs and Tools
+
+    Binance provides and endorses a number of SDKs to simplify integration:
+
+    Official Connectors: Binance has official API connector libraries for popular languages. For example, the Python Binance-Connector (pip install binance-connector) is an official library for spot (and some support for futures), and Binance Futures Connector for futures specifically (pip install binance-futures-connector)[149]. Similarly, they provide a Java connector[150], and community SDKs exist for Node.js, Go, etc. These libraries handle a lot of the boilerplate (request signing, error handling, WebSocket connections) and are recommended. (Note: Binance encourages using their official or vetted SDKs but with caution—always manage your API keys securely. Official connectors can be found on Binance’s GitHub[151][152].)
+
+    Postman Collection: Binance offers a Postman API collection (linked on the API documentation site) which you can use to test endpoints quickly by filling in your keys.
+
+    Binance Dev Communities: If you run into issues, the Binance Developer Forum (dev.binance.vision) and Telegram are active places to ask questions. The official docs are updated frequently via the Binance Open Platform site and the Binance API GitHub. Also, the Change Log (on the docs site) is important to review – Binance API is continuously updated. As of July 2025, recent changes include new order types, new endpoints (like listing upcoming delistings, new earn endpoints), and occasional parameter changes. Always keep an eye on announcements and the changelog[153].
+
+    High-Performance APIs: For users needing low-latency data, Binance provides alternatives like FIX API (for order entry on Spot, using the FIX protocol) and Dedicated Market Data endpoints (like SBE market data feeds). FIX API (available on spot) can be used by institutional traders for possibly faster order entry (it requires special onboarding)[154]. The SBE (Simple Binary Encoding) feed offers high-frequency market data in binary format (you’d use it if you need very high throughput). These are more advanced and beyond the scope of this reference, but they exist for specialized needs.
+
+    In summary, Binance’s API ecosystem is broad and powerful. By using the REST endpoints for one-off queries or account changes, WebSocket streams for live data and events, and handling authentication and rate limits properly, you can fully integrate with Binance for trading or data analysis. Always test on the Testnet environments for Spot and Futures if possible before going live[155][156], and ensure you secure your API keys (enable IP restrictions, use the least privileges needed on each key). With the information in this reference, you have a comprehensive view of Binance’s APIs as of mid-2025, but be sure to refer to Binance’s official documentation for the latest updates and details.
+
+    References: Binance API Official Documentation[6][28][142][104] (© 2025 Binance)
+
+    
+    
+    
+    
+    
+
+    
+    [1] [6] [7] [148] [154] General API Information | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/rest-api
+
+    [2] [4] [69] [82] [84] [85] [86] [87] [132] [133] [134] [135] [142] [143] [144] [146] [147] [149] [150] [151] [152] General Info | Binance Open Platform
+
+    https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
+
+    [3] [5] [83] [136] [137] [140] [141] General Info | Binance Open Platform
+
+    https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
+
+    [8] [12] [13] [20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34] [35] [36] Endpoint security type | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/rest-api/endpoint-security-type
+
+    [9] [10] [11] [14] [15] [16] [17] [18] [19] Api Key Types | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/faqs/api_key_types
+
+    [37] [38] [39] [40] [41] [42] [43] [44] [45] [46] General endpoints | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints
+
+    [47] [48] [49] [50] [51] [52] [53] [54] [55] [56] [57] [58] [59] [60] [61] [105] Market Data endpoints | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints
+
+    [62] [63] [64] [65] [66] [67] [68] [73] [74] [75] [77] [78] [79] [80] [81] [138] [139] [145] Margin Account New Order(TRADE) | Binance Open Platform
+
+    https://developers.binance.com/docs/margin_trading/trade/Margin-Account-New-Order
+
+    [70] [101] Margin Transfer for Sub account (For Master Account) | Binance Open Platform
+
+    https://developers.binance.com/docs/sub_account/asset-management/Margin-Transfer-for-Sub-account
+
+    [71] Margin Limit Calculation with GET /sapi/v1/margin/account
+
+    https://dev.binance.vision/t/margin-limit-calculation-with-get-sapi-v1-margin-account/19511
+
+    [72] Get All Margin Assets | Binance Open Platform
+
+    https://developers.binance.com/docs/margin_trading/market-data/Get-All-Margin-Assets
+
+    [76] Query Margin Account's All Orders | Binance Open Platform
+
+    https://developers.binance.com/docs/margin_trading/trade/Query-Margin-Account-All-Orders
+
+    [88] Change Log | Binance Open Platform
+
+    https://developers.binance.com/docs/convert/change-log
+
+    [89] binance-connector-python/CHANGELOG.md at master - GitHub
+
+    https://github.com/binance/binance-connector-python/blob/master/CHANGELOG.md
+
+    [90] [91] Get Simple Earn Flexible Product List (USER_DATA) | Binance Open Platform
+
+    https://developers.binance.com/docs/simple_earn/account/Get-Simple-Earn-Flexible-Product-List
+
+    [92] Get Simple Earn Locked Product List (USER_DATA)
+
+    https://developers.binance.com/docs/simple_earn/account/Get-Simple-Earn-Locked-Product-List
+
+    [93] Subscribe Flexible Product (TRADE) | Binance Open Platform
+
+    https://developers.binance.com/docs/simple_earn/earn
+
+    [94] Binance Public Spot API 1.0 OAS3 - Swagger UI
+
+    https://binance.github.io/binance-api-swagger/
+
+    [95] binance-connector-typescript/CHANGELOG.md at main - GitHub
+
+    https://github.com/binance/binance-connector-typescript/blob/main/CHANGELOG.md
+
+    [96] [97] Change Log | Binance Open Platform
+
+    https://developers.binance.com/docs/staking/change-log
+
+    [98] Stacking data on binance API - Reddit
+
+    https://www.reddit.com/r/binance/comments/urhedx/stacking_data_on_binance_api/
+
+    [99] Deposit Address (supporting network) | Binance Open Platform
+
+    https://developers.binance.com/docs/wallet/capital/deposite-address
+
+    [100] Fetch deposit address list with network | Binance Open Platform
+
+    https://developers.binance.com/docs/wallet/capital/fetch-deposit-address-list-with-network
+
+    [102] Releases · binance/binance-connector-python - GitHub
+
+    https://github.com/binance/binance-connector-python/releases
+
+    [103] [104] [106] [107] [108] [109] [110] [111] [112] [113] [114] [115] [116] [119] [120] [121] [122] [123] [124] [125] [126] WebSocket Streams | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+
+    [117] [118] [127] [128] [129] [130] General API Information | Binance Open Platform
+
+    https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+
+    [131] Change Log | Binance Open Platform
+
+    https://developers.binance.com/docs/derivatives/change-log
+
+    [153] Get Staking Positions via Binance API - Stack Overflow
+
+    https://stackoverflow.com/questions/66233941/get-staking-positions-via-binance-api
+
+    [155] [156] Buy/Sell Bitcoin, Ether and Altcoins | Cryptocurrency Exchange | Binance
+
+    https://www.binance.com/en-GB/binance-api
+
+    
+    
+  

@@ -1,0 +1,1393 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Raydium Api V3",
+        "version": "3.0.0",
+        "description": "All apis have outermost status information wrapped around them. <br> success { id: string, success: true, data: object } <br> failure { id: string, success: false, msg: string }"
+    },
+    "tags": [
+        {
+            "name": "MAIN",
+            "description": "Main API"
+        },
+        {
+            "name": "MINT",
+            "description": "Mint Info"
+        },
+        {
+            "name": "POOLS",
+            "description": "Pools Info And Keys"
+        },
+        {
+            "name": "FARMS",
+            "description": "Farms Info And Keys"
+        },
+        {
+            "name": "IDO",
+            "description": "IDO Pool Info"
+        }
+    ],
+    "paths": {
+        "/farms/info/ids": {
+            "get": {
+                "summary": "Farm Pool Info",
+                "description": "get farm pool info",
+                "tags": [
+                    "FARMS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/farms/info/lp": {
+            "get": {
+                "summary": "Search Farm By Lp Mint",
+                "description": "get farm by lp mint",
+                "tags": [
+                    "FARMS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "lp",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "stake lp"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page size, max 100"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page index"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/farms/key/ids": {
+            "get": {
+                "summary": "Farm Pool Key",
+                "description": "get farm pool key",
+                "tags": [
+                    "FARMS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ido/key/ids": {
+            "get": {
+                "summary": "Ido Pool Keys",
+                "description": "get ido pool keys",
+                "tags": [
+                    "IDO"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "programId": {
+                                            "type": "string",
+                                            "description": "The program ID."
+                                        },
+                                        "id": {
+                                            "type": "string",
+                                            "description": "The ID."
+                                        },
+                                        "authority": {
+                                            "type": "string",
+                                            "description": "The authority."
+                                        },
+                                        "projectInfo": {
+                                            "type": "object",
+                                            "description": "Information about the project.",
+                                            "properties": {
+                                                "mint": {
+                                                    "type": "object",
+                                                    "description": "Information about the mint."
+                                                },
+                                                "vault": {
+                                                    "type": "string",
+                                                    "description": "The vault."
+                                                }
+                                            }
+                                        },
+                                        "buyInfo": {
+                                            "type": "object",
+                                            "description": "Information about the buy.",
+                                            "properties": {
+                                                "mint": {
+                                                    "type": "object",
+                                                    "description": "Information about the mint."
+                                                },
+                                                "vault": {
+                                                    "type": "string",
+                                                    "description": "The vault."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/version": {
+            "get": {
+                "summary": "UI V3 current version",
+                "description": "UI version",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "latest": {
+                                            "type": "string",
+                                            "description": "UI current version"
+                                        },
+                                        "least": {
+                                            "type": "string",
+                                            "description": "Minimum UI version number that users can use"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/rpcs": {
+            "get": {
+                "summary": "UI RPCS",
+                "description": "UI rpcs",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/chain-time": {
+            "get": {
+                "summary": "Chain Time",
+                "description": "offset = local utc time - chain time",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "offset": {
+                                            "type": "integer",
+                                            "description": "local utc time - chain time"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/info": {
+            "get": {
+                "summary": "TVL and 24 hour volume",
+                "description": "statistical information",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tvl": {
+                                            "type": "integer",
+                                            "description": "all pool tvl"
+                                        },
+                                        "volume24": {
+                                            "type": "integer",
+                                            "description": "24 hour volume"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/stake-pools": {
+            "get": {
+                "summary": "RAY Stake",
+                "description": "get Ray stake",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/migrate-lp": {
+            "get": {
+                "summary": "Migrate Lp Pool List",
+                "description": "advised to transfer position pool information",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "pool symbol"
+                                            },
+                                            "ammId": {
+                                                "type": "string",
+                                                "description": "pool id"
+                                            },
+                                            "lpMint": {
+                                                "type": "string",
+                                                "description": "amm pool lp mint"
+                                            },
+                                            "farmIds": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "description": "farm pool id"
+                                                }
+                                            },
+                                            "clmmId": {
+                                                "type": "string",
+                                                "description": "pool id"
+                                            },
+                                            "defaultPriceMin": {
+                                                "type": "number",
+                                                "description": "defaultPriceMin"
+                                            },
+                                            "defaultPriceMax": {
+                                                "type": "number",
+                                                "description": "defaultPriceMax"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/auto-fee": {
+            "get": {
+                "summary": "transaction auto fee",
+                "description": "Estimated on-chain costs based on recent transactions",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "default": {
+                                            "type": "object",
+                                            "properties": {
+                                                "m": {
+                                                    "type": "number",
+                                                    "description": "lower fee"
+                                                },
+                                                "h": {
+                                                    "type": "number",
+                                                    "description": "moderate fee"
+                                                },
+                                                "vh": {
+                                                    "type": "number",
+                                                    "description": "higher fee"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/clmm-config": {
+            "get": {
+                "summary": "Clmm Config",
+                "description": "The list contains only the config info allowed when the UI creates the pool",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "config id"
+                                            },
+                                            "index": {
+                                                "type": "number",
+                                                "description": "config id pda index"
+                                            },
+                                            "protocolFeeRate": {
+                                                "type": "number",
+                                                "description": "protocol fee rate"
+                                            },
+                                            "tradeFeeRate": {
+                                                "type": "number",
+                                                "description": "trade fee rate"
+                                            },
+                                            "tickSpacing": {
+                                                "type": "number",
+                                                "description": "tick spacing"
+                                            },
+                                            "fundFeeRate": {
+                                                "type": "number",
+                                                "description": "fund fee rate"
+                                            },
+                                            "defaultRange": {
+                                                "type": "number",
+                                                "description": "default range"
+                                            },
+                                            "defaultRangePoint": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "number",
+                                                    "description": "default range point"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/cpmm-config": {
+            "get": {
+                "summary": "Cpmm Config",
+                "description": "The list contains only the config info allowed when the UI creates the pool",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "config id"
+                                            },
+                                            "index": {
+                                                "type": "number",
+                                                "description": "config id pda index"
+                                            },
+                                            "protocolFeeRate": {
+                                                "type": "number",
+                                                "description": "protocol fee rate"
+                                            },
+                                            "tradeFeeRate": {
+                                                "type": "number",
+                                                "description": "trade fee rate"
+                                            },
+                                            "fundFeeRate": {
+                                                "type": "number",
+                                                "description": "fund fee rate"
+                                            },
+                                            "createPoolFee": {
+                                                "type": "string",
+                                                "description": "create pool fee"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/main/mint-filter-config": {
+            "get": {
+                "summary": "Mint Filter Config",
+                "description": "The list contains only the config info allowed when the UI creates the pool",
+                "tags": [
+                    "MAIN"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "row": {
+                                            "type": "array",
+                                            "description": "List of icon statistics",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "The name of the item"
+                                                    },
+                                                    "icon": {
+                                                        "type": "array",
+                                                        "description": "A list of icon URLs or identifiers",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "count": {
+                                                        "type": "integer",
+                                                        "description": "The count associated with the item"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mint/list": {
+            "get": {
+                "summary": "Default Mint List",
+                "description": "UI default mint list",
+                "tags": [
+                    "MINT"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "blockList": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "description": "mint address."
+                                            }
+                                        },
+                                        "mintList": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ApiV3MintItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mint/ids": {
+            "get": {
+                "summary": "Mint Info",
+                "description": "get mint info",
+                "tags": [
+                    "MINT"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "mints",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApiV3MintItem"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mint/price": {
+            "get": {
+                "summary": "Mint Price",
+                "description": "get mint price",
+                "tags": [
+                    "MINT"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "mints",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "[ mint id ]": {
+                                            "type": "string",
+                                            "description": "mint price."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/info/ids": {
+            "get": {
+                "summary": "Pool Info",
+                "description": "get pool info",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/info/lps": {
+            "get": {
+                "summary": "Pool Info By Lp Mint",
+                "description": "get pool info by lp mint",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "lps",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"lp.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/info/list": {
+            "get": {
+                "summary": "Pool Info List",
+                "description": "get pool info list",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "poolType",
+                        "required": true,
+                        "description": "pool type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "concentrated",
+                                "standard",
+                                "allFarm",
+                                "concentratedFarm",
+                                "standardFarm"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "poolSortField",
+                        "required": true,
+                        "description": "pool field",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "liquidity",
+                                "volume24h",
+                                "fee24h",
+                                "apr24h",
+                                "volume7d",
+                                "fee7d",
+                                "apr7d",
+                                "volume30d",
+                                "fee30d",
+                                "apr30d"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortType",
+                        "required": true,
+                        "description": "sort type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "desc",
+                                "asc"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page size, max 1000"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page index"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/info/mint": {
+            "get": {
+                "summary": "Pool Info By Token Mint",
+                "description": "get pool info by token mint",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "mint1",
+                        "required": true,
+                        "description": "search mint",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "mint2",
+                        "description": "search mint",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "poolType",
+                        "required": true,
+                        "description": "pool type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "concentrated",
+                                "standard",
+                                "allFarm",
+                                "concentratedFarm",
+                                "standardFarm"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "poolSortField",
+                        "required": true,
+                        "description": "pool field",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "liquidity",
+                                "volume24h",
+                                "fee24h",
+                                "apr24h",
+                                "volume7d",
+                                "fee7d",
+                                "apr7d",
+                                "volume30d",
+                                "fee30d",
+                                "apr30d"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortType",
+                        "required": true,
+                        "description": "sort type",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "desc",
+                                "asc"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page size, max 1000"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "page index"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/info/list-v2": {
+            "get": {
+                "summary": "Pool Info List V2",
+                "description": "get pool info list",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "name": "poolType",
+                        "in": "query",
+                        "description": "Type of pool. Can be `Concentrated` or `Standard`. Optional — if not set, all types are returned.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Concentrated",
+                                "Standard"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "mintFilter",
+                        "in": "query",
+                        "description": "Whether to filter by mint. Optional. please refer /main/mint-filter-config",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "hasReward",
+                        "in": "query",
+                        "description": "Whether to return only pools that have rewards. Optional.",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "sortField",
+                        "in": "query",
+                        "description": "Field to sort by. Optional.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "liquidity",
+                                "volume24h",
+                                "fee24h",
+                                "apr24h",
+                                "volume7d",
+                                "fee7d",
+                                "apr7d",
+                                "volume30d",
+                                "fee30d",
+                                "apr30d"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sortType",
+                        "in": "query",
+                        "description": "Sorting order, either ascending (`asc`) or descending (`desc`). Optional.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Number of records to return per page.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "nextPageId",
+                        "in": "query",
+                        "description": "The `id` returned from the previous page, used for pagination. Optional — if not provided, the first page is returned.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mint1",
+                        "in": "query",
+                        "description": "Filter for pools that include this mint. Optional.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mint2",
+                        "in": "query",
+                        "description": "Filter for pools that include this mint. Optional.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/key/ids": {
+            "get": {
+                "summary": "Pool Key",
+                "description": "get pool key",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description":"id.join(\',\')"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/line/liquidity": {
+            "get": {
+                "summary": "Pool Liquidity history",
+                "description": "pool liquidity history (max 30d)",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "pool id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "number",
+                                            "description": "day"
+                                        },
+                                        "line": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "time": {
+                                                        "type": "number",
+                                                        "description": "utc time."
+                                                    },
+                                                    "liquidity": {
+                                                        "type": "number",
+                                                        "description": "pool tvl."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pools/line/position": {
+            "get": {
+                "summary": "Clmm Position",
+                "description": "clmm position line",
+                "tags": [
+                    "POOLS"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "pool id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "number",
+                                            "description": "day"
+                                        },
+                                        "line": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "price": {
+                                                        "type": "number",
+                                                        "description": "pool price."
+                                                    },
+                                                    "tick": {
+                                                        "type": "number",
+                                                        "description": "pool tick."
+                                                    },
+                                                    "liquidity": {
+                                                        "type": "number",
+                                                        "description": "pool tvl."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "MintTagsItem": {
+                "type": "string",
+                "enum": [
+                    "hasFreeze",
+                    "hasTransferFee"
+                ],
+                "description": "Specifies tags for minting."
+            },
+            "MintExtensionsItem": {
+                "type": "object",
+                "properties": {
+                    "coingeckoId": {
+                        "type": "string",
+                        "description": "The Coingecko ID."
+                    },
+                    "feeConfig": {
+                        "type": "object",
+                        "properties": {
+                            "transferFeeConfigAuthority": {
+                                "type": "string",
+                                "description": "The authority for transfer fee configuration."
+                            },
+                            "withdrawWithheldAuthority": {
+                                "type": "string",
+                                "description": "The authority for withdrawing withheld amount."
+                            },
+                            "withheldAmount": {
+                                "type": "string",
+                                "description": "The withheld amount."
+                            },
+                            "olderTransferFee": {
+                                "type": "object",
+                                "description": "Information about older transfer fee.",
+                                "properties": {
+                                    "epoch": {
+                                        "type": "string",
+                                        "description": "The epoch of the older transfer fee."
+                                    },
+                                    "maximumFee": {
+                                        "type": "string",
+                                        "description": "The maximum fee for the older transfer fee."
+                                    },
+                                    "transferFeeBasisPoints": {
+                                        "type": "number",
+                                        "description": "The transfer fee basis points for the older transfer fee."
+                                    }
+                                }
+                            },
+                            "newerTransferFee": {
+                                "type": "object",
+                                "description": "Information about newer transfer fee.",
+                                "properties": {
+                                    "epoch": {
+                                        "type": "string",
+                                        "description": "The epoch of the newer transfer fee."
+                                    },
+                                    "maximumFee": {
+                                        "type": "string",
+                                        "description": "The maximum fee for the newer transfer fee."
+                                    },
+                                    "transferFeeBasisPoints": {
+                                        "type": "number",
+                                        "description": "The transfer fee basis points for the newer transfer fee."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiV3MintItem": {
+                "type": "object",
+                "properties": {
+                    "chainId": {
+                        "type": "number",
+                        "description": "The chain ID."
+                    },
+                    "address": {
+                        "type": "string",
+                        "description": "The address."
+                    },
+                    "programId": {
+                        "type": "string",
+                        "description": "The program ID."
+                    },
+                    "logoURI": {
+                        "type": "string",
+                        "description": "URI for the logo."
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "description": "The symbol."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name."
+                    },
+                    "decimals": {
+                        "type": "number",
+                        "description": "The number of decimals."
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MintTagsItem"
+                        },
+                        "description": "Tags for minting."
+                    },
+                    "extensions": {
+                        "$ref": "#/components/schemas/MintExtensionsItem",
+                        "description": "Extensions for minting."
+                    }
+                }
+            }
+        }
+    }
+}
