@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
 <<<<<<< HEAD
+<<<<<<< HEAD
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
   </ItemGroup>
 
@@ -20,6 +21,8 @@
     <ProjectReference Include="..\Common\ORBIT9000.Plugins.Example.Common.csproj" />
     <ProjectReference Include="..\Schedule\ScheduleExample4\ORBIT9000.Plugins.ScheduleExample4.csproj" />
 =======
+=======
+>>>>>>> e5ab901 (Change Example Plugin Implementation)
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
