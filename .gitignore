@@ -361,6 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+<<<<<<< HEAD
 /sonar-project.properties
 
+=======
+/src/Plugins/LinkedIn.JobApplier/LinkedIn.JobApplier.csproj
+>>>>>>> e895ce1 (Update Build Yml)
 /sonar-project.properties
