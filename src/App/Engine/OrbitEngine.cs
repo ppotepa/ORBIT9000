@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,9 @@ using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Runtime.State;
 using ORBIT9000.Engine.Runtime.Strategies.Running;
+=======
+﻿using Microsoft.Extensions.Logging;
+>>>>>>> 6133b24 (Refactor plugin architecture and assembly loading)
 
 namespace ORBIT9000.Engine
 {

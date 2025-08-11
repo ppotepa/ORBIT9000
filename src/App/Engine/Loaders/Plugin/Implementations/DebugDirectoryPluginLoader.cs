@@ -1,0 +1,45 @@
+﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Extensions.IO.Files;
+using ORBIT9000.Engine.Loaders.Plugin.Results;
+
+namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
+{
+    internal class DebugDirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
+    {
+        private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
+
+        public DebugDirectoryPluginLoader(ILogger? logger) : base(logger)
+        {
+        }
+
+        public override IEnumerable<PluginLoadResult> LoadPlugins(DirectoryInfo source)
+        {
+            if (!source.Exists)
+            {
+                this._logger?.LogWarning("Source directory {Name} does not exist.", source.FullName);
+                yield break;
+            }
+
+            if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
+            {
+                this._logger?.LogWarning("Source directory {Name} contains subdirectories. " +
+                    $"Only the top-level directory will be used.", source.FullName);
+
+                DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));
+                FileInfo[] files = [.. newSource.GetFilesExcept("*.dll", SKIP_FOLDERS)];
+                  
+                if (files.Length == 0)
+                {
+                    this._logger?.LogWarning("No plugins found in {Name}", newSource.FullName);
+                }
+                else
+                {
+                    foreach (FileInfo file in files)
+                    {
+                        yield return LoadSingle(file.FullName);
+                    }
+                }
+            }
+        }
+    }
+}
