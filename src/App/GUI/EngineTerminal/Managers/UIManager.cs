@@ -101,9 +101,11 @@ namespace EngineTerminal.Managers
             if (data.Frame2 != null) data.Frame2.PropertyChanged += ForwardPropertyChanged;
 =======
             _statusItem = new StatusItem(Key.Null, "Starting...", null);
-            var statusBar = new StatusBar(
-                new[] { new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem })
-            { CanFocus = true };
+
+            var statusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem])
+            {
+                CanFocus = true 
+            };
 
             Application.Top.Add(top, statusBar);
 >>>>>>> 5ae5b98 (Add Inversion of Control)
@@ -113,7 +115,12 @@ namespace EngineTerminal.Managers
 
         public void UpdateStatusMessage(string message)
         {
-            Application.MainLoop.Invoke(() => _statusItem.Title = message);
+            Application.MainLoop.Invoke(() =>
+            {
+                _statusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
+                Application.Refresh();
+            });
+            
         }
 
         public void UpdateUIFromData(IReadOnlyList<Action<Dictionary<string, ValueBinding>>> updates)

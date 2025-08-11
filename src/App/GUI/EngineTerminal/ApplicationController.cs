@@ -139,15 +139,12 @@ namespace Orbit9000.EngineTerminal
 {
     public class ApplicationController
     {
-        private readonly CancellationTokenSource _cts = new();
-
         private readonly IDataManager _dataManager;
         private readonly ChannelReader<ExampleData> _dataReader;
         private readonly IPipeManager _pipeManager;
         private readonly ChannelReader<string> _statusReader;
-
+        private readonly CancellationTokenSource _tokenSource = new();
         private readonly IUIManager _uiManager;
-
 
         public ApplicationController(
             IDataManager dataManager,
@@ -168,27 +165,32 @@ namespace Orbit9000.EngineTerminal
             _dataManager.Initialize();
             _uiManager.Initialize(_dataManager.ExampleData);
 
-            var pipeTask = _pipeManager.StartProcessingAsync(_cts.Token);
+            var pipeTask = _pipeManager.StartProcessingAsync(_tokenSource.Token);
 
-            var dataTask = Task.Run(async () =>
-            {
-                await foreach (var newData in _dataReader.ReadAllAsync(_cts.Token))
-                {
-                    var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
-                    _uiManager.UpdateUIFromData(updates);
-                }
-            }, _cts.Token);
-
-            var statusTask = Task.Run(async () =>
-            {
-                await foreach (var status in _statusReader.ReadAllAsync(_cts.Token))
-                    _uiManager.UpdateStatusMessage(status);
-            }, _cts.Token);
+            var dataTask = Task.Run(GetData, _tokenSource.Token);
+            var statusTask = Task.Run(GetStatus, _tokenSource.Token);
 
             _uiManager.Run();
 
-            _cts.Cancel();
             await Task.WhenAll(pipeTask, dataTask, statusTask);
+            await _tokenSource.CancelAsync();
+        }
+
+        private async Task GetData()
+        {
+            await foreach (var newData in _dataReader.ReadAllAsync(_tokenSource.Token))
+            {
+                var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
+                _uiManager.UpdateUIFromData(updates);
+            }
+        }
+
+        private async Task GetStatus()
+        {
+            await foreach (var status in _statusReader.ReadAllAsync(_tokenSource.Token))
+            {
+                _uiManager.UpdateStatusMessage(status);
+            }
         }
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
     }

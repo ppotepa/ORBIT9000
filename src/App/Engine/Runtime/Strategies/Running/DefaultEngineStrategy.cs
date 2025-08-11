@@ -227,31 +227,31 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             try
             {
-                engine.LogDebug("Executing plugin activation tasks.");
+                //engine.LogDebug("Executing plugin activation tasks.");
 
-                var pluginTask = engine.PluginProvider.Activate("ExamplePlugin");
-                var plugin2Task = engine.PluginProvider.Activate("ExamplePlugin2");
+                //var pluginTask = engine.PluginProvider.Activate("ExamplePlugin");
+                //var plugin2Task = engine.PluginProvider.Activate("ExamplePlugin2");
 
-                Task.Run(async () =>
-                {
-                    Thread.CurrentThread.Name = "Plugin_ExamplePlugin";
+                //Task.Run(async () =>
+                //{
+                //    Thread.CurrentThread.Name = "Plugin_ExamplePlugin";
 
-                    var plugin = await pluginTask;
+                //    var plugin = await pluginTask;
 
-                    engine.LogDebug("Plugin ExamplePlugin loaded.");
-                    await plugin.OnLoad();
-                });
+                //    engine.LogDebug("Plugin ExamplePlugin loaded.");
+                //    await plugin.OnLoad();
+                //});
 
-                Task.Run(async () =>
-                {
-                    Thread.CurrentThread.Name = "Plugin_ExamplePlugin2";
+                //Task.Run(async () =>
+                //{
+                //    Thread.CurrentThread.Name = "Plugin_ExamplePlugin2";
 
-                    var plugin2 = await plugin2Task;
+                //    var plugin2 = await plugin2Task;
 
-                    engine.LogDebug("Plugin ExamplePlugin2 loaded.");
+                //    engine.LogDebug("Plugin ExamplePlugin2 loaded.");
 
-                    await plugin2.OnLoad();
-                });
+                //    await plugin2.OnLoad();
+                //});
             }
             catch (Exception ex)
             {

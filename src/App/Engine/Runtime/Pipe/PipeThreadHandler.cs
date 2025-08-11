@@ -122,15 +122,19 @@ namespace ORBIT9000.Engine.Strategies.Running
 
                         byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 
-                        if (random.NextDouble() > 0.97)
+                        if (random.NextDouble() > 0.91)
                         {
                             await server.WriteAsync(buffer, 0, buffer.Length);
-                            _state.Engine.LogDebug("Message sent to GUI.");
+                            _state.Engine.LogInformation("Message sent to GUI. {A}", exampleData);
                         }
                         else
                         {
+<<<<<<< HEAD
                             _state.Engine.LogDebug("Message skipped for this interval.");
 >>>>>>> 914c644 (Add Pipe Handler)
+=======
+                            _state.Engine.LogInformation("Message skipped for this interval.");
+>>>>>>> cd1f020 (Improve Logging and Naming)
                         }
 
                         await Task.Delay(TimeSpan.FromMilliseconds(random.Next(50, 200)));
