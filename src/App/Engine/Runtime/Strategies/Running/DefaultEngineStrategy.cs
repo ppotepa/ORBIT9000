@@ -186,6 +186,7 @@ namespace ORBIT9000.Engine.Strategies.Running
             {
                 var plugin = engine.PluginProvider.Activate("ExamplePlugin");
                 var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
+
                 await plugin.OnLoad();
                 await plugin2.OnLoad();
             }

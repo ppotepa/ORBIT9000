@@ -37,6 +37,7 @@ namespace ORBIT9000.Engine.Configuration.Raw
     {
         public required PluginsConfiguration Plugins { get; set; }
         public bool UseDefaultFolder => this.Plugins.ActivePlugins.Length == 0;
+        public bool SharePluginScopes { get; set; }
     }
 
     public class PluginsConfiguration
