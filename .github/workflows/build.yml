@@ -3,7 +3,14 @@ name: Build
 
 on:
   push:
+<<<<<<< HEAD
     branches: [ master, 0.91.2-alpha ]
+=======
+    branches:
+      - master
+        0.91-alpha
+
+>>>>>>> 7a93783 (Update build.yml)
 
 jobs:
   build:
