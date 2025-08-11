@@ -315,14 +315,13 @@ namespace ORBIT9000.Engine.Builders
             })
             .As(typeof(ILogger<>)).InstancePerDependency();
 
-            _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>();
-            _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf();
-            _containerBuilder.RegisterInstance(_containerBuilder).AsSelf();
+            _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>().SingleInstance();
+            _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf().SingleInstance();
 
-            _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf();
-            _containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf();
-            _containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf();
-            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf();
+            _containerBuilder.RegisterType<StringArrayPluginLoader>().AsSelf().InstancePerDependency();
+            _containerBuilder.RegisterType<DebugDirectoryPluginLoader>().AsSelf().InstancePerDependency();
+            _containerBuilder.RegisterType<DirectoryPluginLoader>().AsSelf().InstancePerDependency();
+            _containerBuilder.RegisterType<PluginLoaderFactory>().AsSelf().InstancePerDependency();
 
             _containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
 
