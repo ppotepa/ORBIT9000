@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,6 +8,12 @@ using ORBIT9000.Abstractions.Providers;
 using ORBIT9000.Abstractions.Scheduling;
 =======
 ﻿using Microsoft.Extensions.Configuration;
+=======
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
@@ -80,10 +87,13 @@ namespace ORBIT9000.Engine
         private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 =======
   
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
+=======
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
 
         public OrbitEngine(
             ILoggerFactory loggerFactory,
@@ -209,7 +219,7 @@ namespace ORBIT9000.Engine
 
             IsRunning = true;
 
-            _mainThread.Start(new EngineState { Engine = this });
+            _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
         }
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
     }

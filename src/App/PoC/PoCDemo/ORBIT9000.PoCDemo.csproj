@@ -22,8 +22,11 @@
 <<<<<<< HEAD
 =======
     <ProjectReference Include="..\..\..\Plugins\Example\ORBIT9000.Plugins.Example.csproj" />
+<<<<<<< HEAD
     <ProjectReference Include="..\..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
+=======
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
 

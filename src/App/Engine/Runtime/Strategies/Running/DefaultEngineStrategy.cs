@@ -185,7 +185,6 @@ namespace ORBIT9000.Engine.Strategies.Running
             if (state.Engine.Configuration.EnableTerminal)
 >>>>>>> ba7902f (CleanUp DefaultRunningStrategy)
             {
-                // Start PipeThread correctly
                 Task.Run(() => PipeThread(state));
             }
 
@@ -205,11 +204,20 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             try
             {
-                var plugin = engine.PluginProvider.Activate("ExamplePlugin");
-                var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
+                var pluginTask = engine.PluginProvider.Activate("ExamplePlugin");
+                var plugin2Task = engine.PluginProvider.Activate("ExamplePlugin2");
 
-                Task.Run(plugin.OnLoad);
-                Task.Run(plugin2.OnLoad);
+                Task.Run(async () =>
+                {
+                    var plugin = await pluginTask;
+                    await plugin.OnLoad();
+                });
+
+                Task.Run(async () =>
+                {
+                    var plugin2 = await plugin2Task;
+                    await plugin2.OnLoad();
+                });
             }
             catch (Exception ex)
             {
@@ -235,11 +243,11 @@ namespace ORBIT9000.Engine.Strategies.Running
             await server.WaitForConnectionAsync();
             Console.WriteLine("GUI connected!");
 
-            while (state.Engine.IsRunning) 
+            while (state.Engine.IsRunning)
             {
                 var message = new
                 {
-                    state = state.Engine
+                    plugins = state.ActivePlugins
                 };
 
                 string json = JsonConvert.SerializeObject(message, new JsonSerializerSettings

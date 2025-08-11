@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\App\Core\ORBIT9000.Core.csproj" />
     <ProjectReference Include="..\..\App\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
 <<<<<<< HEAD
 >>>>>>> 83dd439 (Remove Code Smells)

@@ -59,6 +59,7 @@ using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 >>>>>>> e2b2b5a (Reworked Naming)
 using ORBIT9000.Engine.Providers;
+using ORBIT9000.Engine.Runtime.State;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -309,7 +310,7 @@ namespace ORBIT9000.Engine.Builders
                 _logger!.LogDebug("Creating Logger for {Type}", categoryType.Name);
 
                 ILoggerFactory loggerFactory = context.Resolve<ILoggerFactory>();
-             
+
                 var factory = CreateLoggerFactory(categoryType);
                 return factory(loggerFactory);
             })
@@ -342,12 +343,21 @@ namespace ORBIT9000.Engine.Builders
                 .AsSelf()
                 .SingleInstance();
 
+            _containerBuilder.RegisterType<EngineState>()
+               .AsSelf()
+               .SingleInstance();
+
             _containerBuilder.Register(c => new AutofacServiceProvider(c.Resolve<ILifetimeScope>()))
                 .As<IServiceProvider>()
                 .SingleInstance();
 
-            return _containerBuilder.Build().BeginLifetimeScope()
-                .Resolve<OrbitEngine>();
+            var built = _containerBuilder.Build();
+
+            var t = built.Resolve<OrbitEngine>();
+
+            var a = built.Resolve<EngineState>();
+
+            return t;
         }
 
         public OrbitEngineBuilder Configure(IConfiguration configuration)

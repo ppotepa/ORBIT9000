@@ -220,10 +220,15 @@ using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Core.Abstractions.Providers;
 =======
 using ORBIT9000.Core.Abstractions;
+<<<<<<< HEAD
 >>>>>>> 83dd439 (Remove Code Smells)
+=======
+using ORBIT9000.Core.Events;
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Runtime.CompilerServices;
+using System.Threading.Channels;
 
 namespace ORBIT9000.Engine.Providers
 {
@@ -232,14 +237,27 @@ namespace ORBIT9000.Engine.Providers
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
         private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
+        private readonly Channel<PluginEvent> _pluginEvents = Channel.CreateUnbounded<PluginEvent>();
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
         private readonly List<PluginInfo> _validPlugins;
-
-        private ILifetimeScope? _pluginScope;
-        private ILifetimeScope PluginScope => _pluginScope ??= CreateSharedScope();
-
         private Dictionary<Type, ILifetimeScope>? _individualPluginScopes;
+        private ILifetimeScope? _pluginScope;
+        public PluginProvider
+        (
+            ILogger<PluginProvider> logger,
+            RuntimeConfiguration config,
+            IPluginLoader pluginLoader,
+            ILifetimeScope rootScope)
+        {
+            _logger = logger;
+            _config = config;
+            _pluginLoader = pluginLoader;
+            _rootScope = rootScope;
+            _validPlugins = _config.Plugins.Where(x => x.ContainsPlugins).ToList();
+        }
+
+        public ChannelReader<PluginEvent> PluginEvents => _pluginEvents.Reader;
         private Dictionary<Type, ILifetimeScope> IndividualPluginScopes
         {
             get
@@ -261,27 +279,15 @@ namespace ORBIT9000.Engine.Providers
             }
         }
 
-        public PluginProvider(
-            ILogger<PluginProvider> logger,
-            RuntimeConfiguration config,
-            IPluginLoader pluginLoader,
-            ILifetimeScope rootScope)
-        {
-            _logger = logger;
-            _config = config;
-            _pluginLoader = pluginLoader;
-            _rootScope = rootScope;
-            _validPlugins = _config.Plugins.Where(x => x.ContainsPlugins).ToList();
-        }
-
-        public IOrbitPlugin Activate(object plugin)
+        private ILifetimeScope PluginScope => _pluginScope ??= CreateSharedScope();
+        public async Task<IOrbitPlugin> Activate(object plugin)
         {
             if (plugin is string pluginName)
             {
                 var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
                 if (target != null)
                 {
-                    return ActivatePlugin(target);
+                    return await ActivatePlugin(target);
                 }
             }
 
@@ -289,8 +295,9 @@ namespace ORBIT9000.Engine.Providers
             throw new ArgumentException("Invalid plugin identifier.", nameof(plugin));
         }
 
-        public IOrbitPlugin Activate(Type plugin)
+        public Task<IOrbitPlugin> Activate(Type plugin)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             IServiceScope scope = _provider.CreateScope();
@@ -320,6 +327,9 @@ namespace ORBIT9000.Engine.Providers
             _logger.LogError("Plugin activation failed. Invalid plugin type: {Plugin}", plugin.Name);
             throw new ArgumentException("Invalid plugin type.", nameof(plugin));
 >>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
+=======
+            throw new NotImplementedException();
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
         }
 
         public void Unload(object plugin)
@@ -347,7 +357,22 @@ namespace ORBIT9000.Engine.Providers
             }
         }
 
-        private IOrbitPlugin ActivatePlugin(PluginInfo target)
+        private static void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
+        {
+            if (info.IsSingleton)
+            {
+                builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().SingleInstance();
+            }
+            else
+            {
+                builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().InstancePerDependency();
+            }
+
+            IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
+            dummy.RegisterServices(services);
+        }
+
+        private async Task<IOrbitPlugin> ActivatePlugin(PluginInfo target)
         {
             if (target.IsSingleton && _activePlugins.TryGetValue(target.PluginType, out var existingInstance))
             {
@@ -363,6 +388,13 @@ namespace ORBIT9000.Engine.Providers
             }
 
             _logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
+
+            await _pluginEvents.Writer.WriteAsync(new PluginEvent
+            {
+                Type = PluginEventType.Activated,
+                PluginName = target.PluginType.Name
+            });
+
             return instance!;
         }
 
@@ -396,21 +428,6 @@ namespace ORBIT9000.Engine.Providers
 
                 builder.Populate(services);
             });
-        }
-
-        private static void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
-        {
-            if (info.IsSingleton)
-            {
-                builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().SingleInstance();
-            }
-            else
-            {
-                builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().InstancePerDependency();
-            }
-
-            IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
-            dummy.RegisterServices(services);
         }
     }
 }

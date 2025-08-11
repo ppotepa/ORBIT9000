@@ -77,12 +77,19 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <ProjectReference Include="..\..\Data\ORBIT9000.Data.csproj" />
     <ProjectReference Include="..\Core\Coupled\ORBIT9000.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+=======
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
     <Folder Include="IO\Loaders\PluginAssembly\Result\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\ORBIT9000.Core.csproj" />
   </ItemGroup>
 
 </Project>
