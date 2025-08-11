@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Managers;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,6 +62,14 @@ using ORBIT9000.Engine.Configuration;
 using System.Buffers;
 using System.IO.Pipes;
 >>>>>>> 1aafd5a (Add Basic Messaging)
+=======
+﻿using EngineTerminal.Views;
+using MessagePack;
+using ORBIT9000.Engine.Configuration;
+using System.Buffers;
+using System.IO.Pipes;
+using Terminal.Gui;
+>>>>>>> 4502f33 (Add GUI BoilerPlate)
 
 namespace Orbit9000.EngineTerminal
 {
@@ -72,40 +81,51 @@ namespace Orbit9000.EngineTerminal
 
         static async Task Main(string[] args)
         {
-            var client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
-            await client.ConnectAsync();
-            Console.WriteLine("Connected to engine!");
+            Application.Init();
+            Application.Top.Add(new MyView());
 
-            var buffer = new byte[4096];
-
-            while (true)
-            {
-                try
-                {
-                    int bytesRead = await client.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead == 0)
-                    {
-                        Console.WriteLine("Server closed connection.");
-                        break;
-                    }
-
-                    var @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer));
-                    Console.WriteLine("Received Engine state: " + @object.Count);
-
-                    foreach(var pluginInfo in @object)
-                    {
-                        Console.WriteLine($"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}");
-                    }   
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine("Pipe broken: " + ex.Message);
-                    break;
-                }
-
-                Thread.Sleep(1000);
-            }
+            Application.Run();
+            await Task.CompletedTask;
         }
+
+        #region PIPE
+        //static async Task Main(string[] args)
+        //{
+        //    var client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
+        //    await client.ConnectAsync();
+        //    Console.WriteLine("Connected to engine!");
+
+        //    var buffer = new byte[4096];
+
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            int bytesRead = await client.ReadAsync(buffer, 0, buffer.Length);
+        //            if (bytesRead == 0)
+        //            {
+        //                Console.WriteLine("Server closed connection.");
+        //                break;
+        //            }
+
+        //            var @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer));
+        //            Console.WriteLine("Received Engine state: " + @object.Count);
+
+        //            foreach (var pluginInfo in @object)
+        //            {
+        //                Console.WriteLine($"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}");
+        //            }
+        //        }
+        //        catch (IOException ex)
+        //        {
+        //            Console.WriteLine("Pipe broken: " + ex.Message);
+        //            break;
+        //        }
+
+        //        Thread.Sleep(1000);
+        //    }
+        //}
+        #endregion
     }
 }
 >>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
