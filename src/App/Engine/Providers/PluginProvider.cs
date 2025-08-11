@@ -210,6 +210,7 @@ namespace ORBIT9000.Engine.Providers
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Abstractions.Loaders;
+using ORBIT9000.Core.Abstractions.Providers;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Runtime.CompilerServices;
@@ -218,21 +219,51 @@ namespace ORBIT9000.Engine.Providers
 {
     internal class PluginProvider : IPluginProvider
     {
-        private readonly InitializedInternalConfig _config;
+        private readonly IServiceProvider _composite;
+        private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
         private readonly IServiceProvider _provider;
-
-        public PluginProvider(ILogger<PluginProvider> logger, IPluginLoader pluginLoader, InitializedInternalConfig config, IServiceProvider provider)
+        private readonly List<PluginInfo> _validPlugins;
+        public PluginProvider(ILogger<PluginProvider> logger, IPluginLoader pluginLoader, RuntimeConfiguration config, IServiceProvider provider)
         {
+            IServiceCollection pluginScopeServiceCollection = new ServiceCollection();
+
             _pluginLoader = pluginLoader;
             _logger = logger;
             _config = config;
             _provider = provider;
+            _validPlugins = _config.Plugins.Where(x => x.ContainsPlugins).ToList();
+
+            this._validPlugins.ForEach(plugin =>
+            {
+                var dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(plugin.PluginType);
+                dummy.RegisterServices(pluginScopeServiceCollection);
+            });
+
+            ServiceProvider pluginScopeServiceProvider = pluginScopeServiceCollection.BuildServiceProvider();
+            _composite = new CompositeServiceProvider(_provider, pluginScopeServiceProvider);
+        }
+
+        public IOrbitPlugin Activate(object plugin)
+        {
+            if (plugin is string pluginName)
+            {
+                var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
+                if (target != null)
+                {
+                    IOrbitPlugin? instance = (IOrbitPlugin)ActivatorUtilities.CreateInstance(_composite, target.PluginType);
+                    return instance;
+                }
+            }
+
+            _logger.LogError("Plugin activation failed. Invalid plugin identifier: {Plugin}", plugin);
+            throw new ArgumentException("Invalid plugin identifier.", nameof(plugin));
         }
 
         public IOrbitPlugin Activate(Type plugin)
         {
+<<<<<<< HEAD
             IServiceScope scope = _provider.CreateScope();
             return ActivatorUtilities.CreateInstance(scope.ServiceProvider, plugin, []) as IOrbitPlugin;
         }
@@ -247,6 +278,9 @@ namespace ORBIT9000.Engine.Providers
             IServiceScope scope = _provider.CreateScope();
             return (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(plugin);
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
+=======
+            throw new NotImplementedException();
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
         }
     }
 }

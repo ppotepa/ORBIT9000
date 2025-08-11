@@ -31,6 +31,7 @@ namespace ORBIT9000.Engine
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -46,6 +47,9 @@ namespace ORBIT9000.Engine
 =======
         private readonly InitializedInternalConfig _configuration;
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
+=======
+        private readonly RuntimeConfiguration _configuration;
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
         private readonly ExceptionFactory _exceptionFactory;
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -59,6 +63,7 @@ namespace ORBIT9000.Engine
             IServiceProvider serviceProvider,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             RuntimeSettings configuration,
             IPluginProvider pluginProvider,
             IScheduler scheduler
@@ -68,6 +73,9 @@ namespace ORBIT9000.Engine
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 =======
             InitializedInternalConfig configuration,
+=======
+            RuntimeConfiguration configuration,
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
             IPluginProvider pluginProvider
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
             )

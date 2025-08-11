@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Data.Entities;
@@ -18,6 +19,9 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
 =======
 using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.Providers;
+=======
+﻿using ORBIT9000.Core.Abstractions.Loaders;
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
 using ORBIT9000.Engine.Runtime.State;
 
 namespace ORBIT9000.Engine.Strategies.Running
@@ -26,6 +30,8 @@ namespace ORBIT9000.Engine.Strategies.Running
     {
         public readonly static ParameterizedThreadStart EngineStartupStrategy = static (obj) =>
         {
+            IServiceProvider pluginScope = default;
+
             if (obj is not EngineState state || state.Engine is null)
 >>>>>>> e2b2b5a (Reworked Naming)
             {
@@ -169,12 +175,13 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         {
-            foreach (var plugin in engine.PluginProvider.GetPluginRegistrationInfo())
-            {
-                var instance = engine.PluginProvider.Register(plugin) as IOrbitPlugin;
-                instance.RegisterServices(new ServiceCollection());
-            }
+            var plugin = engine.PluginProvider.Activate("TwitterPlugin") as IOrbitPlugin;
+            await plugin.OnLoad();
         };
+
+        public Default()
+        {
+        }
 
         //private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         //{

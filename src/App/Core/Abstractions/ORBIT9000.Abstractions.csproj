@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading):src/App/Core/ORBIT9000.Core/ORBIT9000.Core.csproj
   </ItemGroup>

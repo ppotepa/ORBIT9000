@@ -1,7 +1,11 @@
 using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Abstractions;
+=======
+using ORBIT9000.Core.Abstractions.Loaders;
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 =======
@@ -64,7 +68,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         public IEnumerable<PluginInfo> LoadPlugins(object source)
 >>>>>>> 254394d (Remove OverLogging)
         {
-            return ((IPluginLoader<TSource>)this).LoadPlugins((TSource)source);
+            return LoadPlugins((TSource)source);
         }
 
 <<<<<<< HEAD
@@ -138,6 +142,16 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
             var assemblyLoadResult = _assemblyLoader.Load(info);
+            
+            if(assemblyLoadResult is null)
+            {
+                return new PluginInfo
+                {
+                    Assembly = null,
+                    FileInfo = info,                    
+                };  
+            }
+
             return new PluginInfo
             {
 <<<<<<< HEAD
@@ -189,7 +203,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
                 Assembly = assemblyLoadResult,
-                FileInfo = info
+                FileInfo = info,
+                PluginType = assemblyLoadResult.GetTypes()
+                    .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin))),               
             };
 >>>>>>> 254394d (Remove OverLogging)
         }
