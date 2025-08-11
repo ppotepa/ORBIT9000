@@ -24,6 +24,7 @@ using MessagePack;
 using ORBIT9000.Engine.Runtime.State;
 using System.IO.Pipes;
 using ORBIT9000.Core.Models.Pipe;
+using TempTools;
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -92,6 +93,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                         ));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                         ExampleData exampleData = RandomDataFiller.FillWithRandomData<ExampleData>();
 
                         byte[] buffer = MessagePackSerializer.Serialize(exampleData, options);
@@ -119,6 +121,9 @@ namespace ORBIT9000.Engine.Strategies.Running
                                 Setting2 = random.Next(1, 100)
                             }
                         };
+=======
+                        var exampleData = RandomDataFiller.FillWithRandomData<ExampleData>();
+>>>>>>> 1f2f8f4 (Improve Property Display)
 
                         byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
 

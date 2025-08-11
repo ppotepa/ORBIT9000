@@ -62,6 +62,7 @@ namespace EngineTerminal.Managers
 using EngineTerminal.Contracts;
 using ORBIT9000.Core.Models.Pipe;
 using System.Reflection;
+using TempTools;
 
 namespace EngineTerminal.Managers
 {
@@ -94,11 +95,7 @@ namespace EngineTerminal.Managers
         }
 
         private ExampleData CreateInitialData()
-            => new ExampleData
-            {
-                Frame1 = new SettingsData { Setting1 = 1, Setting2 = "Text2" },
-                Frame2 = new EngineData { Setting1 = 100, Setting2 = 200, IsValid = false }
-            };
+            => RandomDataFiller.FillWithRandomData<ExampleData>();  
 
         private static readonly Dictionary<Type, PropertyInfo[]> PropertyCache = new();
 
