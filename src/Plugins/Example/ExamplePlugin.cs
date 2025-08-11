@@ -11,11 +11,16 @@ using ORBIT9000.Core.Abstractions.Loaders;
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
 =======
 using ORBIT9000.Core.Abstractions;
+<<<<<<< HEAD
 >>>>>>> 83dd439 (Remove Code Smells)
+=======
+using ORBIT9000.Core.Attributes.Engine;
+>>>>>>> 15da848 (Improve Reradibility)
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
     [DefaultProject("Example")]
     [Singleton]
@@ -40,6 +45,9 @@ namespace ORBIT9000.Plugins.Example
 
             _logger.LogInformation("Fetched data from weather.");
 =======
+=======
+    [Singleton(typeof(ExamplePlugin))]
+>>>>>>> 15da848 (Improve Reradibility)
     public class ExamplePlugin : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider;

@@ -327,14 +327,12 @@ namespace ORBIT9000.Engine.Providers
         {
             foreach (var info in _validPlugins)
             {
-                var pluginScope = _rootScope.BeginLifetimeScope(builder =>
+                _individualPluginScopes[info.PluginType] = _rootScope.BeginLifetimeScope(builder =>
                 {
-                    var services = new ServiceCollection();
+                    ServiceCollection services = new ServiceCollection();
                     RegisterPlugin(builder, services, info);
                     builder.Populate(services);
                 });
-
-                _individualPluginScopes[info.PluginType] = pluginScope;
             }
         }
 
@@ -342,11 +340,11 @@ namespace ORBIT9000.Engine.Providers
         {
             try
             {
-                var serviceProvider = _config.SharePluginScopes
+                IServiceProvider serviceProvider = _config.SharePluginScopes
                     ? _pluginScope.Resolve<IServiceProvider>()
                     : _individualPluginScopes[type].Resolve<IServiceProvider>();
 
-                return (IOrbitPlugin?)ActivatorUtilities.CreateInstance(serviceProvider, type);
+                return (IOrbitPlugin?) ActivatorUtilities.CreateInstance(serviceProvider, type);
             }
             catch (Exception ex)
             {
@@ -359,11 +357,13 @@ namespace ORBIT9000.Engine.Providers
         {
             return _rootScope.BeginLifetimeScope(builder =>
             {
-                var services = new ServiceCollection();
-                foreach (var info in _validPlugins)
+                ServiceCollection services = new ServiceCollection();
+                
+                foreach (PluginInfo  info in _validPlugins)
                 {
                     RegisterPlugin(builder, services, info);
                 }
+
                 builder.Populate(services);
             });
         }
@@ -379,7 +379,7 @@ namespace ORBIT9000.Engine.Providers
                 builder.RegisterType(info.PluginType).AsSelf().As<IOrbitPlugin>().InstancePerDependency();
             }
 
-            var dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
+            IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(info.PluginType);
             dummy.RegisterServices(services);
         }
     }
