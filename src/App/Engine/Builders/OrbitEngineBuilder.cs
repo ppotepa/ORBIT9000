@@ -59,6 +59,9 @@ using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 >>>>>>> e2b2b5a (Reworked Naming)
 using ORBIT9000.Engine.Providers;
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
 
@@ -69,8 +72,11 @@ namespace ORBIT9000.Engine.Builders
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
+=======
+>>>>>>> 579366c (Change LoggerFactory to CompiledExpression (temporary))
         private static readonly MethodInfo _createLoggerMethod = typeof(LoggerFactoryExtensions)
                     .GetMethod(nameof(ILoggerFactory.CreateLogger), [typeof(ILoggerFactory)])!;
 
@@ -78,7 +84,6 @@ namespace ORBIT9000.Engine.Builders
         private readonly ContainerBuilder _containerBuilder;
         private readonly ILogger<OrbitEngineBuilder>? _logger;
         private readonly ILoggerFactory _loggerFactory;
-
         private IConfiguration? _configuration;
         private RawEngineConfiguration? _rawConfiguration;
 <<<<<<< HEAD
@@ -291,29 +296,24 @@ namespace ORBIT9000.Engine.Builders
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = _loggerFactory.CreateLogger<OrbitEngineBuilder>();
-            _logger.LogDebug("OrbitEngineBuilder initialized");
-
             _containerBuilder = new ContainerBuilder();
         }
-      
+
         public OrbitEngine Build()
         {
             _containerBuilder.RegisterInstance(_loggerFactory).As<ILoggerFactory>();
 
             _ = _containerBuilder.RegisterGeneric((context, genericArguments, parameters) =>
             {
-                _logger!.LogInformation("Trying to factorize Logger for {Type}", genericArguments[0].Name);
+                Type categoryType = genericArguments[0];
+                _logger!.LogDebug("Creating Logger for {Type}", categoryType.Name);
 
-                var loggerFactory = context.Resolve<ILoggerFactory>();
-
-                var method = typeof(LoggerFactoryExtensions)
-                    .GetMethods()
-                    .First(m => m.Name == "CreateLogger" && m.IsGenericMethod && m.GetParameters().Length == 1);
-
-                var genericMethod = method.MakeGenericMethod(genericArguments[0]);
-
-                return genericMethod.Invoke(null, [loggerFactory])!;
-            }).As(typeof(ILogger<>)).InstancePerDependency();
+                ILoggerFactory loggerFactory = context.Resolve<ILoggerFactory>();
+             
+                var factory = CreateLoggerFactory(categoryType);
+                return factory(loggerFactory);
+            })
+            .As(typeof(ILogger<>)).InstancePerDependency();
 
             _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>();
             _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf();
@@ -395,6 +395,24 @@ namespace ORBIT9000.Engine.Builders
 
             return this;
         }
+<<<<<<< HEAD
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+
+        private static Func<ILoggerFactory, object> CreateLoggerFactory(Type categoryType)
+        {
+            return _loggerFactoryCache.GetOrAdd(categoryType, type =>
+            {
+                ParameterExpression factoryParam = Expression.Parameter(typeof(ILoggerFactory), "factory");
+                MethodCallExpression callExpression = Expression.Call(null, _createLoggerMethod.MakeGenericMethod(type), factoryParam);
+
+                Expression<Func<ILoggerFactory, object>> lambda = Expression.Lambda<Func<ILoggerFactory, object>>(
+                    Expression.Convert(callExpression, typeof(object)),
+                    factoryParam);
+
+                return lambda.Compile();
+            });
+        }
+>>>>>>> 579366c (Change LoggerFactory to CompiledExpression (temporary))
     }
 }
