@@ -53,18 +53,23 @@ namespace EngineTerminal.Managers
 {
     public class UIManager : IUIManager
     {
-        private StatusItem _statusItem;
+        private StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
+
+        public StatusBar StatusBar { get; private set; }
         public Dictionary<string, ValueBinding> Bindings { get; private set; }
+        public View MainView { get; private set; }
         public PropertyGridView Grid { get; private set; }
+        public MenuBar MenuBar { get; private set; }
 
         public void Initialize(ExampleData initialData)
         {
             Application.Init();
 
-            var top = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            Grid = new PropertyGridView(top, initialData);
-            var menuBar = new MenuBar();
+            MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
+            Grid = new PropertyGridView(MainView, initialData);
+            MenuBar = new MenuBar();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             var statusBar = new StatusBar(new StatusItem[]
             {
@@ -104,16 +109,23 @@ namespace EngineTerminal.Managers
             _statusItem = new StatusItem(Key.Null, "Starting...", null);
 
             StatusBar statusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem])
+=======
+            StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), StatusItem])
+>>>>>>> a01f775 (Update Naming)
             {
-                CanFocus = true 
+                CanFocus = true
             };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             Application.Top.Add(top, statusBar);
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 =======
             Application.Top.Add(menuBar, top, statusBar);
 >>>>>>> dceb24b (Rework Translator into Property Grid View with event handling)
+=======
+            Application.Top.Add(MenuBar, MainView, StatusBar);
+>>>>>>> a01f775 (Update Naming)
         }
 
         public void Run() => Application.Run();
@@ -122,7 +134,7 @@ namespace EngineTerminal.Managers
         {
             Application.MainLoop.Invoke(() =>
             {
-                _statusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
+                StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
                 Application.Refresh();
             });
             
