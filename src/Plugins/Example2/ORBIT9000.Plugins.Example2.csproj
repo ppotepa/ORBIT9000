@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+<<<<<<< HEAD
     <TargetExt>.odll</TargetExt>    
   </PropertyGroup>
 
@@ -14,6 +15,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\App\Core\Coupled\ORBIT9000.Core.csproj" />
+=======
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\App\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
+>>>>>>> 83dd439 (Remove Code Smells)
   </ItemGroup>
 
 </Project>

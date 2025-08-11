@@ -30,11 +30,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 <<<<<<< HEAD
         IEnumerable<PluginInfo> LoadPlugins(object source);
         void Unload(object plugin);
+<<<<<<< HEAD
 =======
         IEnumerable<AssemblyLoadResult> LoadPlugins(object source);
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
         IEnumerable<PluginInfo> LoadPlugins(object source);
 >>>>>>> 254394d (Remove OverLogging)
+=======
+>>>>>>> 83dd439 (Remove Code Smells)
     }
 }

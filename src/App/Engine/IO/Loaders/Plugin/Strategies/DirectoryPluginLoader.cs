@@ -43,6 +43,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
@@ -54,6 +55,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 =======
         public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
 >>>>>>> 6b98999 (Add AutoFac)
+=======
+        public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, IAssemblyLoader loader) : base(logger, loader)
+>>>>>>> 83dd439 (Remove Code Smells)
         {
         }
 
@@ -90,6 +94,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             if (files.Length == 0)
             {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 _logger.LogWarning("No plugins found in {Name}", source.FullName);
 =======
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
@@ -102,6 +107,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
                 this._logger.LogWarning($"No plugins found in {source.FullName}");
 >>>>>>>> e2b2b5a (Reworked Naming):src/App/Engine/IO/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+                this._logger.LogWarning("No plugins found in {Name}", source.FullName);
+>>>>>>> 83dd439 (Remove Code Smells)
             }
             else
             {

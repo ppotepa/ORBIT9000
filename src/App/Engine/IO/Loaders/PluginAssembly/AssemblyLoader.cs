@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
 =======
 using ORBIT9000.Core.Abstractions.Loaders;
+=======
+>>>>>>> 83dd439 (Remove Code Smells)
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
 <<<<<<< HEAD
 using ORBIT9000.Engine.Loaders.Plugin.Results;
@@ -34,15 +37,13 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 
         private readonly ILogger<AssemblyLoader> _logger;
 
-        public AssemblyLoader(ILogger<AssemblyLoader> logger) 
+        public AssemblyLoader(ILogger<AssemblyLoader> logger)
         {
             this._logger = logger;
         }
 
         public Assembly Load(FileInfo info, bool loadAsBinary = false)
-        {   
-            Assembly? assembly = null;
-
+        {
             try
             {
                 PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
@@ -52,6 +53,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                 if (loadAsBinary)
                 {
                     byte[] bytes = File.ReadAllBytes(info.FullName);
+<<<<<<< HEAD
 <<<<<<< HEAD
                     return loadContext.LoadFromAssemblyBytes(bytes);
                 }
@@ -68,22 +70,22 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             }
 =======
                     assembly = loadContext.LoadFromAssemblyBytes(bytes);
+=======
+                    return loadContext.LoadFromAssemblyBytes(bytes);
+>>>>>>> 83dd439 (Remove Code Smells)
                 }
                 else
                 {
-                    assembly = loadContext.LoadFromAssemblyPath(info.FullName);
+                    return loadContext.LoadFromAssemblyPath(info.FullName);
                 }
-
-                var pluginTypes = assembly.GetTypes()
-                    .Where(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)))
-                    .ToArray();
-
-                return assembly;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load assembly from {Path}", info.FullName);                
+                var contextualMessage = $"Failed to load assembly from {info.FullName}.";
+                _logger.LogError(ex, contextualMessage);
+                throw new InvalidOperationException(contextualMessage, ex); 
             }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
             return new TryLoadAssemblyResult(assembly, pluginTypes, exceptions);
@@ -91,6 +93,8 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 =======
             return assembly;
 >>>>>>> 254394d (Remove OverLogging)
+=======
+>>>>>>> 83dd439 (Remove Code Smells)
         }
 
         public void UnloadAssembly(string assemblyPath)
@@ -115,7 +119,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             }
         }
 
-        public void UnloadAssembly(FileInfo info) 
+        public void UnloadAssembly(FileInfo info)
             => UnloadAssembly(info.FullName);
 <<<<<<< HEAD
 

@@ -1,6 +1,6 @@
-﻿using Flurl.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+<<<<<<< HEAD
 <<<<<<< HEAD
 using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Attributes;
@@ -9,6 +9,9 @@ using ORBIT9000.Plugins.Example.Common;
 =======
 using ORBIT9000.Core.Abstractions.Loaders;
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
+=======
+using ORBIT9000.Core.Abstractions;
+>>>>>>> 83dd439 (Remove Code Smells)
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
@@ -41,15 +44,14 @@ namespace ORBIT9000.Plugins.Example
     {
         private readonly ExampleDataProvider _dataProvider;
         private readonly ILogger<ExamplePlugin> _logger;
-        private readonly IServiceProvider _provider;
 
         public ExamplePlugin(IServiceProvider provider, ILogger<ExamplePlugin> logger, ExampleDataProvider dataProvider)
         {
-            this._provider = provider;
             this._logger = logger;
             this._dataProvider = dataProvider;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1481:Unused local variables should be removed", Justification = "<Pending>")]
         public Task OnLoad()
         {
             IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
@@ -73,10 +75,14 @@ namespace ORBIT9000.Plugins.Example
             return Task.CompletedTask;
         }
 
-        public void RegisterServices(IServiceCollection services)
+        public void RegisterServices(IServiceCollection collection)
         {
+<<<<<<< HEAD
             services.AddTransient<ExampleDataProvider>();
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
+=======
+            collection.AddTransient<ExampleDataProvider>();
+>>>>>>> 83dd439 (Remove Code Smells)
         }
     }
 }

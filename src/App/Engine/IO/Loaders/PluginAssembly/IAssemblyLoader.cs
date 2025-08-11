@@ -13,8 +13,12 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
     {
 =======
     public interface IAssemblyLoader : ILoader<Assembly>
+<<<<<<< HEAD
     {        
 >>>>>>> 254394d (Remove OverLogging)
+=======
+    {
+>>>>>>> 83dd439 (Remove Code Smells)
         void UnloadAssembly(string assemblyPath);
         void UnloadAssembly(FileInfo info);
     }
