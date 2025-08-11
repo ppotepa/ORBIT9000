@@ -76,30 +76,32 @@ namespace EngineTerminal.Managers
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ExampleData ExampleData { get; private set; }
-        public void Initialize()
-        {
-            ExampleData = CreateInitialData();
-        }
 
         /// <summary>
         /// NOTE: future update : WE WANT ONLY UPDATE PROPERTIES THAT HAVE CHANGED
         /// </summary>
         /// <param name="newData"></param>
-        public void UpdateData(ExampleData newData, Dictionary<string, ValueBinding> bindings)
+        public List<Action<Dictionary<string, ValueBinding>>> GetUpdates(ExampleData newData, Dictionary<string, ValueBinding> bindings)
         {
-            if (newData == null) return;
-            
-            if (newData.Frame1 != null)
+            if (newData == null) return [];
+
+            if (newData.Frame1 != null && newData.Frame1 != ExampleData.Frame1)
             {
-                UpdateProperties(newData.Frame1, ExampleData.Frame1, bindings, nameof(newData.Frame1));
+                return GetUpdateActions(newData.Frame1, ExampleData.Frame1, nameof(newData.Frame1));
             }
-            
-            if (newData.Frame2 != null)
+
+            if (newData.Frame2 != null && newData.Frame2 != ExampleData.Frame2)
             {
-                UpdateProperties(newData.Frame2, ExampleData.Frame2, bindings, nameof(newData.Frame2));
+                return GetUpdateActions(newData.Frame2, ExampleData.Frame2, nameof(newData.Frame2));
             }
+
+            return [];
         }
 
+        public void Initialize()
+        {
+            ExampleData = CreateInitialData();
+        }
         private ExampleData CreateInitialData()
         {
             var data = new ExampleData
@@ -123,18 +125,15 @@ namespace EngineTerminal.Managers
             return data;
         }
 
-        private void OnSubPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private List<Action<Dictionary<string, ValueBinding>>> GetUpdateActions(object source, object target, string parentPropertyName)
         {
-            PropertyChanged?.Invoke(sender, e);
-        }
+            var actions = new List<Action<Dictionary<string, ValueBinding>>>();
 
-        private void UpdateProperties(object source, object target, Dictionary<string, ValueBinding> bindings, string parentPropertyName)
-        {
-            if (source == null || target == null) return;
+            if (source == null || target == null) return actions;
 
             var properties = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-            foreach (var property in properties)
+            foreach (PropertyInfo property in properties)
             {
                 if (property.CanRead && property.CanWrite)
                 {
@@ -143,11 +142,21 @@ namespace EngineTerminal.Managers
 
                     if (!Equals(sourceValue, targetValue))
                     {
-                        property.SetValue(target, sourceValue);
-                        bindings[$"{parentPropertyName}.{property.Name}"].Value = sourceValue;
+                        actions.Add((bindings) =>
+                        {
+                            property.SetValue(target, sourceValue);
+                            bindings[$"{parentPropertyName}.{property.Name}"].Value = sourceValue;
+                        });
                     }
                 }
             }
+
+            return actions;
+        }
+
+        private void OnSubPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            PropertyChanged?.Invoke(sender, e);
         }
     }
 }

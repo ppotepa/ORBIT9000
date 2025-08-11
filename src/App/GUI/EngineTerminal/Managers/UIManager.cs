@@ -140,13 +140,20 @@ namespace EngineTerminal.Managers
             Application.MainLoop.Invoke(() => StatusItem.Title = message);
         }
 
-        public void UpdateUIFromData(ExampleData data)
+        public void UpdateUIFromData(List<Action<Dictionary<string, ValueBinding>>> updateActions)
         {
             Application.MainLoop.Invoke(() =>
             {
+<<<<<<< HEAD
                 UpdateControlsFromObject(data.Frame1, "SettingsData");
                 UpdateControlsFromObject(data.Frame2, "EngineData");
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
+=======
+                foreach(var action in updateActions)
+                {
+                    action(Bindings);
+                }   
+>>>>>>> b9809e5 (Remove redunant portion of the code.)
 
                 Application.Refresh();
             });
@@ -202,27 +209,6 @@ namespace EngineTerminal.Managers
         private void ForwardPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             PropertyChanged?.Invoke(sender, e);
-        }
-
-        private void UpdateControlsFromObject(object source, string typeName)
-        {
-            if (source == null) return;
-
-            var properties = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (var property in properties)
-            {
-                if (!property.CanRead) continue;
-
-                string key = $"{typeName}.{property.Name}";
-
-                if (Bindings.TryGetValue(key, out var binding))
-                {
-                    object value = property.GetValue(source);
-                    binding.Value = value;
-                    binding.View.SetNeedsDisplay();
-                }
-            }
         }
 
         private string GetPropertyPath(object sender, string propertyName)
