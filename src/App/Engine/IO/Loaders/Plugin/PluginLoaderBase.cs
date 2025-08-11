@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Abstractions;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
@@ -8,6 +9,10 @@ using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Validation;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
+>>>>>>> 254394d (Remove OverLogging)
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin
 {
@@ -49,19 +54,29 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
         }
   
+<<<<<<< HEAD
         public abstract IEnumerable<AssemblyLoadResult> LoadPlugins(TSource source);
         public IEnumerable<AssemblyLoadResult> LoadPlugins(object source)
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+        public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
+
+        public IEnumerable<PluginInfo> LoadPlugins(object source)
+>>>>>>> 254394d (Remove OverLogging)
         {
-            return LoadPlugins((TSource)source);
+            return ((IPluginLoader<TSource>)this).LoadPlugins((TSource)source);
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         protected PluginInfo LoadSingle(string path)
         {
             FileInfo fileInfo = new(path);
 =======
         protected AssemblyLoadResult LoadSingle(string path)
+=======
+        protected PluginInfo LoadSingle(string path)
+>>>>>>> 254394d (Remove OverLogging)
         {
             FileInfo fileInfo = new FileInfo(path);
 >>>>>>> e2b2b5a (Reworked Naming)
@@ -70,6 +85,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             {
                 _logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
                 PluginInfo result = TryLoadSingleFile(fileInfo);
 
@@ -111,34 +127,20 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             throw new NotImplementedException();
 =======
                 AssemblyLoadResult details = TryLoadSingleFile(fileInfo);
+=======
+                PluginInfo result = TryLoadSingleFile(fileInfo);
+>>>>>>> 254394d (Remove OverLogging)
 
-                return details;
+                return result;
             }
         }
 
-        private static string FormatErrorMessages(List<Exception> exceptions)
-            => string.Join('\n', exceptions.Select(ex => ex.Message));
-
-        private AssemblyLoadResult CreateAssemblyLoadResult(
-            PluginFileValidator fileValidator,
-            TryLoadAssemblyResult? assemblyLoadResult,
-            List<Exception> exceptions)
+        private PluginInfo TryLoadSingleFile(FileInfo info)
         {
-            return new AssemblyLoadResult(
-                exists: fileValidator.FileExists,
-                isDll: fileValidator.IsDll,
-                containsPlugins: assemblyLoadResult?.PluginTypes.Any() ?? false,
-                error: FormatErrorMessages(exceptions),
-                assembly: assemblyLoadResult?.Assembly,
-                pluginTypes: assemblyLoadResult?.PluginTypes ?? Array.Empty<Type>(),
-                exceptions: exceptions
-            );
-        }
-
-        private void HandleErrors(List<Exception> exceptions)
-        {
-            if (_abortOnError)
+            var assemblyLoadResult = _assemblyLoader.Load(info);
+            return new PluginInfo
             {
+<<<<<<< HEAD
                 _logger.LogCritical("Aborting due to errors:");
 
                 foreach (Exception ex in exceptions)
@@ -185,6 +187,11 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
             return CreateAssemblyLoadResult(fileValidator, assemblyLoadResult, allExceptions);
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+                Assembly = assemblyLoadResult,
+                FileInfo = info
+            };
+>>>>>>> 254394d (Remove OverLogging)
         }
     }
 }

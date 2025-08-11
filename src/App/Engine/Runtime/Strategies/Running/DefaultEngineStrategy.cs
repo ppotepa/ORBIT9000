@@ -169,7 +169,7 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         {
-            foreach (var plugin in engine.PluginProvider.GetPluginRegistrationInfo().SelectMany(t => t.PluginTypes))
+            foreach (var plugin in engine.PluginProvider.GetPluginRegistrationInfo())
             {
                 var instance = engine.PluginProvider.Register(plugin) as IOrbitPlugin;
                 instance.RegisterServices(new ServiceCollection());

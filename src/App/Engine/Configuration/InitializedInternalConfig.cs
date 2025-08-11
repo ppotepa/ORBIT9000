@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Configuration
 {
@@ -10,10 +9,19 @@ namespace ORBIT9000.Engine.Configuration
     /// </summary>
     public class InitializedInternalConfig
     {
-        private readonly Raw.RawConfiguration _config;        
+        private readonly Raw.RawConfiguration _config;
         private readonly ILogger<InitializedInternalConfig> _logger;
         private readonly IConfiguration configuration;
-        private readonly IPluginLoader _loader; 
+        private readonly IPluginLoader _loader;
+
+        private object PluginSource
+        {
+            get
+            {
+                if (_config.OrbitEngine.Plugins.ActivePlugins.Any()) return _config.OrbitEngine.Plugins.ActivePlugins;
+                else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            }
+        }
 
         public InitializedInternalConfig(ILogger<InitializedInternalConfig> logger, Raw.RawConfiguration config, IPluginLoader loader)
         {
@@ -26,11 +34,7 @@ namespace ORBIT9000.Engine.Configuration
 
             try
             {
-                DirectoryInfo defaultFolder = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-
-                DefaultFolder = defaultFolder;
-                var plugins = _loader.LoadPlugins(defaultFolder).Where(x => x.ContainsPlugins).ToArray();
-                PluginInfo = plugins;
+                Plugins = _loader.LoadPlugins(PluginSource).Where(x => x.ContainsPlugins).ToArray();              
             }
             catch (Exception ex)
             {
@@ -40,6 +44,6 @@ namespace ORBIT9000.Engine.Configuration
         }
 
         public DirectoryInfo DefaultFolder { get; set; }
-        public AssemblyLoadResult[] PluginInfo { get; set; }
+        public PluginInfo[] Plugins { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
@@ -16,6 +17,11 @@ using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.Configuration.Raw;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
+>>>>>>> 254394d (Remove OverLogging)
 
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
 >>>>>>> e2b2b5a (Reworked Naming)
@@ -60,9 +66,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         {
         }
 
+<<<<<<< HEAD
         public override IEnumerable<AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
 >>>>>>>> e2b2b5a (Reworked Naming):src/App/Engine/IO/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+        public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
+>>>>>>> 254394d (Remove OverLogging)
         {
             if (!source.Exists)
                 source.Create();
