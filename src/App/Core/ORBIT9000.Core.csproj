@@ -42,4 +42,8 @@
 >>>>>>> f6f2dca (Reorganise Project Files)
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\Plugin\" />
+  </ItemGroup>
+
 </Project>

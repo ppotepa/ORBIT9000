@@ -1,13 +1,8 @@
 ﻿namespace ORBIT9000.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class DefaultProjectAttribute : Attribute
+    public class DefaultProjectAttribute(string projectName) : Attribute
     {
-        public DefaultProjectAttribute(string projectName)
-        {
-            this.DefaultProjectName = projectName;
-        }
-
-        public string DefaultProjectName { get; }
+        public string DefaultProjectName { get; } = projectName;
     }
 }

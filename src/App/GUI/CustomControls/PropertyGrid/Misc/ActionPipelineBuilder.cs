@@ -94,12 +94,12 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
         {
-            _valueField = valueField;
-            _targetBinding = targetBinding;
-            _parent = parent;
-            _propertyInfo = propertyInfo;
-            _pipeline.Clear();
-            _pipeline.Add(_ => ProcessInputValue());
+            this._valueField = valueField;
+            this._targetBinding = targetBinding;
+            this._parent = parent;
+            this._propertyInfo = propertyInfo;
+            this._pipeline.Clear();
+            this._pipeline.Add(_ => this.ProcessInputValue());
             return this;
         }
 
@@ -120,10 +120,10 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
-            _pipeline.Add(_ =>
+            this._pipeline.Add(_ =>
             {
                 if (condition())
-                    action(_targetBinding!);
+                    action(this._targetBinding!);
             });
             return this;
         }
@@ -144,7 +144,7 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
-            _pipeline.Insert(0, action);
+            this._pipeline.Insert(0, action);
             return this;
         }
 
@@ -164,7 +164,7 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
-            _pipeline.Add(action);
+            this._pipeline.Add(action);
             return this;
         }
 
@@ -179,7 +179,11 @@ namespace Terminal.Gui.CustomViews.Misc
 <<<<<<< HEAD
         public Action<ustring> Build() => input =>
         {
+<<<<<<< HEAD
             foreach (Action<ustring> step in _pipeline)
+=======
+            foreach (Action<ustring> step in this._pipeline)
+>>>>>>> bfa6c2d (Try fix pipeline)
                 step(input);
         };
 
@@ -204,9 +208,10 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         private void ProcessInputValue()
         {
-            if (_valueField == null || _targetBinding == null || _parent == null || _propertyInfo == null)
+            if (this._valueField == null || this._targetBinding == null || this._parent == null || this._propertyInfo == null)
                 return;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             string? text = _valueField.Text.ToString();
             switch (Type.GetTypeCode(_propertyInfo.PropertyType))
@@ -222,20 +227,28 @@ namespace Terminal.Gui.CustomViews.Misc
 =======
             var text = _valueField.Text.ToString();
             switch (Type.GetTypeCode(_propertyInfo.PropertyType))
+=======
+            string? text = this._valueField.Text.ToString();
+            switch (Type.GetTypeCode(this._propertyInfo.PropertyType))
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 case TypeCode.String:
-                    ApplyValue(text!); break;
+                    this.ApplyValue(text!); break;
                 case TypeCode.Int32:
-                    if (int.TryParse(text, out var i)) ApplyValue(i);
+                    if (int.TryParse(text, out int i)) this.ApplyValue(i);
                     break;
 
                 case TypeCode.Boolean:
+<<<<<<< HEAD
 <<<<<<< HEAD
                     if (bool.TryParse(text, out var b)) ApplyValue(b, text);
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 =======
                     if (bool.TryParse(text, out var b)) ApplyValue(b);
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+                    if (bool.TryParse(text, out bool b)) this.ApplyValue(b);
+>>>>>>> bfa6c2d (Try fix pipeline)
                     break;
             }
         }
@@ -256,6 +269,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// TODO: THERE IS SOMETHING WRONG WITH THIS METHOD
         /// Applies the validated value to the target property and binding.
         /// </summary>
+<<<<<<< HEAD
         /// <typeparam name="T">The type of the value.</typeparam>
 <<<<<<< HEAD
         /// <param name="value">The value to apply.</param>
@@ -272,9 +286,16 @@ namespace Terminal.Gui.CustomViews.Misc
             if (_propertyInfo == null || _parent == null || _targetBinding == null || value == null) return;
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
             if (Validate(_propertyInfo, _parent, value))
+=======
+        /// <param name="value">The value to apply.</param>
+        private void ApplyValue(object value)
+        {
+            if (this._propertyInfo == null || this._parent == null || this._targetBinding == null || value == null) return;
+            if (Validate(this._propertyInfo, this._parent, value))
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
-                _targetBinding.Value = value!;
-                _propertyInfo.SetValue(_parent, value);
+                this._targetBinding.Value = value!;
+                this._propertyInfo.SetValue(this._parent, value);
             }
         }
 
@@ -290,6 +311,7 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="value">The value to validate.</param>
         /// <returns>True if the value is valid; otherwise, false.</returns>
 <<<<<<< HEAD
+<<<<<<< HEAD
         private static bool Validate(PropertyInfo prop, object parent, object value)
         {
             IEnumerable<ValidationAttribute> attributes = prop.GetCustomAttributes<ValidationAttribute>();
@@ -300,12 +322,18 @@ namespace Terminal.Gui.CustomViews.Misc
         {
             var attributes = prop.GetCustomAttributes<ValidationAttribute>();
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+        private static bool Validate(PropertyInfo prop, object parent, object value)
+        {
+            IEnumerable<ValidationAttribute> attributes = prop.GetCustomAttributes<ValidationAttribute>();
+>>>>>>> bfa6c2d (Try fix pipeline)
 
             if (!attributes.Any())
             {
                 return true;
             }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             ValidationContext context = new(parent) { MemberName = prop.Name };
 
@@ -315,6 +343,11 @@ namespace Terminal.Gui.CustomViews.Misc
 
             foreach (var attr in attributes)
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+            ValidationContext context = new(parent) { MemberName = prop.Name };
+
+            foreach (ValidationAttribute attr in attributes)
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 ValidationResult? res = attr.GetValidationResult(value, context);
                 if (res != ValidationResult.Success)

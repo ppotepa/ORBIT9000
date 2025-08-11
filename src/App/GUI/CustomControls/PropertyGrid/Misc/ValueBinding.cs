@@ -39,18 +39,27 @@ namespace Terminal.Gui.CustomViews.Misc
         /// Gets or sets the value bound to the view.
         /// When set, automatically updates the view content based on the value type.
         /// </summary>
+<<<<<<< HEAD
         public object Value
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+        public object? Value
+>>>>>>> bfa6c2d (Try fix pipeline)
         {
-            get => _value;
+            get => this._value;
             set
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 _value = value!;
 =======
                 _value = value;
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
                 switch (View)
+=======
+                this._value = value!;
+                switch (this.View)
+>>>>>>> bfa6c2d (Try fix pipeline)
                 {
                     case Label label:
                         label.Text = value?.ToString();
@@ -81,8 +90,8 @@ namespace Terminal.Gui.CustomViews.Misc
 >>>>>>> 5710a06 (Add Readme)
         public ValueBinding(View view, ref object value)
         {
-            View = view;
-            _value = value;
+            this.View = view;
+            this._value = value;
         }
     }
 }

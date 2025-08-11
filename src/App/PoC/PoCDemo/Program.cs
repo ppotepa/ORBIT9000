@@ -30,6 +30,7 @@ namespace ORBIT9000.PoCDemo
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             ArgumentNullException.ThrowIfNull(args);
 
             Log.Logger = new LoggerConfiguration()
@@ -48,6 +49,10 @@ namespace ORBIT9000.PoCDemo
 =======
         {
 >>>>>>> fd5a59f (Code Cleanup)
+=======
+            ArgumentNullException.ThrowIfNull(args);
+
+>>>>>>> bfa6c2d (Try fix pipeline)
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: _outputTemplate)

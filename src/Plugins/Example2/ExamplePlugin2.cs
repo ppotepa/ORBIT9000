@@ -29,15 +29,14 @@ namespace ORBIT9000.Plugins.Example2
             this._logger = _logger;
 =======
 using ORBIT9000.Core.Abstractions;
-using ORBIT9000.Plugins.Example.Services;
+using ORBIT9000.Plugins.Example2.Services;
 
-namespace ORBIT9000.Plugins.Example
+namespace ORBIT9000.Plugins.Example2
 {
     public class ExamplePlugin2 : IOrbitPlugin
     {
         private readonly ILogger<ExamplePlugin2> _logger;
         private readonly RandomNumberService _numbers;
-
 
         // we should not be able to get data from the ExampleDataProvider here
         // Accessing data from the ExampleDataProvider here is not allowed
@@ -68,6 +67,7 @@ namespace ORBIT9000.Plugins.Example
 
         public async Task OnLoad()
         {
+<<<<<<< HEAD
             IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
             _logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
 <<<<<<< HEAD
@@ -90,6 +90,10 @@ namespace ORBIT9000.Plugins.Example
 >>>>>>> 56ba6c0 (Add Generic Message Channel)
 =======
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+            IEnumerable<int> data = await this._numbers.GenerateRandomNumbers();
+            this._logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
+>>>>>>> bfa6c2d (Try fix pipeline)
         }
 
         public Task OnUnload()
@@ -107,6 +111,9 @@ namespace ORBIT9000.Plugins.Example
     }
 =======
     }
+<<<<<<< HEAD
 
 >>>>>>> 53c6dc2 (Further Remove code smells.)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
 }

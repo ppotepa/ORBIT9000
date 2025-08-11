@@ -10,10 +10,10 @@ namespace EngineTerminal.Managers
     public class UIManager : IUIManager
     {
         public delegate void BindingAction(Dictionary<string, ValueBinding> bindings);
-        
-        private readonly StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
-        private readonly StatusItem AdditionalStatusItem = new StatusItem(Key.Null, "...", null);
-        private readonly StatusItem CurrentMethod = new StatusItem(Key.Null, "[No Invocations just yet]", null);
+
+        private readonly StatusItem StatusItem = new(Key.Null, "Starting...", null);
+        private readonly StatusItem AdditionalStatusItem = new(Key.Null, "...", null);
+        private readonly StatusItem CurrentMethod = new(Key.Null, "[No Invocations just yet]", null);
 
 <<<<<<< HEAD
         private readonly StatusItem StatusItem = new(Key.Null, "Starting...", null);
@@ -27,6 +27,7 @@ namespace EngineTerminal.Managers
         {
             get
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 if (Grid == null)
                 {
@@ -76,8 +77,14 @@ namespace EngineTerminal.Managers
                     throw new InvalidOperationException("Grid is not initialized.");
                 }   
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+                if (this.Grid == null)
+                {
+                    throw new InvalidOperationException("Grid is not initialized.");
+                }
+>>>>>>> bfa6c2d (Try fix pipeline)
 
-                return Grid.Bindings ?? new Dictionary<string, ValueBinding>();
+                return this.Grid.Bindings ?? [];
             }
         }
 
@@ -89,10 +96,11 @@ namespace EngineTerminal.Managers
         {
             Application.Init();
 
-            MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            Grid = new PropertyGridView(MainView, data);
-            MenuBar = new MenuBar();
+            this.MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
+            this.Grid = new PropertyGridView(this.MainView, data);
+            this.MenuBar = new MenuBar();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -105,12 +113,19 @@ namespace EngineTerminal.Managers
 =======
             StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), StatusItem, AdditionalStatusItem, CurrentMethod])
 >>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
+=======
+            this.StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), this.StatusItem, this.AdditionalStatusItem, this.CurrentMethod])
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 CanFocus = true
             };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             Application.Top.Add(MenuBar, MainView, StatusBar);
+=======
+            Application.Top.Add(this.MenuBar, this.MainView, this.StatusBar);
+>>>>>>> bfa6c2d (Try fix pipeline)
         }
 
         public void Run() => Application.Run();
@@ -123,11 +138,11 @@ namespace EngineTerminal.Managers
             {
                 if (additionalInfo != null)
                 {
-                    AdditionalStatusItem.Title = additionalInfo;
+                    this.AdditionalStatusItem.Title = additionalInfo;
                 }
                 else
                 {
-                    StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
+                    this.StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
                 }
 =======
             Application.Top.Add(topLayer);
@@ -228,7 +243,7 @@ namespace EngineTerminal.Managers
         {
             Application.MainLoop.Invoke(() =>
             {
-                CurrentMethod.Title = message;
+                this.CurrentMethod.Title = message;
                 Application.Refresh();
             });
         }
@@ -239,7 +254,7 @@ namespace EngineTerminal.Managers
             {
                 foreach (BindingAction update in updates)
                 {
-                    update(Grid!.Bindings);
+                    update(this.Grid!.Bindings);
                 }
 
                 Application.Refresh();
@@ -247,6 +262,7 @@ namespace EngineTerminal.Managers
         }
 
         private static void ShowHelp()
+<<<<<<< HEAD
         {
             MessageBox.Query("Help", "Engine Terminal\nUse menus to navigate.\nValues update automatically.", "OK");
         }
@@ -295,6 +311,8 @@ namespace EngineTerminal.Managers
 =======
 >>>>>>> 5ae5b98 (Add Inversion of Control)
         private void ShowHelp()
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
         {
             MessageBox.Query("Help", "Engine Terminal\nUse menus to navigate.\nValues update automatically.", "OK");
         }

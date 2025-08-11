@@ -4,6 +4,7 @@
 namespace ORBIT9000.Engine.IO.Loaders
 {
     public class PluginRegistrationInfo(bool registered)
+<<<<<<< HEAD
     {
         public bool AllowMultiple { get; internal set; } = false;
         public bool IsLoaded { get; internal set; }
@@ -18,20 +19,22 @@ namespace ORBIT9000.Engine.IO.Loaders
 >>>>>>> 9e426ec (Add LifetimeScope Sharing Between Plugins)
 {
     public class PluginRegistrationInfo
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
     {
-        public PluginRegistrationInfo(bool registered)
-        {
-            this.Registered = registered;
-        }
-
         public bool AllowMultiple { get; internal set; } = false;
         public bool IsLoaded { get; internal set; }
+<<<<<<< HEAD
         public bool Registered { get; set; }
         public List<Task> Tasks { get; set; } = new List<Task>();
 <<<<<<< HEAD
         public Type Type { get; internal set;}
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
+=======
+        public bool Registered { get; set; } = registered;
+        public List<Task> Tasks { get; set; } = [];
+>>>>>>> bfa6c2d (Try fix pipeline)
         public Type Type { get; internal set; }
 >>>>>>> fd5a59f (Code Cleanup)
     }

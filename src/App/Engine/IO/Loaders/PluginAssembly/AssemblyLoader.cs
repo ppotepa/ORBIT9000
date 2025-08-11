@@ -17,6 +17,7 @@ using System.Reflection;
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     internal sealed class AssemblyLoader(ILogger<AssemblyLoader> logger) : IAssemblyLoader
     {
         private static readonly Dictionary<string, PluginLoadContext> _loadContexts
@@ -31,23 +32,25 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
                 PluginLoadContext loadContext = new(info.FullName);
 =======
     internal sealed class AssemblyLoader : IAssemblyLoader
+=======
+    internal sealed class AssemblyLoader(ILogger<AssemblyLoader> logger) : IAssemblyLoader
+>>>>>>> bfa6c2d (Try fix pipeline)
     {
         private static readonly Dictionary<string, PluginLoadContext> _loadContexts
-            = new Dictionary<string, PluginLoadContext>();
+            = [];
 
-        private readonly ILogger<AssemblyLoader> _logger;
-
-        public AssemblyLoader(ILogger<AssemblyLoader> logger)
-        {
-            this._logger = logger;
-        }
+        private readonly ILogger<AssemblyLoader> _logger = logger;
 
         public Assembly Load(FileInfo info, bool loadAsBinary = false)
         {
             try
             {
+<<<<<<< HEAD
                 PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+                PluginLoadContext loadContext = new(info.FullName);
+>>>>>>> bfa6c2d (Try fix pipeline)
                 _loadContexts[info.FullName] = loadContext;
 
                 if (loadAsBinary)
@@ -65,6 +68,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             catch (Exception ex)
             {
                 string contextualMessage = $"Failed to load assembly from {info.FullName}.";
+<<<<<<< HEAD
                 _logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
                 throw new InvalidOperationException(contextualMessage, ex);
             }
@@ -83,6 +87,9 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             {
                 var contextualMessage = $"Failed to load assembly from {info.FullName}.";
                 _logger.LogError(ex, contextualMessage);
+=======
+                this._logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
+>>>>>>> bfa6c2d (Try fix pipeline)
                 throw new InvalidOperationException(contextualMessage, ex);
             }
 <<<<<<< HEAD
@@ -100,6 +107,7 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
         public void UnloadAssembly(string assemblyPath)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (_loadContexts.TryGetValue(assemblyPath, out PluginLoadContext? loadContext))
             {
                 loadContext.Unload();
@@ -112,19 +120,26 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             => UnloadAssembly(info.FullName);
 =======
             if (_loadContexts.TryGetValue(assemblyPath, out var loadContext))
+=======
+            if (_loadContexts.TryGetValue(assemblyPath, out PluginLoadContext? loadContext))
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
+                this._logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 
         public void UnloadAssembly(FileInfo info)
+<<<<<<< HEAD
             => UnloadAssembly(info.FullName);
 <<<<<<< HEAD
 
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
 >>>>>>> 254394d (Remove OverLogging)
+=======
+            => this.UnloadAssembly(info.FullName);
+>>>>>>> bfa6c2d (Try fix pipeline)
     }
 }

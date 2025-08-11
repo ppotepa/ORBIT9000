@@ -4,6 +4,7 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+<<<<<<< HEAD
 using ORBIT9000.Abstractions.Providers;
 using ORBIT9000.Abstractions.Scheduling;
 =======
@@ -22,11 +23,15 @@ using ORBIT9000.Abstractions;
 <<<<<<< HEAD
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
 =======
+=======
+using ORBIT9000.Core.Abstractions.Providers;
+>>>>>>> bfa6c2d (Try fix pipeline)
 using ORBIT9000.Core.Abstractions.Scheduling;
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Runtime.State;
 using ORBIT9000.Engine.Runtime.Strategies.Running;
+<<<<<<< HEAD
 =======
 ﻿using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
@@ -47,6 +52,8 @@ using ORBIT9000.Engine.State;
 >>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 using ORBIT9000.Engine.Runtime.State;
 >>>>>>> 254394d (Remove OverLogging)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
 
 namespace ORBIT9000.Engine
 {
@@ -96,6 +103,7 @@ namespace ORBIT9000.Engine
 >>>>>>> 18f5855 (Replace Dictionary of Actions with more clean BindingAction Type)
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
+<<<<<<< HEAD
         private readonly IPluginProvider _pluginProvider;
         private readonly IServiceProvider _serviceProvider;
 <<<<<<< HEAD
@@ -127,6 +135,10 @@ namespace ORBIT9000.Engine
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         private RuntimeSettings _configuration;
+=======
+
+        public IScheduler Scheduler { get; }
+>>>>>>> bfa6c2d (Try fix pipeline)
 
         #endregion Fields
 
@@ -232,24 +244,26 @@ namespace ORBIT9000.Engine
 =======
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 
-            _logger = loggerFactory.CreateLogger<OrbitEngine>()
+            this._logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
-            _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
-            _mainThread.IsBackground = true;
+            this._mainThread = new Thread(Default.EngineStartupStrategy)
+            {
+                IsBackground = true,
 
-            _mainThread.Name = "MainEngineThread";
+                Name = "MainEngineThread"
+            };
 
-            _pluginProvider = pluginProvider;
-            _serviceProvider = serviceProvider;
+            this.PluginProvider = pluginProvider;
+            this.ServiceProvider = serviceProvider;
 
-            _scheduler = scheduler;
+            this.Scheduler = scheduler;
 
-            IsInitialized = true;
-            IsRunning = true;
+            this.IsInitialized = true;
+            this.IsRunning = true;
 
-            _configuration = configuration;
-            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
+            this.Configuration = configuration;
+            this._logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
         }
 
         #endregion Constructors
@@ -257,24 +271,31 @@ namespace ORBIT9000.Engine
         #region Properties
 
         public bool IsInitialized { get; }
-        public bool IsRunning { get; private set; }
-        public IPluginProvider PluginProvider { get => _pluginProvider; }
-        public IServiceProvider ServiceProvider { get => _serviceProvider; }
-        internal RuntimeSettings Configuration { get => _configuration; set => _configuration = value; }
-
-        #endregion Properties
-
-        #region Methods
+        public bool IsRunning { get; internal set; }
+        public IPluginProvider PluginProvider { get; }
+        public IServiceProvider ServiceProvider { get; }
+        internal RuntimeSettings Configuration { get; set; }
 
         public void Start()
         {
-            if (!IsInitialized)
+            if (!this.IsInitialized)
+            {
                 throw new InvalidOperationException("Engine has not been initialized.");
+            }
 
-            _logger.LogInformation("Starting engine thread...");
-            _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
+            ILifetimeScope root = this.ServiceProvider.GetAutofacRoot();
+            EngineState state = root.Resolve<EngineState>();
 
+<<<<<<< HEAD
             while (IsRunning)
+=======
+            this._logger.LogInformation("Starting engine thread...");
+            this._mainThread.Start(state);
+
+            this.Scheduler.StartAsync();
+
+            while (this.IsRunning)
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 Thread.Sleep(100);
             }

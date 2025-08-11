@@ -73,6 +73,7 @@ namespace Terminal.Gui.CustomViews
         /// <param name="oldValue">The previous value of the property.</param>
         /// <param name="newValue">The new value of the property.</param>
         public class BindingChangedEventArgs(string propertyName, object? oldValue, object? newValue) : EventArgs
+<<<<<<< HEAD
         {
             /// <summary>
             /// Gets the name of the property that changed.
@@ -97,42 +98,36 @@ namespace Terminal.Gui.CustomViews
         /// </summary>
 >>>>>>> 5710a06 (Add Readme)
         public class BindingChangedEventArgs : EventArgs
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
         {
             /// <summary>
             /// Gets the name of the property that changed.
             /// </summary>
-            public string PropertyName { get; }
+            public string? PropertyName { get; } = propertyName;
 
             /// <summary>
             /// Gets the previous value of the property.
             /// </summary>
-            public object? OldValue { get; }
+            public object? OldValue { get; } = oldValue;
 
             /// <summary>
             /// Gets the new value of the property.
             /// </summary>
-            public object? NewValue { get; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BindingChangedEventArgs"/> class.
-            /// </summary>
-            /// <param name="propertyName">The name of the property that changed.</param>
-            /// <param name="oldValue">The previous value of the property.</param>
-            /// <param name="newValue">The new value of the property.</param>
-            public BindingChangedEventArgs(string propertyName, object? oldValue, object? newValue)
-            {
-                PropertyName = propertyName;
-                OldValue = oldValue;
-                NewValue = newValue;
-            }
+            public object? NewValue { get; } = newValue;
         }
+<<<<<<< HEAD
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+
+>>>>>>> bfa6c2d (Try fix pipeline)
         private const BindingFlags NOT_INHERITED = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
 
         private readonly int _cols, _rows;
         private readonly object _data;
         private readonly View _top;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         private readonly ustring SECRET = "👴🏼";
 
@@ -152,43 +147,15 @@ namespace Terminal.Gui.CustomViews
         /// <param name="rows">The number of rows in the property grid layout.</param>
         /// <param name="cols">The number of columns in the property grid layout.</param>
 =======
+=======
+        private readonly ustring SECRET = "👴🏼";
+>>>>>>> bfa6c2d (Try fix pipeline)
 
-        private readonly ustring SECRET =
-@"
-┌──────────────────────────────────────────────┐
-│ WHEN YOU'RE POLISH, LOVE KARATE,            │
-│ AND VISIT 104 COUNTRIES AS POPE            │
-└──────────────────────────────────────────────┘
-
-             .-""""-.
-           .'        '.
-          /   _  _     \
-         |   (o)(o)     |
-         |     __       |
-         |   .'  '.     |
-         |  |      |    |
-         |   '.  .'     |
-          \    '--'    /
-           '.        .'
-             '-.__.-'
-
-             /|     |\
-            /_|_____|_\
-              |     |
-              |     |
-              |     |
-             /|     |\
-            /_|_____|_\
-
-┌──────────────────────────────────────────────┐
-│ 'I TRAVELLED MORE THAN YOUR AVERAGE PILGRIM' │
-└──────────────────────────────────────────────┘";
         /// <summary>
         /// A dictionary containing all value bindings managed by this property grid.
         /// Keys are property paths in format "PropertyName.SubPropertyName".
         /// </summary>
-        public readonly Dictionary<string, ValueBinding> Bindings = new Dictionary<string, ValueBinding>();
-
+        public Dictionary<string, ValueBinding> Bindings { get; }
 
         private readonly View _main;
 
@@ -205,12 +172,12 @@ namespace Terminal.Gui.CustomViews
 >>>>>>> 5710a06 (Add Readme)
         public PropertyGridView(View top, object data, int rows = 5, int cols = 5)
         {
-            _top = top;
-            _data = data;
-            _rows = rows;
-            _cols = cols;
+            this._top = top;
+            this._data = data;
+            this._rows = rows;
+            this._cols = cols;
 
-            _main = new FrameView("Main")
+            this._main = new FrameView("Main")
             {
                 X = 0,
                 Y = 1,
@@ -219,7 +186,11 @@ namespace Terminal.Gui.CustomViews
             };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             Bindings = TranslateView();
+=======
+            this.Bindings = this.TranslateView();
+>>>>>>> bfa6c2d (Try fix pipeline)
         }
 
         /// <summary>
@@ -240,13 +211,16 @@ namespace Terminal.Gui.CustomViews
 >>>>>>> 5710a06 (Add Readme)
         public override void Redraw(Rect bounds)
         {
-            TranslateView();
+            this.TranslateView();
             base.Redraw(bounds);
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
         private readonly Dictionary<Type, PropertyInfo[]> _propertyInfoCache = [];
 
         /// <summary>
@@ -255,6 +229,7 @@ namespace Terminal.Gui.CustomViews
         /// <returns>A dictionary of property bindings created during the translation.</returns>
         public Dictionary<string, ValueBinding> TranslateView()
         {
+<<<<<<< HEAD
             Type dataType = _data.GetType();
             if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
 =======
@@ -279,9 +254,13 @@ namespace Terminal.Gui.CustomViews
 =======
             if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+            Type dataType = this._data.GetType();
+            if (!this._propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 properties = dataType.GetProperties(NOT_INHERITED);
-                _propertyInfoCache[dataType] = properties;
+                this._propertyInfoCache[dataType] = properties;
             }
 
             MenuBarItem[] items = new MenuBarItem[properties.Length];
@@ -290,38 +269,46 @@ namespace Terminal.Gui.CustomViews
             {
                 PropertyInfo info = properties[i];
 <<<<<<< HEAD
+<<<<<<< HEAD
                 FrameView frame = new(info.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
 =======
                 FrameView frame = new FrameView(info.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+                FrameView frame = new(info.Name) { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
+>>>>>>> bfa6c2d (Try fix pipeline)
 
                 items[i] = new MenuBarItem(info.Name, "", () =>
                 {
-                    _main.RemoveAll();
-                    _main.Add(frame);
+                    this._main.RemoveAll();
+                    this._main.Add(frame);
 
                     Application.Refresh();
                 });
 
-                GeneratePropertyGrid(frame, info);
+                this.GeneratePropertyGrid(frame, info);
             }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             MenuBar? menuBar = Application.Top.Subviews.OfType<MenuBar>()
 =======
             var menuBar = Application.Top.Subviews.OfType<MenuBar>()
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+            MenuBar? menuBar = Application.Top.Subviews.OfType<MenuBar>()
+>>>>>>> bfa6c2d (Try fix pipeline)
               .FirstOrDefault();
 
             if (menuBar is not null)
             {
                 menuBar.Data = items;
-                _top.Add(_main);
+                this._top.Add(this._main);
             }
             else
             {
                 menuBar = new MenuBar(items);
-                _top.Add(menuBar, _main);
+                this._top.Add(menuBar, this._main);
             }
 
 <<<<<<< HEAD
@@ -347,12 +334,17 @@ namespace Terminal.Gui.CustomViews
         /// <param name="info">The property info representing the object whose properties will be displayed.</param>
         private void GeneratePropertyGrid(FrameView container, PropertyInfo info)
         {
+<<<<<<< HEAD
             var val = info.GetValue(_data);
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+            object? val = info.GetValue(this._data);
+>>>>>>> bfa6c2d (Try fix pipeline)
 
             if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
             {
                 int index = 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
                 foreach (PropertyInfo subProperty in info.PropertyType.GetProperties(NOT_INHERITED))
                 {
@@ -381,32 +373,42 @@ namespace Terminal.Gui.CustomViews
                     text.TextChanged += PipelineFactory.Builder
 =======
                 foreach (var subProperty in info.PropertyType.GetProperties(NOT_INHERITED))
+=======
+                foreach (PropertyInfo subProperty in info.PropertyType.GetProperties(NOT_INHERITED))
+>>>>>>> bfa6c2d (Try fix pipeline)
                 {
-                    var subValue = subProperty.GetValue(val);
-                    var route = $"{info.Name}.{subProperty.Name}";
+                    object? subValue = subProperty.GetValue(val);
+                    string route = $"{info.Name}.{subProperty.Name}";
 
-                    var frameItem = new View()
+                    View frameItem = new()
                     {
-                        X = Pos.Percent((index % _cols) * (100 / _cols)),
-                        Y = Pos.Percent((index / _cols) * (100 / _rows)),
+                        X = Pos.Percent((index % this._cols) * (100f / this._cols)),
+                        Y = Pos.Percent((index / this._cols) * (100f / this._rows)),
 
-                        Width = Dim.Percent(100 / _cols),
-                        Height = Dim.Percent(100 / _rows),
+                        Width = Dim.Percent(100f / this._cols),
+                        Height = Dim.Percent(100f / this._rows),
                     };
 
-                    var label = new Label(0, 0, subProperty.Name, true);
-                    var text = new TextField(15, 0, 20, subValue?.ToString() ?? "");
+                    Label label = new(0, 0, subProperty.Name, true);
+                    TextField text = new(15, 0, 20, subValue?.ToString() ?? "")
+                    {
+                        Id = route
+                    };
 
-                    text.Id = route;
+                    ValueBinding binding = new(text, ref subValue!);
 
-                    ValueBinding binding = new ValueBinding(text, ref subValue!);
+                    this.Bindings[route] = binding;
 
+<<<<<<< HEAD
                     Bindings[route] = binding;
 
                     text.TextChanged += PipelineFactory.Instance.Builder
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+                    text.TextChanged += PipelineFactory.Builder
+>>>>>>> bfa6c2d (Try fix pipeline)
                         .Create(text, binding, val!, subProperty)
-                        .AddIf(() => text.Text == "2137", _ => MessageBox.Query("Secret", SECRET, "OK"))
+                        .AddIf(() => text.Text == "2137", _ => MessageBox.Query("Secret", this.SECRET, "OK"))
                         .Build();
 
                     frameItem.Add(label, text);

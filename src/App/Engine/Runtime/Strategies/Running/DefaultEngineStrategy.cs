@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Data.Entities;
@@ -59,11 +60,16 @@ using ORBIT9000.Core.Parsing;
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 =======
 ﻿using ORBIT9000.Core.Attributes.Engine;
+=======
+﻿using Microsoft.Extensions.DependencyInjection;
+using ORBIT9000.Core.Attributes.Engine;
+>>>>>>> bfa6c2d (Try fix pipeline)
 using ORBIT9000.Core.TempTools;
+using ORBIT9000.Engine.Runtime.Pipe;
 using ORBIT9000.Engine.Runtime.State;
 >>>>>>> fd5a59f (Code Cleanup)
 
-namespace ORBIT9000.Engine.Strategies.Running
+namespace ORBIT9000.Engine.Runtime.Strategies.Running
 {
     internal static class Default
     {
@@ -84,6 +90,9 @@ namespace ORBIT9000.Engine.Strategies.Running
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
             EngineState? state = obj as EngineState;
 
             engine.LogInformation("Starting EngineStartupStrategy.");
@@ -115,6 +124,7 @@ namespace ORBIT9000.Engine.Strategies.Running
             try
             {
                 foreach (Type plugin in engine.PluginProvider.Plugins)
+<<<<<<< HEAD
                 {
                     engine.PluginProvider.Activate(plugin);
                 }
@@ -255,6 +265,8 @@ namespace ORBIT9000.Engine.Strategies.Running
             try
             {
                 foreach (var plugin in engine.PluginProvider.Plugins)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
                 {
                     engine.PluginProvider.Activate(plugin);
                 }
@@ -267,19 +279,20 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static void Initialize(OrbitEngine engine)
         {
-            var parser = new TextScheduleParser();
+            ITextScheduleParser parser = engine.ServiceProvider.GetService<ITextScheduleParser>()
+                ?? throw new InvalidOperationException("Job parser is not available.");
 
             try
             {
                 engine.LogInformation("Initializing plugins with scheduled jobs.");
 
-                foreach (var pluginType in engine.PluginProvider.Plugins)
+                foreach (Type pluginType in engine.PluginProvider.Plugins)
                 {
-                    var scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableService), inherit: true).FirstOrDefault();
+                    object? scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableServiceAttribute), inherit: true).FirstOrDefault();
 
-                    if (scheduleJobAttribute is SchedulableService jobAttribute)
+                    if (scheduleJobAttribute is SchedulableServiceAttribute jobAttribute)
                     {
-                        var job = parser.Parse(jobAttribute.ScheduleExpression);
+                        IScheduleJob job = parser.Parse(jobAttribute.ScheduleExpression);
                         engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
 <<<<<<< HEAD
                         engine.Scheduler.Schedule(job, () => { Console.WriteLine("THIS IS SCHEDULED JOB"); });
@@ -297,5 +310,9 @@ namespace ORBIT9000.Engine.Strategies.Running
             }
         }
     }
+<<<<<<< HEAD
 }
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+}
+>>>>>>> bfa6c2d (Try fix pipeline)

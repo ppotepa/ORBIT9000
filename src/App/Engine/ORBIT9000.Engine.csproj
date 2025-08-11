@@ -8,6 +8,7 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
   </PropertyGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>CONSOLE_GUI</DefineConstants>
@@ -16,6 +17,10 @@
   <ItemGroup>
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+
+  <ItemGroup>
+>>>>>>> bfa6c2d (Try fix pipeline)
     <Compile Remove="IO\Loaders\PluginAssembly\Result\**" />
     <EmbeddedResource Remove="IO\Loaders\PluginAssembly\Result\**" />
     <None Remove="IO\Loaders\PluginAssembly\Result\**" />
@@ -86,6 +91,7 @@
 
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ProjectReference Include="..\..\Data\ORBIT9000.Data.csproj" />
     <ProjectReference Include="..\Core\Coupled\ORBIT9000.Core.csproj" />
   </ItemGroup>
@@ -97,6 +103,8 @@
   </ItemGroup>
 
   <ItemGroup>
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
     <ProjectReference Include="..\Core\ORBIT9000.Core.csproj" />
   </ItemGroup>
 

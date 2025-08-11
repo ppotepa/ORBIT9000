@@ -29,8 +29,8 @@ namespace EngineTerminal.Proxies
 
         public PropertyChangeProxy<TTargetType> SetTarget(TTargetType target, List<PropertyChangeRecord> changes)
         {
-            _target = target;
-            _changes = changes;
+            this._target = target;
+            this._changes = changes;
             return this;
         }
 
@@ -44,7 +44,7 @@ namespace EngineTerminal.Proxies
         protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
         {
-            if (targetMethod == null || _target == null)
+            if (targetMethod == null || this._target == null)
                 throw new InvalidOperationException("Proxy not properly initialized");
 
 <<<<<<< HEAD
@@ -70,6 +70,7 @@ namespace EngineTerminal.Proxies
                 if (targetMethod.IsSpecialName && methodName.StartsWith("set_"))
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     string propertyName = methodName[4..];
                     PropertyInfo? propertyInfo = typeof(TTargetType).GetProperty(propertyName);
 
@@ -85,21 +86,29 @@ namespace EngineTerminal.Proxies
 =======
                     string propertyName = methodName.Substring(4);
                     var propertyInfo = typeof(TTargetType).GetProperty(propertyName);
+=======
+                    string propertyName = methodName[4..];
+                    PropertyInfo? propertyInfo = typeof(TTargetType).GetProperty(propertyName);
+>>>>>>> bfa6c2d (Try fix pipeline)
 
                     if (propertyInfo != null)
                     {
-                        object? oldValue = propertyInfo.GetValue(_target);
-                        object? result = targetMethod.Invoke(_target, args);
+                        object? oldValue = propertyInfo.GetValue(this._target);
+                        object? result = targetMethod.Invoke(this._target, args);
                         object? newValue = args[0];
 
                         if (!Equals(oldValue, newValue))
                         {
+<<<<<<< HEAD
 <<<<<<< HEAD
                             _changes.Add(new PropertyChangeRecord
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 =======
                             _changes?.Add(new PropertyChangeRecord
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+                            this._changes?.Add(new PropertyChangeRecord
+>>>>>>> bfa6c2d (Try fix pipeline)
                             {
                                 PropertyPath = propertyName,
                                 OldValue = oldValue,
@@ -113,6 +122,7 @@ namespace EngineTerminal.Proxies
                     }
                 }
 
+<<<<<<< HEAD
 =======
                         return result;
                     }
@@ -125,6 +135,9 @@ namespace EngineTerminal.Proxies
 
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
                 return targetMethod.Invoke(_target, args);
+=======
+                return targetMethod.Invoke(this._target, args);
+>>>>>>> bfa6c2d (Try fix pipeline)
             }
             catch (TargetInvocationException ex)
             {

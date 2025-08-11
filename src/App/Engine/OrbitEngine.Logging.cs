@@ -5,6 +5,7 @@ namespace ORBIT9000.Engine
     public partial class OrbitEngine
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         private const string Template = "{Message} {Args}";
         #region Methods
 
@@ -15,32 +16,53 @@ namespace ORBIT9000.Engine
                 _logger.LogCritical(Template, message, args);
             }
 =======
+=======
+        #region Methods
+
+>>>>>>> bfa6c2d (Try fix pipeline)
         public void LogCritical(string message, params object[] args)
         {
-            _logger.LogCritical(message, args);
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogCritical("{Message} {Args}", message, args);
+            }
         }
 
         public void LogDebug(string message, params object[] args)
         {
-            _logger.LogDebug(message, args);
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogDebug("{Message} {Args}", message, args);
+            }
         }
 
         public void LogError(string message, params object[] args)
         {
-            _logger.LogError(message, args);
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogError("{Message} {Args}", message, args);
+            }
         }
 
         public void LogInformation(string message, params object[] args)
         {
-            _logger.LogInformation(message, args);
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogInformation("{Message} {Args}", message, args);
+            }
         }
+
         public void LogTrace(string message, params object[] args)
         {
-            _logger.LogTrace(message, args);
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogTrace("{Message} {Args}", message, args);
+            }
         }
 
         public void LogWarning(string message, params object[] args)
         {
+<<<<<<< HEAD
             _logger.LogWarning(message, args);
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
         }
@@ -85,6 +107,14 @@ namespace ORBIT9000.Engine
             }
         }
 
+=======
+            if (!string.IsNullOrEmpty(message))
+            {
+                this._logger.LogWarning("{Message} {Args}", message, args);
+            }
+        }
+
+>>>>>>> bfa6c2d (Try fix pipeline)
         #endregion Methods
     }
 }

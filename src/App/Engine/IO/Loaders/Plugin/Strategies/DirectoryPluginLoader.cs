@@ -43,6 +43,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
@@ -82,6 +83,8 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 >>>>>>>> e2b2b5a (Reworked Naming):src/App/Engine/IO/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 >>>>>>> 254394d (Remove OverLogging)
         {
@@ -114,7 +117,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             {
                 foreach (FileInfo file in source.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
                 {
-                    yield return LoadSingle(file.FullName);
+                    yield return this.LoadSingle(file.FullName);
                 }
             }
         }

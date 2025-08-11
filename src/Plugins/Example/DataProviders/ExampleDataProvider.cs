@@ -5,6 +5,7 @@ using ORBIT9000.Core.Abstractions.Authentication;
 using ORBIT9000.Core.Abstractions.Providers.Data;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Plugins.Example.Response;
 
 namespace ORBIT9000.Plugins.Example.DataProviders
 {
@@ -37,7 +38,7 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
-            _logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
+            this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
 
             var query = new
             {
@@ -47,9 +48,9 @@ namespace ORBIT9000.Plugins.Example.DataProviders
                 imezone = "Europe/Warsaw"
             };
 
-            var url = ForecastURL.SetQueryParams(query);
+            Url url = ForecastURL.SetQueryParams(query);
 
-            var result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
+            WeatherResponse result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
 
             return Task.FromResult<IEnumerable<WeatherResponse>>([result]);
         }

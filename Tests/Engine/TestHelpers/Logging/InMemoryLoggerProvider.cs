@@ -12,6 +12,7 @@ namespace ORBIT9000.Engine.Tests.TestHelpers.Logging
         public List<LogEntry> Entries { get; } = [];
 
         public ILogger CreateLogger(string categoryName) =>
+<<<<<<< HEAD
             _loggers.GetOrAdd(categoryName, name => new InMemoryLogger(name, Entries));
 
         protected override void Dispose(bool disposing)
@@ -22,6 +23,18 @@ namespace ORBIT9000.Engine.Tests.TestHelpers.Logging
                 {
                     _loggers.Clear();
                     Entries.Clear();
+=======
+            this._loggers.GetOrAdd(categoryName, name => new InMemoryLogger(name, this.Entries));
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this._loggers.Clear();
+                    this.Entries.Clear();
+>>>>>>> bfa6c2d (Try fix pipeline)
                 }
 
                 base.Dispose(disposing);

@@ -16,10 +16,14 @@ namespace ORBIT9000.Engine.Scheduling
 
             DateTime next = after + schedule.Interval;
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (schedule.DaysOfWeek?.Count is 0)
 =======
             if (schedule.DaysOfWeek != null && schedule.DaysOfWeek.Any())
 >>>>>>> 0fcc8d3 (Improve Scheduler Logic)
+=======
+            if (schedule.DaysOfWeek?.Count is 0)
+>>>>>>> bfa6c2d (Try fix pipeline)
             {
                 int safety = 0;
 

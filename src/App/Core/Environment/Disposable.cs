@@ -7,23 +7,23 @@
         // Public implementation of Dispose pattern callable by consumers.
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (this.disposed)
                 return;
 
             if (disposing)
             {
-                DisposeManagedObjects();
+                this.DisposeManagedObjects();
             }
 
-            DisposeUnmanagedObjects();
-            disposed = true;
+            this.DisposeUnmanagedObjects();
+            this.disposed = true;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@
 
         ~Disposable()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
     }
 }

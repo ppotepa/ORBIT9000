@@ -27,7 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <None Update="Binaries\ORBIT9000.Plugins.Example.odll">
+=======
+    <None Update="Binaries\ExamplePlugin.dll">
+>>>>>>> bfa6c2d (Try fix pipeline)
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

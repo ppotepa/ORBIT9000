@@ -40,10 +40,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(assemblyLoader);
 
-            _logger = logger;
-            _assemblyLoader = assemblyLoader;
+            this._logger = logger;
+            this._assemblyLoader = assemblyLoader;
 
+<<<<<<< HEAD
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", GetType());
+=======
+            this._logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
+>>>>>>> bfa6c2d (Try fix pipeline)
         }
 
         public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
@@ -87,7 +91,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         public IEnumerable<PluginInfo> LoadPlugins(object source)
 >>>>>>> 254394d (Remove OverLogging)
         {
-            return LoadPlugins((TSource)source);
+            return this.LoadPlugins((TSource)source);
         }
 
 <<<<<<< HEAD
@@ -95,6 +99,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected PluginInfo LoadSingle(string path)
         {
             FileInfo fileInfo = new(path);
+<<<<<<< HEAD
 =======
         protected AssemblyLoadResult LoadSingle(string path)
 =======
@@ -103,14 +108,20 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         {
             FileInfo fileInfo = new FileInfo(path);
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
 
-            using (_logger.BeginScope($"{fileInfo.Name}"))
+            using (this._logger.BeginScope($"{fileInfo.Name}"))
             {
-                _logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
+                this._logger.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 PluginInfo result = TryLoadSingleFile(fileInfo);
+=======
+                PluginInfo result = this.TryLoadSingleFile(fileInfo);
+>>>>>>> bfa6c2d (Try fix pipeline)
 
                 return result;
             }
@@ -118,6 +129,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
+<<<<<<< HEAD
             System.Reflection.Assembly? assemblyLoadResult = _assemblyLoader.Load(info);
 
             if (assemblyLoadResult is null)
@@ -161,6 +173,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         private PluginInfo TryLoadSingleFile(FileInfo info)
         {
             var assemblyLoadResult = _assemblyLoader.Load(info);
+=======
+            System.Reflection.Assembly? assemblyLoadResult = this._assemblyLoader.Load(info);
+>>>>>>> bfa6c2d (Try fix pipeline)
 
             if (assemblyLoadResult is null)
             {
@@ -171,7 +186,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
                 };
             }
 
-            var pluginType = assemblyLoadResult.GetTypes()
+            Type? pluginType = assemblyLoadResult.GetTypes()
                 .FirstOrDefault(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)));
 
             return new PluginInfo

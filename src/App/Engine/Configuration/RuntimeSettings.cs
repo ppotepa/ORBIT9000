@@ -13,6 +13,7 @@ namespace ORBIT9000.Engine.Configuration
         private readonly RawEngineConfiguration _config;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         public RuntimeSettings() { }
 
@@ -24,18 +25,26 @@ namespace ORBIT9000.Engine.Configuration
 =======
         private readonly IPluginLoader _loader;
 >>>>>>> fd5a59f (Code Cleanup)
+=======
+
+        public RuntimeSettings() { }
+>>>>>>> bfa6c2d (Try fix pipeline)
 
         public RuntimeSettings(ILogger<RuntimeSettings> logger, RawEngineConfiguration config, IPluginLoader loader)
         {
             this._config = config;
+<<<<<<< HEAD
             this._loader = loader;
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
 
             ArgumentNullException.ThrowIfNull(config);
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 PluginInfo[] loaded = [.. loader.LoadPlugins(PluginSource)];
                 Plugins = [.. loaded];
@@ -45,6 +54,12 @@ namespace ORBIT9000.Engine.Configuration
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
                 SharePluginScopes = config.SharePluginScopes;
                 EnableTerminal = config.EnableTerminal;
+=======
+                PluginInfo[] loaded = [.. loader.LoadPlugins(this.PluginSource)];
+                this.Plugins = [.. loaded];
+                this.SharePluginScopes = config.SharePluginScopes;
+                this.EnableTerminal = config.EnableTerminal;
+>>>>>>> bfa6c2d (Try fix pipeline)
             }
             catch (Exception ex)
             {
@@ -80,10 +95,14 @@ namespace ORBIT9000.Engine.Configuration
             {
                 //TODO: Fix Active Plugins Source
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if (_config.Plugins.ActivePlugins.Length != 0) return _config.Plugins.ActivePlugins;
 =======
                 if (_config.Plugins.ActivePlugins.Any()) return _config.Plugins.ActivePlugins;
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
+=======
+                if (this._config.Plugins.ActivePlugins.Length != 0) return this._config.Plugins.ActivePlugins;
+>>>>>>> bfa6c2d (Try fix pipeline)
                 else return new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
         }

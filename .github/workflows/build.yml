@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿# .github/workflows/build.yml
 =======
 
@@ -16,6 +17,13 @@ on:
     branches:
       - master
       - 0.91-alpha
+=======
+﻿name: Build
+
+on:
+  push:
+    branches: [ master, 0.91-alpha ]
+>>>>>>> bfa6c2d (Try fix pipeline)
 
 <<<<<<< HEAD
 >>>>>>> 7a93783 (Update build.yml)
@@ -30,6 +38,7 @@ jobs:
 =======
 jobs:
   build:
+<<<<<<< HEAD
     name: Build and analyze
     runs-on: self-hosted
 <<<<<<< HEAD
@@ -62,51 +71,54 @@ jobs:
 
       - if: steps.cache.outputs.cache-hit != 'true'
 =======
+=======
+    runs-on: [self-hosted, windows]
+    defaults:
+      run:
+        shell: powershell
+>>>>>>> bfa6c2d (Try fix pipeline)
 
     steps:
-      - name: Allow unsigned scripts in this job
-        shell: powershell
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Allow unsigned scripts
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
+      - name: Verify .NET SDK
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+          dotnet --info
+          dotnet --list-sdks
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clone disabled for better analysis relevancy
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distributions available
-
-      - name: Cache SonarQube packages
+      - name: Cache SonarScanner
         uses: actions/cache@v4
         with:
-          path: ~\.sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: .\.sonar\scanner
+          path: ${{ github.workspace }}\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
 
+<<<<<<< HEAD
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
 >>>>>>> a99add5 (Update buil.yml)
+=======
+      - if: steps.cache.outputs.cache-hit != 'true'
+>>>>>>> bfa6c2d (Try fix pipeline)
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
       - name: SonarQube Begin
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN:     ${{ secrets.SONAR_TOKEN }}
+<<<<<<< HEAD
 =======
       - name: Build and analyze
         shell: powershell
@@ -119,12 +131,21 @@ jobs:
             "/d:sonar.login=$Env:SONAR_TOKEN" `
             "/d:sonar.cs.opencover.reportsPaths=coverage/*.opencover.xml" `
             "/d:sonar.exclusions=**/bin/**,**/obj/**,**/Plugins/**,**/Tests/**"
+=======
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"ORBIT9000" `
+            /d:sonar.host.url="$Env:SONAR_HOST_URL" `
+            /d:sonar.login="$Env:SONAR_TOKEN" `
+            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml"
+>>>>>>> bfa6c2d (Try fix pipeline)
 
       - name: Restore & Build
         run: |
           dotnet restore ORBIT9000.sln
           dotnet build ORBIT9000.sln --configuration Debug
 
+<<<<<<< HEAD
       - name: Prepare coverage folder
         run: |
           if (-not (Test-Path coverage)) { New-Item -ItemType Directory -Path coverage | Out-Null }
@@ -135,30 +156,52 @@ jobs:
             --collect:"XPlat Code Coverage" `
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover `
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.OutputDirectory=./coverage
+=======
+      - name: Test with merged coverage
+        run: |
+          dotnet test ORBIT9000.sln --configuration Debug `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat="json%2copencover" `
+            /p:CoverletOutput="./coverage/" `
+            /p:MergeWith="./coverage/coverage.json"
+>>>>>>> bfa6c2d (Try fix pipeline)
 
       - name: Show coverage file
         run: |
           Write-Host "Coverage file produced:"
+<<<<<<< HEAD
           Get-ChildItem coverage\*.opencover.xml
+=======
+          ls coverage\coverage.opencover.xml
+>>>>>>> bfa6c2d (Try fix pipeline)
 
       - name: SonarQube End
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+<<<<<<< HEAD
         run: |
           & ".\.sonar\scanner\dotnet-sonarscanner" end `
             "/d:sonar.login=$Env:SONAR_TOKEN"
+=======
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="$Env:SONAR_TOKEN"
+>>>>>>> bfa6c2d (Try fix pipeline)
 
       - name: Setup Python & Upload to Codecov
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
+<<<<<<< HEAD
 
       - run: pip install codecov-cli
 
+=======
+      - run: pip install codecov-cli
+>>>>>>> bfa6c2d (Try fix pipeline)
       - name: Upload to Codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: codecov
+<<<<<<< HEAD
 =======
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ORBIT9000" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
@@ -169,3 +212,5 @@ jobs:
 >>>>>>> 7755e2d (Update build.yml)
 =======
 >>>>>>> a99add5 (Update buil.yml)
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ORBIT9000.Core.Environment;
 using ORBIT9000.Engine.Configuration.Raw;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 
@@ -16,22 +17,21 @@ namespace ORBIT9000.Engine.IO.Loaders
         {
             ArgumentNullException.ThrowIfNull(_rawConfig);
 =======
+=======
+using ORBIT9000.Engine.IO.Loaders.Plugin;
+>>>>>>> bfa6c2d (Try fix pipeline)
 using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
 
-namespace ORBIT9000.Engine.IO.Loaders.Plugin
+namespace ORBIT9000.Engine.IO.Loaders
 {
-    internal class PluginLoaderFactory
+    internal class PluginLoaderFactory(IServiceProvider serviceProvider, RawEngineConfiguration config)
     {
-        private readonly RawEngineConfiguration _rawConfig;
-        private readonly IServiceProvider _serviceProvider;
-        public PluginLoaderFactory(IServiceProvider serviceProvider, RawEngineConfiguration config)
-        {
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _rawConfig = config;
-        }
+        private readonly RawEngineConfiguration _rawConfig = config;
+        private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         public IPluginLoader Create()
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
             if (_rawConfig == null)
                 throw new ArgumentNullException(nameof(_rawConfig));
@@ -40,12 +40,15 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 =======
             ArgumentNullException.ThrowIfNull(_rawConfig);
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
+=======
+            ArgumentNullException.ThrowIfNull(this._rawConfig);
+>>>>>>> bfa6c2d (Try fix pipeline)
 
-            return _rawConfig.Plugins.ActivePlugins.Length switch
+            return this._rawConfig.Plugins.ActivePlugins.Length switch
             {
-                > 0 => _serviceProvider.GetRequiredService<StringArrayPluginLoader>(),
-                _ when AppEnvironment.IsDebug => _serviceProvider.GetRequiredService<DebugDirectoryPluginLoader>(),
-                _ => _serviceProvider.GetRequiredService<DirectoryPluginLoader>()
+                > 0 => this._serviceProvider.GetRequiredService<StringArrayPluginLoader>(),
+                _ when AppEnvironment.IsDebug => this._serviceProvider.GetRequiredService<DebugDirectoryPluginLoader>(),
+                _ => this._serviceProvider.GetRequiredService<DirectoryPluginLoader>()
             };
         }
     }

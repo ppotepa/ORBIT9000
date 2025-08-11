@@ -10,7 +10,7 @@ namespace ORBIT9000.Abstractions.Providers.Data
 =======
 ﻿namespace ORBIT9000.Core.Abstractions.Providers.Data
 {
-    public interface IDataProvider { }
+    public interface IDataProvider;
     public interface IDataProvider<TResult> : IDataProvider
         where TResult : IResult, new()
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)

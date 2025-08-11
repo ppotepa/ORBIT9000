@@ -1,41 +1,42 @@
 ﻿using ORBIT9000.Core.Abstractions.Providers.Data;
 
-namespace ORBIT9000.Plugins.Example.DataProviders
+namespace ORBIT9000.Plugins.Example.Response
 {
-    public class Hourly
+    public class HourlyData
     {
-        public required float[] temperature_2m { get; set; }
-        public required string[] time { get; set; }
+        public float[]? Temperature2M { get; set; }
+        public string[]? Time { get; set; }
     }
 
-    public class Hourly_Units
+    public class HourlyUnitsData
     {
-        public required string temperature_2m { get; set; }
-        public required string time { get; set; }
+        public string? Temperature2M { get; set; }
+        public string? Time { get; set; }
     }
 
     public class WeatherResponse : IResult
     {
-        public float elevation { get; set; }
-        public float generationtime_ms { get; set; }
-        public Hourly? hourly { get; set; }
-        public Hourly_Units? hourly_units { get; set; }
-        public float latitude { get; set; }
-        public float longitude { get; set; }
-        public string? timezone { get; set; }
-        public string? timezone_abbreviation { get; set; }
-        public int utc_offset_seconds { get; set; }
+        public float Elevation { get; set; }
+        public float GenerationTimeMs { get; set; }
+        public HourlyData? Hourly { get; set; }
+        public HourlyUnitsData? HourlyUnits { get; set; }
+        public float Latitude { get; set; }
+        public float Longitude { get; set; }
+        public string? Timezone { get; set; }
+        public string? TimezoneAbbreviation { get; set; }
+        public int UtcOffsetSeconds { get; set; }
+
         public override string ToString()
         {
-            return $"Location: [Latitude: {latitude}, Longitude: {longitude}], " +
-                   $"Generated in: {generationtime_ms} ms, " +
-                   $"UTC Offset: {utc_offset_seconds} seconds, " +
-                   $"Timezone: {timezone} ({timezone_abbreviation}), " +
-                   $"Elevation: {elevation} meters, " +
-                   $"Hourly Units: [Time Unit: {hourly_units?.time}, " +
-                   $"Temperature Unit: {hourly_units?.temperature_2m}], " +
-                   $"Hourly Data: [Times: {string.Join(", ", hourly?.time ?? Array.Empty<string>())}, " +
-                   $"Temperatures: {string.Join(", ", hourly?.temperature_2m ?? Array.Empty<float>())}]";
+            return $"Location: [Latitude: {this.Latitude}, Longitude: {this.Longitude}], " +
+                   $"Generated in: {this.GenerationTimeMs} ms, " +
+                   $"UTC Offset: {this.UtcOffsetSeconds} seconds, " +
+                   $"Timezone: {this.Timezone} ({this.TimezoneAbbreviation}), " +
+                   $"Elevation: {this.Elevation} meters, " +
+                   $"Hourly Units: [Time Unit: {this.HourlyUnits?.Time}, " +
+                   $"Temperature Unit: {this.HourlyUnits?.Temperature2M}], " +
+                   $"Hourly Data: [Times: {string.Join(", ", this.Hourly?.Time ?? [])}, " +
+                   $"Temperatures: {string.Join(", ", this.Hourly?.Temperature2M ?? [])}]";
         }
     }
 }

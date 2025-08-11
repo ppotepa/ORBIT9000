@@ -23,8 +23,10 @@ using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
-    internal class StringArrayPluginLoader : PluginLoaderBase<string[]>
+    internal class StringArrayPluginLoader(ILogger<StringArrayPluginLoader> logger, IAssemblyLoader loader)
+        : PluginLoaderBase<string[]>(logger, loader)
     {
+<<<<<<< HEAD
         public StringArrayPluginLoader(ILogger<StringArrayPluginLoader> logger, IAssemblyLoader loader) : base(logger, loader)
         {
         }
@@ -33,12 +35,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         public override IEnumerable<AssemblyLoadResult> LoadPlugins(string[] source)
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
+=======
+>>>>>>> bfa6c2d (Try fix pipeline)
         public override IEnumerable<PluginInfo> LoadPlugins(string[] source)
 >>>>>>> 254394d (Remove OverLogging)
         {
             foreach (string plugin in source)
             {
-                yield return LoadSingle(plugin);
+                yield return this.LoadSingle(plugin);
             }
         }
     }
