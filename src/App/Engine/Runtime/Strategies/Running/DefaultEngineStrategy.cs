@@ -50,7 +50,12 @@ using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Engine.Runtime.State;
 >>>>>>> 147c461 (Refactor Program.CS)
 using System.IO.Pipes;
+<<<<<<< HEAD
 >>>>>>> 122b62b (Fix Engine Main Thread)
+=======
+using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Parsing;
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -227,31 +232,10 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             try
             {
-                //engine.LogDebug("Executing plugin activation tasks.");
-
-                //var pluginTask = engine.PluginProvider.Activate("ExamplePlugin");
-                //var plugin2Task = engine.PluginProvider.Activate("ExamplePlugin2");
-
-                //Task.Run(async () =>
-                //{
-                //    Thread.CurrentThread.Name = "Plugin_ExamplePlugin";
-
-                //    var plugin = await pluginTask;
-
-                //    engine.LogDebug("Plugin ExamplePlugin loaded.");
-                //    await plugin.OnLoad();
-                //});
-
-                //Task.Run(async () =>
-                //{
-                //    Thread.CurrentThread.Name = "Plugin_ExamplePlugin2";
-
-                //    var plugin2 = await plugin2Task;
-
-                //    engine.LogDebug("Plugin ExamplePlugin2 loaded.");
-
-                //    await plugin2.OnLoad();
-                //});
+                foreach(var plugin in engine.PluginProvider.Plugins)
+                {
+                    engine.PluginProvider.Activate(plugin);
+                }
             }
             catch (Exception ex)
             {
@@ -261,9 +245,30 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static void Initialize(OrbitEngine engine)
         {
-            engine.LogInformation("Initializing engine.");
-            // Any initialization logic here
-            engine.LogInformation("Engine initialization completed.");
+            var parser = new TextScheduleParser();
+
+            try
+            {
+                engine.LogInformation("Initializing plugins with scheduled jobs.");
+
+                foreach (var pluginType in engine.PluginProvider.Plugins)
+                {
+                    var scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableService), inherit: true).FirstOrDefault();
+                    
+                    if (scheduleJobAttribute is SchedulableService jobAttribute)
+                    {
+                        var job = parser.Parse(jobAttribute.ScheduleExpression);
+                        engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
+                        engine.Scheduler.Schedule(job, () => { Console.WriteLine("THIS IS SCHEDULED JOB"); });
+                    }
+                }
+
+                engine.LogInformation("Plugin initialization completed.");
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred during plugin initialization: {Message}", ex.Message);
+            }
         }
     }
 }

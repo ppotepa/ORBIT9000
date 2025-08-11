@@ -23,6 +23,7 @@ namespace EngineTerminal.Proxies
 =======
         private TTargetType _originalData;
         private TTargetType _proxyData;
+
         private readonly List<PropertyChangeRecord> _changes = new();
         private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
 

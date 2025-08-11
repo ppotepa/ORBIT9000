@@ -291,6 +291,9 @@ namespace ORBIT9000.Engine.Providers
         }
 
         private ILifetimeScope PluginScope => _pluginScope ??= CreateSharedScope();
+
+        public IEnumerable<Type> Plugins => _validPlugins.Select(plugin => plugin.PluginType);
+
         public async Task<IOrbitPlugin> Activate(object plugin)
         {
             if (plugin is string pluginName)
@@ -309,6 +312,7 @@ namespace ORBIT9000.Engine.Providers
 
         public Task<IOrbitPlugin> Activate(Type plugin)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -342,6 +346,10 @@ namespace ORBIT9000.Engine.Providers
 =======
             throw new NotImplementedException();
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
+=======
+            //NOTE: fix this temporary solution
+            return Activate(plugin.Name);   
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
         }
 
         public void Unload(object plugin)

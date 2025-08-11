@@ -19,7 +19,11 @@ using Microsoft.Extensions.DependencyInjection;
 >>>>>>> 56ba6c0 (Add Generic Message Channel)
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
+<<<<<<< HEAD
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
+=======
+using ORBIT9000.Core.Abstractions.Scheduling;
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Runtime.State;
 using ORBIT9000.Engine.Runtime.Strategies.Running;
@@ -96,12 +100,27 @@ namespace ORBIT9000.Engine
         private readonly IServiceProvider _serviceProvider;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 =======
   
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
 =======
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
+=======
+        private IScheduler _scheduler;
+
+        public IScheduler Scheduler
+        {
+            get => _scheduler;
+            private set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value), "Scheduler instance cannot be null.");
+                _scheduler = value;
+            }
+        }
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 
         private RuntimeSettings _configuration;
 
@@ -119,6 +138,7 @@ namespace ORBIT9000.Engine
             RuntimeSettings configuration,
             IPluginProvider pluginProvider,
             IScheduler scheduler
+<<<<<<< HEAD
 =======
             InternalOrbitEngineConfig configuration,
             Dictionary<Type, PluginRegistrationInfo> pluginRegistrations
@@ -133,6 +153,8 @@ namespace ORBIT9000.Engine
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
             IPluginProvider pluginProvider
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
+=======
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
             )
         {
             ArgumentNullException.ThrowIfNull(configuration);
@@ -142,6 +164,7 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
             ArgumentNullException.ThrowIfNull(pluginProvider);
             ArgumentNullException.ThrowIfNull(scheduler);
+<<<<<<< HEAD
 
             _logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
@@ -202,6 +225,8 @@ namespace ORBIT9000.Engine
 =======
             ArgumentNullException.ThrowIfNull(pluginProvider);
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
+=======
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 
             _logger = loggerFactory.CreateLogger<OrbitEngine>()
                 ?? throw new InvalidOperationException("Logger could not be created.");
@@ -214,8 +239,11 @@ namespace ORBIT9000.Engine
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 
+            Scheduler = scheduler;
+
             IsInitialized = true;
             IsRunning = true;
+
             _configuration = configuration;
             _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
         }
