@@ -43,57 +43,28 @@ namespace EngineTerminal.Managers
             StatusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), StatusItem, AdditionalStatusItem, CurrentMethod])
 =======
 ﻿using EngineTerminal.Bindings;
-using EngineTerminal.Processors;
+using EngineTerminal.Contracts;
+using EngineTerminal.Processing;
 using ORBIT9000.Core.Models.Pipe;
-using System.ComponentModel;
-using System.Reflection;
 using Terminal.Gui;
 
-/// <summary>
-/// This is an experimental terminal project for the Orbit9000 engine.  
-/// It is designed with minimal dependencies and libraries to focus on core functionality.  
-/// The primary focus is to create pipe communication and generic property change handling for better
-/// display and monitoring.
-/// </summary>
 namespace EngineTerminal.Managers
 {
-    public class UIManager
+    public class UIManager : IUIManager
     {
-        private Dictionary<string, ValueBinding> _bindings;
-        public Dictionary<string, ValueBinding> Bindings
-        {
-            get => _bindings;
-            private set => _bindings = value;
-        }
-
         private StatusItem _statusItem;
-        public StatusItem StatusItem
-        {
-            get => _statusItem;
-            private set => _statusItem = value;
-        }
+        public Dictionary<string, ValueBinding> Bindings { get; private set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void Initialize(ExampleData data)
+        public void Initialize(ExampleData initialData)
         {
             Application.Init();
-            var topLayer = new View
-            {
-                X = 0,
-                Y = 0,
-                Width = Dim.Fill(),
-                Height = Dim.Fill() - 1,
-                CanFocus = true
-            };
 
-            SetupColorScheme();
-
-            var translator = new Translator(topLayer, data);
+            var top = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
+            var translator = new Translator(top, initialData);
 
             Bindings = translator.Translate();
-            StatusItem = new StatusItem(Key.Null, "Starting...", null);
 
+<<<<<<< HEAD
             var statusBar = new StatusBar(new StatusItem[]
             {
                 new StatusItem(Key.F1, "~F1~ Help", () => ShowHelp()),
@@ -128,22 +99,28 @@ namespace EngineTerminal.Managers
 
             if (data.Frame1 != null) data.Frame1.PropertyChanged += ForwardPropertyChanged;
             if (data.Frame2 != null) data.Frame2.PropertyChanged += ForwardPropertyChanged;
+=======
+            _statusItem = new StatusItem(Key.Null, "Starting...", null);
+            var statusBar = new StatusBar(
+                new[] { new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem })
+            { CanFocus = true };
+
+            Application.Top.Add(top, statusBar);
+>>>>>>> 5ae5b98 (Add Inversion of Control)
         }
 
-        public void Run()
-        {
-            Application.Run();
-        }
+        public void Run() => Application.Run();
 
         public void UpdateStatusMessage(string message)
         {
-            Application.MainLoop.Invoke(() => StatusItem.Title = message);
+            Application.MainLoop.Invoke(() => _statusItem.Title = message);
         }
 
-        public void UpdateUIFromData(List<Action<Dictionary<string, ValueBinding>>> updateActions)
+        public void UpdateUIFromData(IReadOnlyList<Action<Dictionary<string, ValueBinding>>> updates)
         {
             Application.MainLoop.Invoke(() =>
             {
+<<<<<<< HEAD
 <<<<<<< HEAD
                 UpdateControlsFromObject(data.Frame1, "SettingsData");
                 UpdateControlsFromObject(data.Frame2, "EngineData");
@@ -154,11 +131,18 @@ namespace EngineTerminal.Managers
                     action(Bindings);
                 }   
 >>>>>>> b9809e5 (Remove redunant portion of the code.)
+=======
+                foreach (var update in updates)
+                {
+                    update(Bindings);
+                }
+>>>>>>> 5ae5b98 (Add Inversion of Control)
 
                 Application.Refresh();
             });
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public void UpdateCurrentMethod(string? message)
         {
@@ -228,10 +212,16 @@ namespace EngineTerminal.Managers
             };
         }
 
+=======
+>>>>>>> 5ae5b98 (Add Inversion of Control)
         private void ShowHelp()
         {
-            MessageBox.Query("Help", "Engine Terminal\n\nUse menus to navigate between views.\nValues update automatically.", "OK");
+            MessageBox.Query("Help", "Engine Terminal\nUse menus to navigate.\nValues update automatically.", "OK");
         }
     }
+<<<<<<< HEAD
 }
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
+=======
+}
+>>>>>>> 5ae5b98 (Add Inversion of Control)

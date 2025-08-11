@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using ORBIT9000.Core.Environment;
 using ORBIT9000.Core.Models.Pipe;
@@ -128,68 +129,66 @@ namespace EngineTerminal
 using EngineTerminal.Managers;
 using Orbit9000.EngineTerminal.EventArgs;
 using System.ComponentModel;
+=======
+﻿using EngineTerminal.Contracts;
+using ORBIT9000.Core.Models.Pipe;
+using System.Threading.Channels;
+>>>>>>> 5ae5b98 (Add Inversion of Control)
 
-/// <summary>
-/// This is an experimental terminal project for the Orbit9000 engine.
-/// It is designed with minimal dependencies and libraries to focus on core functionality.
-/// The primary focus is to create pipe communication and generic property change handling for better
-/// display and monitoring.
-/// </summary>
 namespace Orbit9000.EngineTerminal
 {
     public class ApplicationController
     {
-        private readonly DataManager _dataManager;
-        private readonly UIManager _uiManager;
-        private readonly NamedPipeManager _pipeManager;
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly CancellationTokenSource _cts = new();
+
+        private readonly IDataManager _dataManager;
+        private readonly ChannelReader<ExampleData> _dataReader;
+        private readonly IPipeManager _pipeManager;
+        private readonly ChannelReader<string> _statusReader;
+
+        private readonly IUIManager _uiManager;
+
 
         public ApplicationController(
-            DataManager dataManager,
-            UIManager uiManager,
-            NamedPipeManager pipeManager,
-            CancellationTokenSource cancellationTokenSource)
+            IDataManager dataManager,
+            IUIManager uiManager,
+            IPipeManager pipeManager,
+            Channel<ExampleData> dataChannel,
+            Channel<string> statusChannel)
         {
             _dataManager = dataManager;
             _uiManager = uiManager;
             _pipeManager = pipeManager;
-            _cancellationTokenSource = cancellationTokenSource;
+            _dataReader = dataChannel.Reader;
+            _statusReader = statusChannel.Reader;
+        }
 
+        public async Task RunAsync()
+        {
             _dataManager.Initialize();
             _uiManager.Initialize(_dataManager.ExampleData);
 
-            _uiManager.PropertyChanged += OnPropertyChangedHandler;
-            _pipeManager.DataReceived += OnDataReceived;
-            _pipeManager.StatusChanged += OnPipeStatusChanged;
-        }
+            var pipeTask = _pipeManager.StartProcessingAsync(_cts.Token);
 
-        public void Run()
-        {
-            _pipeManager.StartProcessing(_cancellationTokenSource.Token);
+            var dataTask = Task.Run(async () =>
+            {
+                await foreach (var newData in _dataReader.ReadAllAsync(_cts.Token))
+                {
+                    var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
+                    _uiManager.UpdateUIFromData(updates);
+                }
+            }, _cts.Token);
+
+            var statusTask = Task.Run(async () =>
+            {
+                await foreach (var status in _statusReader.ReadAllAsync(_cts.Token))
+                    _uiManager.UpdateStatusMessage(status);
+            }, _cts.Token);
 
             _uiManager.Run();
-        }
 
-        public void Shutdown()
-        {
-            _cancellationTokenSource.Cancel();
-            _pipeManager.Dispose();
-        }
-
-        private void OnPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
-        {
-            _uiManager.UpdateBindingFromPropertyChange(sender, e);
-        }
-
-        private void OnDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            var updates = _dataManager.GetUpdates(e.ReceivedData, _uiManager.Bindings);
-            _uiManager.UpdateUIFromData(updates);
-        }
-
-        private void OnPipeStatusChanged(object sender, StatusChangedEventArgs e)
-        {
-            _uiManager.UpdateStatusMessage(e.StatusMessage);
+            _cts.Cancel();
+            await Task.WhenAll(pipeTask, dataTask, statusTask);
         }
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
     }
