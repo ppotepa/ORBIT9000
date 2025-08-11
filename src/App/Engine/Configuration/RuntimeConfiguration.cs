@@ -26,6 +26,7 @@ namespace ORBIT9000.Engine.Configuration
                 var loaded = _loader.LoadPlugins(PluginSource).ToArray();
                 Plugins = loaded.ToArray();
                 SharePluginScopes = config.SharePluginScopes;
+                EnableTerminal = config.EnableTerminal;
             }
             catch (Exception ex)
             {
@@ -41,6 +42,7 @@ namespace ORBIT9000.Engine.Configuration
         public DirectoryInfo DefaultFolder { get; set; }
         public PluginInfo[] Plugins { get; set; }
         public bool SharePluginScopes { get; internal set; }
+        public object EnableTerminal { get; }
 
         private object PluginSource
         {

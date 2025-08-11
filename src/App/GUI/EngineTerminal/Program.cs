@@ -57,9 +57,9 @@ using System.Text;
 
 namespace Orbit9000.EngineTerminal
 {
-    protected class Program
+    static class Program
     {
-        protected static Program()
+        static Program()
         {
         }
 
