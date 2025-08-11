@@ -27,6 +27,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected bool _abortOnError = false;
         private readonly IAssemblyLoader _assemblyLoader;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         protected PluginLoaderBase(ILogger logger, IAssemblyLoader assemblyLoader)
         {
@@ -44,8 +45,11 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         public IEnumerable<PluginInfo> LoadPlugins(object source)
 =======
         private readonly Configuration.Raw.RawConfiguration _config;
+=======
+        private readonly Configuration.Raw.RawEngineConfiguration _config;
+>>>>>>> 0f347bd (Add Dirty Plugin Scope Resolution)
 
-        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader assemblyLoader)
+        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(config);

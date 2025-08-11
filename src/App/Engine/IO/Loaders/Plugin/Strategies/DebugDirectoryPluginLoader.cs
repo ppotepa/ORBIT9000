@@ -76,7 +76,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
     {
         private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
-        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader>? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader loader) 
+        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader>? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader loader) 
             : base(logger, config, loader)
         {
         }

@@ -41,6 +41,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
@@ -63,6 +64,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
 ========
         public DirectoryPluginLoader(ILogger? logger, RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+=======
+        public DirectoryPluginLoader(ILogger? logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+>>>>>>> 0f347bd (Add Dirty Plugin Scope Resolution)
         {
         }
 

@@ -155,14 +155,13 @@ namespace ORBIT9000.Engine
             _serviceProvider = serviceProvider;
 
             IsInitialized = true;
-            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration); 
+            _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
         }
 
         public bool IsInitialized { get; }
         public bool IsRunning { get; private set; }
         public IPluginProvider PluginProvider { get => _pluginProvider; }
 
-        //public Dictionary<Type, PluginActivationInfo> PluginActivations { get => _pluginActivations; }
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
 
         public void Start()
