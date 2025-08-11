@@ -20,8 +20,12 @@
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
 =======
     <None Include="OrbitEngine.Logging.cs" />
+<<<<<<< HEAD
     <None Include="Strategies\Running\DefaultEngineStrategy.cs" />
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+    <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
+>>>>>>> e2b2b5a (Reworked Naming)
   </ItemGroup>
 
   <ItemGroup>

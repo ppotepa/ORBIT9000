@@ -35,6 +35,7 @@ using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Core.Environment;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
+<<<<<<< HEAD
 using ORBIT9000.Engine.Loaders;
 <<<<<<< HEAD
 using System.Reflection;
@@ -43,6 +44,12 @@ using System.Reflection;
 using ORBIT9000.Engine.Loaders.Plugin;
 using ORBIT9000.Engine.Loaders.Plugin.Strategies;
 using ORBIT9000.Engine.Loaders.PluginAssembly;
+=======
+using ORBIT9000.Engine.IO.Loaders;
+using ORBIT9000.Engine.IO.Loaders.Plugin;
+using ORBIT9000.Engine.IO.Loaders.Plugin.Strategies;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
+>>>>>>> e2b2b5a (Reworked Naming)
 using ORBIT9000.Engine.Providers;
 using System.Text;
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)

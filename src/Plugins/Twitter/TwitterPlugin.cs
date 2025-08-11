@@ -31,10 +31,5 @@ namespace ORBIT9000.Plugins.Twitter
             _logger.LogInformation("Unloading plugin {Name}", this.GetType().Name);
             return Task.CompletedTask;
         }
-
-        public void RegisterServices(IServiceCollection collection)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

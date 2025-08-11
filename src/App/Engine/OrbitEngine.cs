@@ -13,8 +13,8 @@ using ORBIT9000.Engine.Runtime.Strategies.Running;
 >>>>>>> 6133b24 (Refactor plugin architecture and assembly loading)
 =======
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Exceptions;
 using ORBIT9000.Engine.Loaders;
+using ORBIT9000.Engine.Runtime.Exceptions;
 using ORBIT9000.Engine.State;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 
@@ -157,7 +157,7 @@ namespace ORBIT9000.Engine
 
             if (IsRunning)
             {
-                _logger?.LogWarning("Engine is already running.");
+                _logger.LogWarning("Engine is already running.");
                 return;
             }
 

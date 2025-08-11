@@ -7,6 +7,6 @@ namespace ORBIT9000.Core.Abstractions.Loaders
         Task OnLoad();
         Task OnUnload();
 
-        void RegisterServices(IServiceCollection collection);
+        void RegisterServices(IServiceCollection collection) { }
     }
 }

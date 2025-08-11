@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using MessagePack;
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions.Runtime;
@@ -106,5 +107,12 @@ namespace ORBIT9000.Engine.Runtime.State
                 }
             });
         }
+=======
+﻿namespace ORBIT9000.Engine.Runtime.State
+{
+    public class EngineState
+    {
+        public OrbitEngine? Engine { get; internal set; }
+>>>>>>> e2b2b5a (Reworked Naming)
     }
 }
