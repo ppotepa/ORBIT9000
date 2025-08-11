@@ -1,26 +1,33 @@
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Engine.Configuration.Raw;
-using ORBIT9000.Engine.Loaders.Assembly;
+using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Engine.Loaders.Plugin.Details;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 using ORBIT9000.Engine.Loaders.Plugin.Validation;
 
 namespace ORBIT9000.Engine.Loaders.Plugin
 {
-    internal abstract class PluginLoaderBase<TSource>
+    internal abstract class PluginLoaderBase<TSource> : IPluginLoader<TSource>
+        where TSource : class
     {
         protected readonly ILogger? _logger;
         protected bool _abortOnError = false;
-        private readonly OrbitEngineConfiguration _config;
+        private readonly IAssemblyLoader _assemblyLoader;
+        private readonly Configuration.Raw.RawConfiguration _config;
 
-        protected PluginLoaderBase(ILogger? logger, OrbitEngineConfiguration config)
+        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader assemblyLoader)
         {
             _logger = logger;
-            _config = config;
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _assemblyLoader = assemblyLoader;
         }
   
-        public abstract IEnumerable<PluginLoadResult> LoadPlugins(TSource source);
-        protected PluginLoadResult LoadSingle(string path)
+        public abstract IEnumerable<Results.AssemblyLoadResult> LoadPlugins(TSource source);
+        public IEnumerable<AssemblyLoadResult> LoadPlugins(object source)
+        {
+            return LoadPlugins((TSource)source);
+        }
+
+        protected Results.AssemblyLoadResult LoadSingle(string path)
         {
             FileInfo fileInfo = new FileInfo(path);
 
@@ -28,22 +35,30 @@ namespace ORBIT9000.Engine.Loaders.Plugin
             {
                 _logger?.LogInformation("Loading Assembly from {Path}", fileInfo.Name);
 
-                PluginLoadDetails details = TryLoadSingleFile(fileInfo);
+                AssemblyLoadResult details = TryLoadSingleFile(fileInfo);
 
-                return new PluginLoadResult(
-                    path,
-                    details.FileExists,
-                    details.IsDll,
-                    details.ContainsPlugins,
-                    [details.Error],
-                    details.LoadedAssembly,
-                    details.Plugins
-                );
+                return details;
             }
         }
 
         private static string FormatErrorMessages(List<Exception> exceptions)
             => string.Join('\n', exceptions.Select(ex => ex.Message));
+
+        private AssemblyLoadResult CreateAssemblyLoadResult(
+            PluginFileValidator fileValidator,
+            TryLoadAssemblyResult? assemblyLoadResult,
+            List<Exception> exceptions)
+        {
+            return new AssemblyLoadResult(
+                exists: fileValidator.FileExists,
+                isDll: fileValidator.IsDll,
+                containsPlugins: assemblyLoadResult?.PluginTypes.Any() ?? false,
+                error: FormatErrorMessages(exceptions),
+                assembly: assemblyLoadResult?.Assembly,
+                pluginTypes: assemblyLoadResult?.PluginTypes ?? Array.Empty<Type>(),
+                exceptions: exceptions
+            );
+        }
 
         private void HandleErrors(List<Exception> exceptions)
         {
@@ -67,35 +82,32 @@ namespace ORBIT9000.Engine.Loaders.Plugin
             }
         }
 
-        private PluginLoadDetails TryLoadSingleFile(FileInfo info)
+        private AssemblyLoadResult TryLoadSingleFile(FileInfo info)
         {
-            PluginFileValidator fileValidator = new PluginFileValidator(info, _logger);
-            List<Exception> validationExceptions = fileValidator.Validate().Exceptions;
+            var fileValidator = new PluginFileValidator(info, _logger);
+            var validationExceptions = fileValidator.Validate().Exceptions;
 
-            AssemblyLoadResult? assemblyLoadResult = null;
-
-            if (fileValidator.IsValid)
+            if (!fileValidator.IsValid)
             {
-                assemblyLoadResult = AssemblyLoader.TryLoadAssembly(info);
+                return CreateAssemblyLoadResult(fileValidator, null, validationExceptions);
             }
 
-            List<Exception> allExceptions = validationExceptions
-                .Concat(assemblyLoadResult?.Exceptions ?? Enumerable.Empty<Exception>())
+            var assemblyLoadResult = _assemblyLoader.TryLoadAssembly(info);
+            var allExceptions = validationExceptions
+                .Concat(assemblyLoadResult.Exceptions ?? Enumerable.Empty<Exception>())
                 .ToList();
 
-            if (allExceptions.Count != 0)
+            if (!assemblyLoadResult.PluginTypes.Any())
+            {
+                _assemblyLoader.UnloadAssembly(info);
+            }
+
+            if (allExceptions.Any())
             {
                 HandleErrors(allExceptions);
             }
 
-            return new PluginLoadDetails(
-                FileExists: fileValidator.FileExists,
-                IsDll: fileValidator.IsDll,
-                ContainsPlugins: assemblyLoadResult?.ContainsPlugins ?? false,
-                Error: FormatErrorMessages(allExceptions),
-                LoadedAssembly: assemblyLoadResult?.LoadedAssembly,
-                Plugins: assemblyLoadResult?.Plugins ?? Array.Empty<Type>()
-            );
+            return CreateAssemblyLoadResult(fileValidator, assemblyLoadResult, allExceptions);
         }
     }
 }

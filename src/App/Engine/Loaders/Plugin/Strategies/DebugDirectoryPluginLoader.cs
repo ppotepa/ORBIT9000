@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Core.Extensions.IO.Files;
-using ORBIT9000.Engine.Configuration.Raw;
-using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 {
@@ -9,11 +8,12 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
     {
         private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
-        public DebugDirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
+        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader>? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader loader) 
+            : base(logger, config, loader)
         {
         }
 
-        public override IEnumerable<PluginLoadResult> LoadPlugins(DirectoryInfo source)
+        public override IEnumerable<Results.AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
         {
             source = FindSrcFolder(source);
 
@@ -38,6 +38,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
                 }
             }
         }
+
         private DirectoryInfo? FindSrcFolder(DirectoryInfo currentDirectory)
         {
             if (currentDirectory == null || !currentDirectory.Exists)

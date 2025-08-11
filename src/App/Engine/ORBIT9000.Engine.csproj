@@ -48,7 +48,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.4" />
+<<<<<<< HEAD
 >>>>>>> 9aa9371 (Replace Serilog with Microsoft.Extensions.Logging)
+=======
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+>>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
   </ItemGroup>
 
   <ItemGroup>

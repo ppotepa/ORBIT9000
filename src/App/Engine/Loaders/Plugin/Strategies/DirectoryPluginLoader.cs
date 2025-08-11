@@ -1,8 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 =======
+=======
+using ORBIT9000.Core.Abstractions.Loaders;
+>>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
 using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
@@ -17,6 +21,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
         : PluginLoaderBase<DirectoryInfo>(logger, loader)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
         public DirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
@@ -25,6 +30,13 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 
         public override IEnumerable<PluginLoadResult> LoadPlugins(DirectoryInfo source)
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+        public DirectoryPluginLoader(ILogger? logger, Configuration.Raw.RawConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+        {
+        }
+
+        public override IEnumerable<Results.AssemblyLoadResult> LoadPlugins(DirectoryInfo source)
+>>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
         {
             if (!source.Exists)
                 source.Create();

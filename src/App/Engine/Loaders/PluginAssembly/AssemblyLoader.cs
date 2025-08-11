@@ -1,37 +1,34 @@
 ﻿using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Plugin;
-using ORBIT9000.Engine.Loaders.Assembly.Context;
+using ORBIT9000.Core.Abstractions.Loaders;
+using ORBIT9000.Engine.Loaders.Plugin.Results;
+using ORBIT9000.Engine.Loaders.PluginAssembly.Context;
+using System.Reflection;
 
-using SystemAssembly = System.Reflection.Assembly;
-
-namespace ORBIT9000.Engine.Loaders.Assembly
+namespace ORBIT9000.Engine.Loaders.PluginAssembly
 {
-    internal sealed class AssemblyLoader
+    internal sealed class AssemblyLoader : IAssemblyLoader
     {
-        // Collection to track load contexts so they're not garbage collected
         private static readonly Dictionary<string, PluginLoadContext> _loadContexts
             = new Dictionary<string, PluginLoadContext>();
 
-        private static readonly ILogger _logger = LoggerFactory.Create(builder =>
-        {            
-            builder.SetMinimumLevel(LogLevel.Debug);
-        })
-        .CreateLogger<AssemblyLoader>();
+        private readonly ILogger<AssemblyLoader> _logger;
 
-        private AssemblyLoader() { }
-
-        public static AssemblyLoadResult TryLoadAssembly(FileInfo info, bool loadAsBinary = false)
+        public AssemblyLoader(ILogger<AssemblyLoader> logger) 
         {
-            bool containsPlugins = false;
-
-            SystemAssembly? assembly = null;
+            this._logger = logger;
+        }
+       
+        public TryLoadAssemblyResult TryLoadAssembly(FileInfo info, bool loadAsBinary = false)
+        {
+            loadAsBinary = true;
+            Assembly? assembly = null;
             List<Exception> exceptions = new List<Exception>();
+
             Type[] pluginTypes = Array.Empty<Type>();
 
             try
             {
-                // Create custom load context for isolation
-                var loadContext = new PluginLoadContext(info.FullName);
+                PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
                 _loadContexts[info.FullName] = loadContext;
 
                 if (loadAsBinary)
@@ -45,15 +42,9 @@ namespace ORBIT9000.Engine.Loaders.Assembly
                 }
 
                 pluginTypes = assembly.GetTypes()
-                    .Where(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type))
+                    .Where(type => type.IsClass && type.GetInterfaces().Contains(typeof(IOrbitPlugin)))
                     .ToArray();
 
-                containsPlugins = pluginTypes.Any();
-
-                if (!containsPlugins)
-                {
-                    _logger?.LogWarning("File does not contain any plugins. {FileName}", info.Name);
-                }
             }
             catch (FileNotFoundException ex)
             {
@@ -71,10 +62,10 @@ namespace ORBIT9000.Engine.Loaders.Assembly
                 exceptions.Add(ex);
             }
 
-            return new AssemblyLoadResult(assembly, containsPlugins, pluginTypes, exceptions);
+            return new TryLoadAssemblyResult(assembly, pluginTypes, exceptions);
         }
 
-        public static void UnloadAssembly(string assemblyPath)
+        public void UnloadAssembly(string assemblyPath)
         {
             if (_loadContexts.TryGetValue(assemblyPath, out var loadContext))
             {
@@ -83,5 +74,9 @@ namespace ORBIT9000.Engine.Loaders.Assembly
                 _logger?.LogInformation("Unloaded assembly: {Path}", assemblyPath);
             }
         }
+
+        public void UnloadAssembly(FileInfo info) 
+            => UnloadAssembly(info.FullName);
+
     }
 }
