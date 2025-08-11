@@ -348,8 +348,12 @@ namespace ORBIT9000.Engine.Providers
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
 =======
             //NOTE: fix this temporary solution
+<<<<<<< HEAD
             return Activate(plugin.Name);   
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
+=======
+            return Activate(plugin.Name);
+>>>>>>> fd5a59f (Code Cleanup)
         }
 
         public void Unload(object plugin)
@@ -416,7 +420,7 @@ namespace ORBIT9000.Engine.Providers
             }
 
             _logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
-            
+
             return instance!;
         }
 

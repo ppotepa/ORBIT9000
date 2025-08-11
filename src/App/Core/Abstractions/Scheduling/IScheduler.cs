@@ -20,8 +20,13 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
     }
 
     public interface IScheduler<TPlugin> : IScheduler
+<<<<<<< HEAD
         where TPlugin : IOrbitPlugin    
     {   
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
+=======
+        where TPlugin : IOrbitPlugin
+    {
+>>>>>>> fd5a59f (Code Cleanup)
     }
 }

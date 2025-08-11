@@ -16,7 +16,7 @@ namespace LinkedIn.JobApplier
 
         public Task OnLoad()
         {
-            logger.LogInformation("LinkedIn Job Applier plugin loaded.");   
+            logger.LogInformation("LinkedIn Job Applier plugin loaded.");
             return Task.CompletedTask;
         }
 

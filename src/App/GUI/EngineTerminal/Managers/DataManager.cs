@@ -3,6 +3,7 @@
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Proxies;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Core.TempTools;
 using Terminal.Gui.CustomViews.Misc;
@@ -68,6 +69,8 @@ using EngineTerminal.Contracts;
 =======
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 using ORBIT9000.Core.Models.Pipe;
+=======
+>>>>>>> fd5a59f (Code Cleanup)
 using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 using TempTools;
 using Terminal.Gui.CustomViews.Misc;

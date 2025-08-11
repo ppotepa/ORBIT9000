@@ -189,7 +189,7 @@ namespace EngineTerminal.Managers
 >>>>>>> b9809e5 (Remove redunant portion of the code.)
 =======
                 foreach (var update in updates)
-                {                    
+                {
                     update(Grid.Bindings);
                 }
 >>>>>>> 5ae5b98 (Add Inversion of Control)

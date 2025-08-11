@@ -26,6 +26,7 @@ namespace ORBIT9000.PoCDemo
 
         private static void Main(string[] args)
 <<<<<<< HEAD
+<<<<<<< HEAD
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -44,6 +45,9 @@ namespace ORBIT9000.PoCDemo
 =======
         {            
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+        {
+>>>>>>> fd5a59f (Code Cleanup)
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(outputTemplate: _outputTemplate)

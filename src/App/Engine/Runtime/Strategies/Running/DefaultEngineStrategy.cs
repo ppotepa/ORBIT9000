@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Data.Entities;
@@ -56,6 +57,11 @@ using System.IO.Pipes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Core.Parsing;
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
+=======
+﻿using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Parsing;
+using ORBIT9000.Engine.Runtime.State;
+>>>>>>> fd5a59f (Code Cleanup)
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -232,7 +238,7 @@ namespace ORBIT9000.Engine.Strategies.Running
         {
             try
             {
-                foreach(var plugin in engine.PluginProvider.Plugins)
+                foreach (var plugin in engine.PluginProvider.Plugins)
                 {
                     engine.PluginProvider.Activate(plugin);
                 }
@@ -254,7 +260,7 @@ namespace ORBIT9000.Engine.Strategies.Running
                 foreach (var pluginType in engine.PluginProvider.Plugins)
                 {
                     var scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableService), inherit: true).FirstOrDefault();
-                    
+
                     if (scheduleJobAttribute is SchedulableService jobAttribute)
                     {
                         var job = parser.Parse(jobAttribute.ScheduleExpression);

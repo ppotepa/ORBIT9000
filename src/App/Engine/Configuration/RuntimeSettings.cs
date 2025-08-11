@@ -12,6 +12,7 @@ namespace ORBIT9000.Engine.Configuration
     {
         private readonly RawEngineConfiguration _config;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         public RuntimeSettings() { }
 
@@ -20,6 +21,9 @@ namespace ORBIT9000.Engine.Configuration
             _config = config;
 =======
         private readonly IPluginLoader _loader;        
+=======
+        private readonly IPluginLoader _loader;
+>>>>>>> fd5a59f (Code Cleanup)
 
         public RuntimeSettings(ILogger<RuntimeSettings> logger, RawEngineConfiguration config, IPluginLoader loader)
         {

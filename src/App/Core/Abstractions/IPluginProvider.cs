@@ -7,7 +7,7 @@ namespace ORBIT9000.Abstractions
         IEnumerable<Type> Plugins { get; }
 
         Task<IOrbitPlugin> Activate(Type plugin);
-        Task<IOrbitPlugin> Activate(object plugin);        
+        Task<IOrbitPlugin> Activate(object plugin);
 
         void Unload(object plugin);
     }

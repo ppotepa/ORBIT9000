@@ -31,10 +31,14 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
 
         protected override Assembly Load(AssemblyName assemblyName)
 <<<<<<< HEAD
+<<<<<<< HEAD
         {
 =======
         {            
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+        {
+>>>>>>> fd5a59f (Code Cleanup)
             Assembly? loadedAssembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(assembly => assembly.FullName == assemblyName.FullName);
 

@@ -33,6 +33,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         protected PluginLoaderBase(ILogger logger, IAssemblyLoader assemblyLoader)
         {
@@ -57,6 +58,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         protected PluginLoaderBase(ILogger logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
 =======
      
+=======
+
+>>>>>>> fd5a59f (Code Cleanup)
         protected PluginLoaderBase(ILogger logger, IAssemblyLoader assemblyLoader)
 >>>>>>> 83dd439 (Remove Code Smells)
         {
@@ -68,12 +72,16 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
             _logger.LogDebug("PluginLoader constructor called. Type invoked {Type}", this.GetType());
         }
+<<<<<<< HEAD
   
 <<<<<<< HEAD
         public abstract IEnumerable<AssemblyLoadResult> LoadPlugins(TSource source);
         public IEnumerable<AssemblyLoadResult> LoadPlugins(object source)
 >>>>>>> e2b2b5a (Reworked Naming)
 =======
+=======
+
+>>>>>>> fd5a59f (Code Cleanup)
         public abstract IEnumerable<PluginInfo> LoadPlugins(TSource source);
 
         public IEnumerable<PluginInfo> LoadPlugins(object source)

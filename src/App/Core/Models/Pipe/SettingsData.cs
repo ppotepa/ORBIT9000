@@ -1,5 +1,4 @@
-﻿using ORBIT9000.Core.Attributes.UI;
-using ReactiveUI;
+﻿using ReactiveUI;
 
 namespace ORBIT9000.Core.Models.Pipe
 {

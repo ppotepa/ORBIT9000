@@ -28,7 +28,11 @@ namespace ORBIT9000.Engine.IO.Loaders
         public bool IsLoaded { get; internal set; }
         public bool Registered { get; set; }
         public List<Task> Tasks { get; set; } = new List<Task>();
+<<<<<<< HEAD
         public Type Type { get; internal set;}
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+        public Type Type { get; internal set; }
+>>>>>>> fd5a59f (Code Cleanup)
     }
 }

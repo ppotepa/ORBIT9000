@@ -19,7 +19,6 @@ using ORBIT9000.Engine.Loaders.Plugin.Results;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 =======
 using ORBIT9000.Engine.Configuration;
-using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
 >>>>>>> 254394d (Remove OverLogging)
 
