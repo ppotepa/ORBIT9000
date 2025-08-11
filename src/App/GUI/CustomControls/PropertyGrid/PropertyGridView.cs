@@ -4,18 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 using Terminal.Gui;
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+>>>>>>> 5710a06 (Add Readme)
 using Terminal.Gui.CustomViews.Misc;
 
 namespace Terminal.Gui.CustomViews
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5710a06 (Add Readme)
     /// <summary>
     /// A specialized view that displays and allows editing of object properties in a grid layout.
     /// It supports property navigation through a menu bar and provides binding capabilities.
     /// </summary>
+<<<<<<< HEAD
     public class PropertyGridView : View
     {
         /// <summary>
@@ -30,16 +37,31 @@ namespace Terminal.Gui.CustomViews
         /// <param name="oldValue">The previous value of the property.</param>
         /// <param name="newValue">The new value of the property.</param>
 =======
+=======
+>>>>>>> 5710a06 (Add Readme)
     public class PropertyGridView : View
     {
+        /// <summary>
+        /// Event triggered when a property binding value changes.
+        /// </summary>
         public event EventHandler<BindingChangedEventArgs>? BindingChanged;
 
+<<<<<<< HEAD
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+        /// <summary>
+        /// Raises the <see cref="BindingChanged"/> event.
+        /// </summary>
+        /// <param name="propertyName">The name of the property that changed.</param>
+        /// <param name="oldValue">The previous value of the property.</param>
+        /// <param name="newValue">The new value of the property.</param>
+>>>>>>> 5710a06 (Add Readme)
         protected virtual void OnBindingChanged(string propertyName, object? oldValue, object? newValue)
         {
             BindingChanged?.Invoke(this, new BindingChangedEventArgs(propertyName, oldValue, newValue));
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         /// <summary>
         /// Event arguments for the <see cref="BindingChanged"/> event.
@@ -69,12 +91,34 @@ namespace Terminal.Gui.CustomViews
         }
 
 =======
+=======
+        /// <summary>
+        /// Event arguments for the <see cref="BindingChanged"/> event.
+        /// </summary>
+>>>>>>> 5710a06 (Add Readme)
         public class BindingChangedEventArgs : EventArgs
         {
+            /// <summary>
+            /// Gets the name of the property that changed.
+            /// </summary>
             public string PropertyName { get; }
+
+            /// <summary>
+            /// Gets the previous value of the property.
+            /// </summary>
             public object? OldValue { get; }
+
+            /// <summary>
+            /// Gets the new value of the property.
+            /// </summary>
             public object? NewValue { get; }
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="BindingChangedEventArgs"/> class.
+            /// </summary>
+            /// <param name="propertyName">The name of the property that changed.</param>
+            /// <param name="oldValue">The previous value of the property.</param>
+            /// <param name="newValue">The new value of the property.</param>
             public BindingChangedEventArgs(string propertyName, object? oldValue, object? newValue)
             {
                 PropertyName = propertyName;
@@ -112,7 +156,7 @@ namespace Terminal.Gui.CustomViews
         private readonly ustring SECRET =
 @"
 ┌──────────────────────────────────────────────┐
-│ WHEN YOU’RE POLISH, LOVE KARATE,            │
+│ WHEN YOU'RE POLISH, LOVE KARATE,            │
 │ AND VISIT 104 COUNTRIES AS POPE            │
 └──────────────────────────────────────────────┘
 
@@ -137,14 +181,28 @@ namespace Terminal.Gui.CustomViews
             /_|_____|_\
 
 ┌──────────────────────────────────────────────┐
-│ “I TRAVELLED MORE THAN YOUR AVERAGE PILGRIM”│
+│ 'I TRAVELLED MORE THAN YOUR AVERAGE PILGRIM' │
 └──────────────────────────────────────────────┘";
+        /// <summary>
+        /// A dictionary containing all value bindings managed by this property grid.
+        /// Keys are property paths in format "PropertyName.SubPropertyName".
+        /// </summary>
         public readonly Dictionary<string, ValueBinding> Bindings = new Dictionary<string, ValueBinding>();
 
 
         private View _main;
 
+<<<<<<< HEAD
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyGridView"/> class.
+        /// </summary>
+        /// <param name="top">The parent view that will contain this property grid.</param>
+        /// <param name="data">The object whose properties will be displayed and edited.</param>
+        /// <param name="rows">The number of rows in the property grid layout.</param>
+        /// <param name="cols">The number of columns in the property grid layout.</param>
+>>>>>>> 5710a06 (Add Readme)
         public PropertyGridView(View top, object data, int rows = 5, int cols = 5)
         {
             _top = top;
@@ -172,12 +230,20 @@ namespace Terminal.Gui.CustomViews
             this.Bindings = TranslateView();
         }
 
+<<<<<<< HEAD
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+        /// <summary>
+        /// Redraws the property grid, refreshing the property bindings and layout.
+        /// </summary>
+        /// <param name="bounds">The bounding rectangle for the view.</param>
+>>>>>>> 5710a06 (Add Readme)
         public override void Redraw(Rect bounds)
         {
             TranslateView();
             base.Redraw(bounds);
         }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
         private readonly Dictionary<Type, PropertyInfo[]> _propertyInfoCache = [];
@@ -191,8 +257,15 @@ namespace Terminal.Gui.CustomViews
             Type dataType = _data.GetType();
             if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
 =======
+=======
+
+>>>>>>> 5710a06 (Add Readme)
         private Dictionary<Type, PropertyInfo[]> _propertyInfoCache = new();
 
+        /// <summary>
+        /// Creates the property grid view structure based on the provided data object.
+        /// </summary>
+        /// <returns>A dictionary of property bindings created during the translation.</returns>
         public Dictionary<string, ValueBinding> TranslateView()
         {
             Type dataType = _data.GetType();
@@ -259,6 +332,11 @@ namespace Terminal.Gui.CustomViews
             return this.Bindings;
         }
 
+        /// <summary>
+        /// Generates UI elements for editing the properties of a given object.
+        /// </summary>
+        /// <param name="container">The frame view that will contain the property editors.</param>
+        /// <param name="info">The property info representing the object whose properties will be displayed.</param>
         private void GeneratePropertyGrid(FrameView container, PropertyInfo info)
         {
             var val = info.GetValue(_data);
@@ -335,7 +413,11 @@ namespace Terminal.Gui.CustomViews
         }
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 =======
 }
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+}
+>>>>>>> 5710a06 (Add Readme)

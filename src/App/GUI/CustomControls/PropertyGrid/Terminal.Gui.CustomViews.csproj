@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>    
@@ -32,13 +33,39 @@
   </ItemGroup>
 </Project>
 =======
+=======
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+>>>>>>> 5710a06 (Add Readme)
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AssemblyName>Terminal.Gui.CustomViews</AssemblyName>
     <RootNamespace>Terminal.Gui.CustomViews</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Terminal.Gui.CustomViews</PackageId>
+    <Version>0.1.2</Version>
+    <Authors>Paweł Potępa (ppotepa github)</Authors>
+    <Description>A custom view library for Terminal.Gui, including PropertyGridView.</Description>
+    <PackageTags>Terminal.Gui;PropertyGrid;CustomViews</PackageTags>
+    <RepositoryUrl>https://github.com/ppotepa/ORBIT9000/tree/0.91-alpha/src/App/GUI/CustomControls/PropertyGrid</RepositoryUrl>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="README.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Terminal.Gui" Version="1.18.1" />
   </ItemGroup>
+<<<<<<< HEAD
 </Project>
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+  <ItemGroup>
+    <Resource Include="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="README.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+</Project>
+>>>>>>> 5710a06 (Add Readme)
