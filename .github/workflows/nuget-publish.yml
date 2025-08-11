@@ -5,10 +5,15 @@ on:
     branches:
       - 0.91-alpha
 <<<<<<< HEAD
+<<<<<<< HEAD
     paths:
       - 'src/App/GUI/CustomControls/PropertyGrid/**'
 =======
 >>>>>>> aeb4abb (Add Nuget Publish)
+=======
+    paths:
+      - 'src/App/GUI/CustomControls/PropertyGrid/**'
+>>>>>>> daacbdd (Add Basic Versioning)
 
 jobs:
   publish:
@@ -23,6 +28,9 @@ jobs:
         dotnet-version: '8.0.x'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> daacbdd (Add Basic Versioning)
     - name: Set dynamic version
       id: set_version
       run: |
@@ -30,6 +38,7 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Using package version: $VERSION"
 
+<<<<<<< HEAD
     - name: Restore dependencies
       run: dotnet restore ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj
 
@@ -39,19 +48,25 @@ jobs:
     - name: Pack
       run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-build --output ./nupkgs /p:PackageVersion=$VERSION
 =======
+=======
+>>>>>>> daacbdd (Add Basic Versioning)
     - name: Restore dependencies
       run: dotnet restore ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj
 
     - name: Build
-      run: dotnet build ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-restore
+      run: dotnet build ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-restore /p:Version=$VERSION
 
     - name: Pack
+<<<<<<< HEAD
 <<<<<<< HEAD
       run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/PropertyGrid.csproj --configuration Release --no-build --output ./nupkgs
 >>>>>>> aeb4abb (Add Nuget Publish)
 =======
       run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-build --output ./nupkgs
 >>>>>>> 613f34a (Update Project Path)
+=======
+      run: dotnet pack ./src/App/GUI/CustomControls/PropertyGrid/Terminal.Gui.CustomViews.csproj --configuration Release --no-build --output ./nupkgs /p:PackageVersion=$VERSION
+>>>>>>> daacbdd (Add Basic Versioning)
 
     - name: Push to NuGet
       run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
