@@ -49,6 +49,7 @@ namespace EngineTerminal.Proxies
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (args == null)
                 throw new ArgumentException("Arguments cannot be null or empty", nameof(args));
 
@@ -56,6 +57,9 @@ namespace EngineTerminal.Proxies
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 =======
             if (args == null || args.Length == 0)
+=======
+            if (args == null)
+>>>>>>> 7978821 (Enhance scheduling and error handling in engine components)
                 throw new ArgumentException("Arguments cannot be null or empty", nameof(args));
 
 >>>>>>> 86e317a (Refactor interfaces and improve null safety)
