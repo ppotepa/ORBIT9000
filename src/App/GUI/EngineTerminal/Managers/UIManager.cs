@@ -45,6 +45,7 @@ namespace EngineTerminal.Managers
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Contracts;
 using EngineTerminal.Processing;
+using Orbit9000.EngineTerminal;
 using ORBIT9000.Core.Models.Pipe;
 using Terminal.Gui;
 
@@ -54,15 +55,15 @@ namespace EngineTerminal.Managers
     {
         private StatusItem _statusItem;
         public Dictionary<string, ValueBinding> Bindings { get; private set; }
+        public PropertyGridView Grid { get; private set; }
 
         public void Initialize(ExampleData initialData)
         {
             Application.Init();
 
             var top = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            var translator = new Translator(top, initialData);
-
-            Bindings = translator.Translate();
+            Grid = new PropertyGridView(top, initialData);
+            var menuBar = new MenuBar();
 
 <<<<<<< HEAD
             var statusBar = new StatusBar(new StatusItem[]
@@ -102,13 +103,17 @@ namespace EngineTerminal.Managers
 =======
             _statusItem = new StatusItem(Key.Null, "Starting...", null);
 
-            var statusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem])
+            StatusBar statusBar = new StatusBar([new StatusItem(Key.F1, "~F1~ Help", ShowHelp), _statusItem])
             {
                 CanFocus = true 
             };
 
+<<<<<<< HEAD
             Application.Top.Add(top, statusBar);
 >>>>>>> 5ae5b98 (Add Inversion of Control)
+=======
+            Application.Top.Add(menuBar, top, statusBar);
+>>>>>>> dceb24b (Rework Translator into Property Grid View with event handling)
         }
 
         public void Run() => Application.Run();
@@ -123,7 +128,7 @@ namespace EngineTerminal.Managers
             
         }
 
-        public void UpdateUIFromData(IReadOnlyList<BindingAction> updates)
+        public void UpdateUIFromData(object sender, IReadOnlyList<BindingAction> updates)
         {
             Application.MainLoop.Invoke(() =>
             {
@@ -141,7 +146,7 @@ namespace EngineTerminal.Managers
 =======
                 foreach (var update in updates)
                 {
-                    update(Bindings);
+                    update(Grid.Bindings);
                 }
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 

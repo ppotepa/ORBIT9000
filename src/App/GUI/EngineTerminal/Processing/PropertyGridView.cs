@@ -1,22 +1,42 @@
-﻿using EngineTerminal.Bindings;
+﻿using DynamicData;
+using EngineTerminal.Bindings;
 using EngineTerminal.Builders;
 using NStack;
 using ORBIT9000.Core.Models.Pipe;
-using System.ComponentModel;
 using System.Reflection;
 using Terminal.Gui;
 
 namespace EngineTerminal.Processing
 {
-    public class Translator
+    public class PropertyGridView : View
     {
+        public event EventHandler<BindingChangedEventArgs>? BindingChanged;
+
+        protected virtual void OnBindingChanged(string propertyName, object? oldValue, object? newValue)
+        {
+            BindingChanged?.Invoke(this, new BindingChangedEventArgs(propertyName, oldValue, newValue));
+        }
+
+        public class BindingChangedEventArgs : EventArgs
+        {
+            public string PropertyName { get; }
+            public object? OldValue { get; }
+            public object? NewValue { get; }
+
+            public BindingChangedEventArgs(string propertyName, object? oldValue, object? newValue)
+            {
+                PropertyName = propertyName;
+                OldValue = oldValue;
+                NewValue = newValue;
+            }
+        }
         private const BindingFlags NOT_INHERITED = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
-        private readonly Dictionary<string, ValueBinding> _bindings = new();
-        private readonly int _cols = 5, _rows = 5;
-        private readonly ExampleData _data;
-        private readonly List<FrameView> _frames = new();
+
+        private readonly int _cols, _rows;
+        private readonly ExampleData _data;        
         private readonly View _top;
-        #region secret
+
+     
         private readonly ustring SECRET =
 @"
 ┌──────────────────────────────────────────────┐
@@ -47,20 +67,32 @@ namespace EngineTerminal.Processing
 ┌──────────────────────────────────────────────┐
 │ “I TRAVELLED MORE THAN YOUR AVERAGE PILGRIM”│
 └──────────────────────────────────────────────┘";
+        public readonly Dictionary<string, ValueBinding> Bindings = new Dictionary<string, ValueBinding>();
 
-        #endregion secret
+      
         private View _main;
 
-        public Translator(View top, ExampleData data, int rows = 5, int cols = 5)
+        public PropertyGridView(View top, ExampleData data, int rows = 5, int cols = 5)
         {
             _top = top;
             _data = data;
             _rows = rows;
             _cols = cols;
-            _main = new FrameView("Main") { X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() };
+
+            _main = new FrameView("Main") 
+            {
+                X = 0, Y = 1, Width = Dim.Fill(), Height = Dim.Fill() 
+            };
+
+            this.Bindings = TranslateView();
         }
 
-        public Dictionary<string, ValueBinding> Translate()
+        public override void Redraw(Rect bounds)
+        {
+            TranslateView();
+            base.Redraw(bounds);
+        }
+        public Dictionary<string, ValueBinding> TranslateView()
         {
             PropertyInfo[] props = _data.GetType().GetProperties(NOT_INHERITED);
             MenuBarItem[] items = new MenuBarItem[props.Length];
@@ -74,16 +106,28 @@ namespace EngineTerminal.Processing
                 {
                     _main.RemoveAll();
                     _main.Add(frame);
+
                     Application.Refresh();
                 });
 
-                GeneratePropertyGrid(frame, info);                
+                GeneratePropertyGrid(frame, info);
             }
 
-            MenuBar menu = new MenuBar(items) { X = 0 };
+            var menuBar = Application.Top.Subviews.OfType<MenuBar>()
+              .FirstOrDefault();
 
-            _top.Add(menu, _main);
-            return _bindings;
+            if(menuBar is not null)
+            {
+                menuBar.Data = items;
+                _top.Add(_main);
+            }
+            else
+            {
+                menuBar = new MenuBar(items);
+                _top.Add(menuBar, _main);
+            }
+
+            return this.Bindings;
         }
 
         private void GeneratePropertyGrid(FrameView container, PropertyInfo info)
@@ -92,30 +136,29 @@ namespace EngineTerminal.Processing
 
             if (info.PropertyType.IsClass && info.PropertyType.GetProperties(NOT_INHERITED).Length > 0 && val != null)
             {
+                int index = 0;
                 foreach (var subProperty in info.PropertyType.GetProperties(NOT_INHERITED))
                 {
                     var subValue = subProperty.GetValue(val);
                     var route = $"{info.Name}.{subProperty.Name}";
 
-                    var index = container.Subviews[0].Subviews.Count;
-
                     var frameItem = new View()
                     {
-                        X = Pos.Function(() => (index / 10) * 30),
-                        Y = Pos.Function(() => index % 10),
+                        X = Pos.Percent((index % _cols) * (100 / _cols)),
+                        Y = Pos.Percent((index / _cols) * (100 / _rows)),
 
-                        Width = 30,
-                        Height = 1,
+                        Width = Dim.Percent(100 / _cols),
+                        Height = Dim.Percent(100 / _rows),
                     };
 
                     var label = new Label(0, 0, subProperty.Name, true);
-                    var text = new TextField(15, 0, 30, subValue?.ToString() ?? "");
+                    var text = new TextField(15, 0, 20, subValue?.ToString() ?? "");
 
                     text.Id = route;
 
                     ValueBinding binding = new ValueBinding(text, ref subValue!);
 
-                    _bindings[route] = binding;
+                    Bindings[route] = binding;
 
                     text.TextChanged += PipelineFactory.Instance.Builder
                         .Create(text, binding, val!, subProperty)
@@ -124,6 +167,8 @@ namespace EngineTerminal.Processing
 
                     frameItem.Add(label, text);
                     container.Add(frameItem);
+
+                    index++;
                 }
             }
         }

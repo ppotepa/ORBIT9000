@@ -131,6 +131,7 @@ using Orbit9000.EngineTerminal.EventArgs;
 using System.ComponentModel;
 =======
 ﻿using EngineTerminal.Contracts;
+using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 using System.Threading.Channels;
 >>>>>>> 5ae5b98 (Add Inversion of Control)
@@ -139,12 +140,18 @@ namespace Orbit9000.EngineTerminal
 {
     public class ApplicationController
     {
+        #region Fields
+
         private readonly IDataManager _dataManager;
         private readonly ChannelReader<ExampleData> _dataReader;
         private readonly IPipeManager _pipeManager;
         private readonly ChannelReader<string> _statusReader;
         private readonly CancellationTokenSource _tokenSource = new();
         private readonly IUIManager _uiManager;
+
+        #endregion Fields
+
+        #region Constructors
 
         public ApplicationController(
             IDataManager dataManager,
@@ -159,7 +166,19 @@ namespace Orbit9000.EngineTerminal
 
             _dataReader = dataChannel.Reader;
             _statusReader = statusChannel.Reader;
+
+            this.PipeDataReceived += _uiManager.UpdateUIFromData;
         }
+
+        #endregion Constructors
+
+        #region Events
+
+        public event EventHandler<IReadOnlyList<BindingAction>> PipeDataReceived;
+
+        #endregion Events
+
+        #region Methods
 
         public async Task RunAsync()
         {
@@ -177,15 +196,24 @@ namespace Orbit9000.EngineTerminal
             await _tokenSource.CancelAsync();
         }
 
+        protected virtual void OnDataReceived(IReadOnlyList<BindingAction> actions)
+        {
+            PipeDataReceived?.Invoke(this, actions);
+        }
+
         private async Task GetData()
         {
             await foreach (var newData in _dataReader.ReadAllAsync(_tokenSource.Token))
             {
                 var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
-                _uiManager.UpdateUIFromData(updates);
+
+                if (updates.Any())
+                {
+                    _uiManager.UpdateUIFromData(this, updates);
+                    OnDataReceived(updates); 
+                }
             }
         }
-
         private async Task GetStatus()
         {
             await foreach (var status in _statusReader.ReadAllAsync(_tokenSource.Token))
@@ -193,6 +221,11 @@ namespace Orbit9000.EngineTerminal
                 _uiManager.UpdateStatusMessage(status);
             }
         }
+<<<<<<< HEAD
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
+=======
+
+        #endregion Methods
+>>>>>>> dceb24b (Rework Translator into Property Grid View with event handling)
     }
 }
