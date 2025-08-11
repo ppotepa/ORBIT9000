@@ -28,6 +28,11 @@ namespace ORBIT9000.PoCDemo
 
             OrbitEngine engine = new OrbitEngineBuilder(loggerFactory)
                 .UseConfiguration()
+<<<<<<< HEAD
+=======
+                .UseSerilogLogging()
+                .RegisterPlugins()
+>>>>>>> 7611f11 (Refactor plugin loading and configuration handling)
                 .Build();
 
             engine.Start();

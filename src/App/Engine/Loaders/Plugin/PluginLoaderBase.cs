@@ -4,7 +4,6 @@ using ORBIT9000.Engine.Loaders.Plugin.Details;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 using ORBIT9000.Engine.Loaders.Plugin.Validation;
 
-
 namespace ORBIT9000.Engine.Loaders.Plugin
 {
     internal abstract class PluginLoaderBase<TSource>
@@ -24,6 +23,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
         }
 
         public abstract IEnumerable<PluginLoadResult> LoadPlugins(TSource source);
+
         protected PluginLoadResult LoadSingle(string path)
         {
             FileInfo fileInfo = new FileInfo(path);
@@ -39,7 +39,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                     details.FileExists,
                     details.IsDll,
                     details.ContainsPlugins,
-                    [details.Error],
+                    new[] { details.Error },
                     details.LoadedAssembly,
                     details.Plugins
                 );
@@ -49,7 +49,7 @@ namespace ORBIT9000.Engine.Loaders.Plugin
         private static string FormatErrorMessages(List<Exception> exceptions)
             => string.Join('\n', exceptions.Select(ex => ex.Message));
 
-        private void HandleErrors(params Exception[] exceptions)
+        private void HandleErrors(List<Exception> exceptions)
         {
             if (_abortOnError)
             {
@@ -60,31 +60,36 @@ namespace ORBIT9000.Engine.Loaders.Plugin
                     _logger?.LogCritical(ex, ex.Message);
                 }
 
-                switch (exceptions.Length)
+                if (exceptions.Count is 1)
                 {
-                    case 0:
-                        throw exceptions[0];
-                    default:
-                        throw new AggregateException("Multiple exceptions occurred", exceptions);
+                    throw exceptions[0];
+                }
+                if (exceptions.Count > 1)
+                {
+                    throw new AggregateException("Multiple errors occurred while loading plugins.", exceptions);
                 }
             }
         }
 
         private PluginLoadDetails TryLoadSingleFile(FileInfo info)
-        {            
-            PluginFileValidator fileValidator = new PluginFileValidator(info, _logger).Validate();
-            AssemblyLoadResult? assemblyLoadResult = default;
+        {
+            PluginFileValidator fileValidator = new PluginFileValidator(info, _logger);
+            List<Exception> validationExceptions = fileValidator.Validate().Exceptions;
+
+            AssemblyLoadResult? assemblyLoadResult = null;
 
             if (fileValidator.IsValid)
             {
                 assemblyLoadResult = AssemblyLoader.TryLoadAssembly(info);
             }
 
-            List<Exception> allExceptions = [.. fileValidator.Exceptions, .. assemblyLoadResult.Exceptions];
+            List<Exception> allExceptions = validationExceptions
+                .Concat(assemblyLoadResult?.Exceptions ?? Enumerable.Empty<Exception>())
+                .ToList();
 
             if (allExceptions.Count != 0)
             {
-                HandleErrors([..fileValidator.Exceptions, ..assemblyLoadResult.Exceptions]);
+                HandleErrors(allExceptions);
             }
 
             return new PluginLoadDetails(

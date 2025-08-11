@@ -12,20 +12,25 @@ namespace ORBIT9000.Engine.Loaders.Assembly
 
         private AssemblyLoader() { }
 
-        public static AssemblyLoadResult TryLoadAssembly(FileInfo info)
+        public static AssemblyLoadResult TryLoadAssembly(FileInfo info, bool loadAsBinary = false)
         {
             bool containsPlugins = false;
-
-            SystemAssembly? assembly = null;            
+            SystemAssembly? assembly = null;
             List<Exception> exceptions = new List<Exception>();
-
             Type[] pluginTypes = Array.Empty<Type>();
 
             try
             {
-                byte[] assemblyBytes = File.ReadAllBytes(info.FullName);
-
-                assembly = SystemAssembly.Load(assemblyBytes);
+                if (loadAsBinary)
+                {
+                    byte[] bytes = File.ReadAllBytes(info.FullName);
+                    assembly = SystemAssembly.Load(bytes);
+                }
+                else
+                {
+                    assembly = SystemAssembly.LoadFrom(info.FullName);
+                }
+                
                 pluginTypes = assembly.GetTypes()
                     .Where(type => type.IsClass && typeof(IOrbitPlugin).IsAssignableFrom(type))
                     .ToArray();
@@ -37,13 +42,23 @@ namespace ORBIT9000.Engine.Loaders.Assembly
                     _logger?.Warning("File does not contain any plugins. {FileName}", info.Name);
                 }
             }
+            catch (FileNotFoundException ex)
+            {
+                _logger?.Error(ex, "File not found: {Path}", info.FullName);
+                exceptions.Add(ex);
+            }
+            catch (BadImageFormatException ex)
+            {
+                _logger?.Error(ex, "Invalid assembly format: {Path}", info.FullName);
+                exceptions.Add(ex);
+            }
             catch (Exception ex)
             {
-                _logger?.Warning(ex, "Failed to load assembly from {Path}", info.FullName);
+                _logger?.Error(ex, "Failed to load assembly from {Path}", info.FullName);
                 exceptions.Add(ex);
             }
 
-            return new(assembly, containsPlugins, pluginTypes, exceptions);
+            return new AssemblyLoadResult(assembly, containsPlugins, pluginTypes, exceptions);
         }
     }
 }

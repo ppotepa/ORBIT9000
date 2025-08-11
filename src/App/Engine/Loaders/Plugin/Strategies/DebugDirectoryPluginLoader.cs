@@ -2,7 +2,7 @@
 using ORBIT9000.Core.Extensions.IO.Files;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
-namespace ORBIT9000.Engine.Loaders.Plugin.Implementations
+namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
 {
     internal class DebugDirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
     {
