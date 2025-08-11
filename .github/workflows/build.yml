@@ -1,8 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿# .github/workflows/build.yml
 =======
 
 >>>>>>> 7755e2d (Update build.yml)
+=======
+>>>>>>> a99add5 (Update buil.yml)
 name: Build
 
 on:
@@ -29,6 +32,7 @@ jobs:
   build:
     name: Build and analyze
     runs-on: self-hosted
+<<<<<<< HEAD
 >>>>>>> 7755e2d (Update build.yml)
     steps:
       - name: Checkout
@@ -57,14 +61,56 @@ jobs:
           key: ${{ runner.os }}-sonar-scanner
 
       - if: steps.cache.outputs.cache-hit != 'true'
+=======
+
+    steps:
+      - name: Allow unsigned scripts in this job
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clone disabled for better analysis relevancy
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu' # Alternative distributions available
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~\.sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache SonarQube scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarQube scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+>>>>>>> a99add5 (Update buil.yml)
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory -Force
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
+<<<<<<< HEAD
       - name: SonarQube Begin
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN:     ${{ secrets.SONAR_TOKEN }}
+=======
+      - name: Build and analyze
+        shell: powershell
+>>>>>>> a99add5 (Update buil.yml)
         run: |
 <<<<<<< HEAD
           & ".\.sonar\scanner\dotnet-sonarscanner" begin `
@@ -117,6 +163,9 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"ORBIT9000" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+<<<<<<< HEAD
 
             
 >>>>>>> 7755e2d (Update build.yml)
+=======
+>>>>>>> a99add5 (Update buil.yml)
