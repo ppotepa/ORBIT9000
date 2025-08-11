@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Data.Entities;
@@ -32,6 +33,13 @@ using ORBIT9000.Engine.Runtime.State;
 =======
 ﻿using ORBIT9000.Engine.Runtime.State;
 >>>>>>> 53c6dc2 (Further Remove code smells.)
+=======
+﻿using Newtonsoft.Json;
+using ORBIT9000.Engine.Runtime.State;
+using System.Data;
+using System.IO.Pipes;
+using System.Text;
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -39,6 +47,9 @@ namespace ORBIT9000.Engine.Strategies.Running
     {
         public readonly static ParameterizedThreadStart EngineStartupStrategy = static (obj) =>
         {
+            var pipeThread = new Thread(PipeThread);
+            pipeThread.Start(obj);
+
             if (obj is not EngineState state || state.Engine is null)
 >>>>>>> e2b2b5a (Reworked Naming)
             {
@@ -180,6 +191,33 @@ namespace ORBIT9000.Engine.Strategies.Running
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(150));
             }
+        };
+
+        public readonly static ParameterizedThreadStart PipeThread = async static (obj) =>
+        {
+            var state = obj as EngineState; 
+            var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
+            Console.WriteLine("Waiting for GUI to connect...");
+            await server.WaitForConnectionAsync();
+            Console.WriteLine("GUI connected!");
+
+
+            while (state.Engine.IsRunning) 
+            {
+                var message = new
+                {
+                    state = state.Engine
+                };
+
+                string json = JsonConvert.SerializeObject(message, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+                byte[] buffer = Encoding.UTF8.GetBytes(json);
+
+                await server.WriteAsync(buffer, 0, buffer.Length);
+                Console.WriteLine("Message sent!");
+                Task.Delay(TimeSpan.FromMilliseconds(50));
+            }
+
+            server.Dispose();
         };
 
         private static readonly Action<OrbitEngine> Execute = async (engine) =>

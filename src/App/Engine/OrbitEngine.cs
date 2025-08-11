@@ -17,11 +17,14 @@ using ORBIT9000.Engine.Runtime.Strategies.Running;
 using ORBIT9000.Abstractions;
 >>>>>>> 254394d (Remove OverLogging)
 using ORBIT9000.Engine.Configuration;
+<<<<<<< HEAD
 using ORBIT9000.Engine.Runtime.Exceptions;
 <<<<<<< HEAD
 using ORBIT9000.Engine.State;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 =======
+=======
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 using ORBIT9000.Engine.Runtime.State;
 >>>>>>> 254394d (Remove OverLogging)
 
@@ -35,8 +38,11 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
+=======
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
 
@@ -159,7 +165,8 @@ namespace ORBIT9000.Engine
             ArgumentNullException.ThrowIfNull(pluginProvider);
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
 
-            _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
+            _logger = loggerFactory.CreateLogger<OrbitEngine>() 
+                ?? throw new InvalidOperationException("Logger could not be created.");
          
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
             _pluginProvider = pluginProvider;

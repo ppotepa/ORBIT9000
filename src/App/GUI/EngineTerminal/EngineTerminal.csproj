@@ -2,11 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+<<<<<<< HEAD
     <TargetFramework>net8.0-windows</TargetFramework>
+=======
+    <TargetFramework>net8.0</TargetFramework>
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+<<<<<<< HEAD
   <ItemGroup>    
     <PackageReference Include="MessagePack" Version="3.1.3" />
     <PackageReference Include="Terminal.Gui" Version="1.18.1" />
@@ -18,4 +23,6 @@
   </ItemGroup>
   
 
+=======
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 </Project>

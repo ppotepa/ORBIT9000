@@ -14,11 +14,19 @@
 
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <Compile Remove="IO\Loaders\PluginAssembly\Result\**" />
     <EmbeddedResource Remove="IO\Loaders\PluginAssembly\Result\**" />
     <None Remove="IO\Loaders\PluginAssembly\Result\**" />
   </ItemGroup>
   
+=======
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
+  </ItemGroup>
+
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
@@ -74,7 +82,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
     <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 
