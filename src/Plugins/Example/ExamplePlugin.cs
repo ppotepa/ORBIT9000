@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Abstractions;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
@@ -16,10 +17,14 @@ using ORBIT9000.Core.Abstractions;
 =======
 using ORBIT9000.Core.Attributes.Engine;
 >>>>>>> 15da848 (Improve Reradibility)
+=======
+using ORBIT9000.Core.Abstractions;
+>>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     [DefaultProject("Example")]
@@ -48,6 +53,9 @@ namespace ORBIT9000.Plugins.Example
 =======
     [Singleton(typeof(ExamplePlugin))]
 >>>>>>> 15da848 (Improve Reradibility)
+=======
+    //[Singleton(typeof(ExamplePlugin))]
+>>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
     public class ExamplePlugin : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider;

@@ -8,6 +8,10 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>CONSOLE_GUI</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
 <<<<<<< HEAD
     <Compile Remove="IO\Loaders\PluginAssembly\Result\**" />
@@ -70,6 +74,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Extensions\" />
     <Folder Include="IO\Loaders\PluginAssembly\Result\" />
   </ItemGroup>
 

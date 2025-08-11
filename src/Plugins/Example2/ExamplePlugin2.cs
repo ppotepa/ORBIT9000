@@ -74,8 +74,12 @@ namespace ORBIT9000.Plugins.Example
             IEnumerable<WeatherResponse> data = await _provider.GetData();
             IEnumerable<int> data2 = await _numbers.GenerateRandomNumbers();
 
+<<<<<<< HEAD
             _logger.LogInformation("Fetched data from random number generator: {D1}, {D2}", data, data2);
 >>>>>>> 53c6dc2 (Further Remove code smells.)
+=======
+            _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count(), data2.Count());
+>>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
         }
 
         public Task OnUnload()

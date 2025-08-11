@@ -183,10 +183,14 @@ Global
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {D146F833-BABD-4128-9C25-FBBF7138BF46}
 		{3836CC2D-7B15-B21B-7EC6-B8735EC097EC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
 =======
 		{6E5662E1-0C19-4DFB-ACF5-FF4DB03CB66D} = {D146F833-BABD-4128-9C25-FBBF7138BF46}
 >>>>>>> 83dd439 (Remove Code Smells)
+=======
+		{6E5662E1-0C19-4DFB-ACF5-FF4DB03CB66D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+>>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7C1FD45-B625-41CA-9EA3-8BC7CDA6B514}

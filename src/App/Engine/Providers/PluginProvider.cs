@@ -227,16 +227,39 @@ using System.Runtime.CompilerServices;
 
 namespace ORBIT9000.Engine.Providers
 {
-    internal class PluginProvider : IPluginProvider
+    internal class PluginProvider : ORBIT9000.Core.Environment.Disposable, IPluginProvider
     {
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
         private readonly RuntimeConfiguration _config;
-        private readonly Dictionary<Type, ILifetimeScope> _individualPluginScopes = new();
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
         private readonly List<PluginInfo> _validPlugins;
-        private ILifetimeScope _pluginScope;
+
+        private ILifetimeScope? _pluginScope;
+        private ILifetimeScope PluginScope => _pluginScope ??= CreateSharedScope();
+
+        private Dictionary<Type, ILifetimeScope>? _individualPluginScopes;
+        private Dictionary<Type, ILifetimeScope> IndividualPluginScopes
+        {
+            get
+            {
+                if (_individualPluginScopes == null)
+                {
+                    _individualPluginScopes = new Dictionary<Type, ILifetimeScope>();
+                    foreach (var info in _validPlugins)
+                    {
+                        _individualPluginScopes[info.PluginType] = _rootScope.BeginLifetimeScope(builder =>
+                        {
+                            ServiceCollection services = new ServiceCollection();
+                            RegisterPlugin(builder, services, info);
+                            builder.Populate(services);
+                        });
+                    }
+                }
+                return _individualPluginScopes;
+            }
+        }
 
         public PluginProvider(
             ILogger<PluginProvider> logger,
@@ -269,6 +292,7 @@ namespace ORBIT9000.Engine.Providers
         public IOrbitPlugin Activate(Type plugin)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             IServiceScope scope = _provider.CreateScope();
             return ActivatorUtilities.CreateInstance(scope.ServiceProvider, plugin, []) as IOrbitPlugin;
         }
@@ -286,22 +310,41 @@ namespace ORBIT9000.Engine.Providers
 =======
             throw new NotImplementedException();
 >>>>>>> ed8e1ec (Remove PreBuild Helper)
+=======
+            var target = _validPlugins.FirstOrDefault(x => x.PluginType == plugin);
+            if (target != null)
+            {
+                return ActivatePlugin(target);
+            }
+
+            _logger.LogError("Plugin activation failed. Invalid plugin type: {Plugin}", plugin.Name);
+            throw new ArgumentException("Invalid plugin type.", nameof(plugin));
+>>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
         }
 
-        public void Initialize()
-        {
-            if (_config.SharePluginScopes)
-            {
-                _pluginScope = CreateSharedScope();
-            }
-            else
-            {
-                CreateIndividualScopes();
-            }
-        }
         public void Unload(object plugin)
         {
             _pluginLoader.Unload(plugin);
+        }
+
+        protected override void DisposeManagedObjects()
+        {
+            if (_pluginScope != null)
+            {
+                _pluginScope.Dispose();
+                _pluginScope = null;
+            }
+
+            if (_individualPluginScopes != null)
+            {
+                foreach (var scope in _individualPluginScopes.Values)
+                {
+                    scope.Dispose();
+                }
+
+                _individualPluginScopes.Clear();
+                _individualPluginScopes = null;
+            }
         }
 
         private IOrbitPlugin ActivatePlugin(PluginInfo target)
@@ -323,28 +366,15 @@ namespace ORBIT9000.Engine.Providers
             return instance!;
         }
 
-        private void CreateIndividualScopes()
-        {
-            foreach (var info in _validPlugins)
-            {
-                _individualPluginScopes[info.PluginType] = _rootScope.BeginLifetimeScope(builder =>
-                {
-                    ServiceCollection services = new ServiceCollection();
-                    RegisterPlugin(builder, services, info);
-                    builder.Populate(services);
-                });
-            }
-        }
-
         private IOrbitPlugin? CreateInstanceFromScope(Type type)
         {
             try
             {
                 IServiceProvider serviceProvider = _config.SharePluginScopes
-                    ? _pluginScope.Resolve<IServiceProvider>()
-                    : _individualPluginScopes[type].Resolve<IServiceProvider>();
+                    ? PluginScope.Resolve<IServiceProvider>()
+                    : IndividualPluginScopes[type].Resolve<IServiceProvider>();
 
-                return (IOrbitPlugin?) ActivatorUtilities.CreateInstance(serviceProvider, type);
+                return (IOrbitPlugin?)ActivatorUtilities.CreateInstance(serviceProvider, type);
             }
             catch (Exception ex)
             {
@@ -358,8 +388,8 @@ namespace ORBIT9000.Engine.Providers
             return _rootScope.BeginLifetimeScope(builder =>
             {
                 ServiceCollection services = new ServiceCollection();
-                
-                foreach (PluginInfo  info in _validPlugins)
+
+                foreach (PluginInfo info in _validPlugins)
                 {
                     RegisterPlugin(builder, services, info);
                 }
@@ -368,7 +398,7 @@ namespace ORBIT9000.Engine.Providers
             });
         }
 
-        private void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
+        private static void RegisterPlugin(ContainerBuilder builder, ServiceCollection services, PluginInfo info)
         {
             if (info.IsSingleton)
             {

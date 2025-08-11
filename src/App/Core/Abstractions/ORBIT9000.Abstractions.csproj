@@ -22,4 +22,8 @@
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading):src/App/Core/ORBIT9000.Core/ORBIT9000.Core.csproj
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UI\" />
+  </ItemGroup>
+
 </Project>

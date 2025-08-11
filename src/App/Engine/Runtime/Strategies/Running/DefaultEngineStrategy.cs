@@ -172,14 +172,13 @@ namespace ORBIT9000.Engine.Strategies.Running
 =======
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
 
-
             Initialize!(state.Engine);
 
             while (state.Engine.IsRunning)
             {
                 Execute!(state.Engine);
 
-                Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+                Thread.Sleep(TimeSpan.FromMilliseconds(150));
             }
         };
 
@@ -201,7 +200,6 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> Initialize = (engine) =>
         {
-            engine.PluginProvider.Initialize();
         };
 
         public Default()

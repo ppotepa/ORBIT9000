@@ -1,12 +1,8 @@
-﻿namespace ORBIT9000.Plugins.Example.DataProviders.Query
+﻿#nullable disable
+namespace ORBIT9000.Plugins.Example.DataProviders.Query
 {
     internal class WeatherQuery
     {
-        public double latitude { get; set; }
-        public double Longitude { get; set; }
-        public string Hourly { get; set; }
-        public string Timezone { get; set; }
-
         public WeatherQuery(double latitude, double longitude, string hourly, string timezone)
         {
             this.latitude = latitude;
@@ -17,11 +13,16 @@
 
         public WeatherQuery() { }
 
-        public override bool Equals(object? obj)
+        public string Hourly { get; set; }
+        public double latitude { get; set; }
+        public double Longitude { get; set; }
+        public string Timezone { get; set; }
+
+        public override bool Equals(object obj)
         {
             return obj is WeatherQuery other &&
-                   this.latitude == other.latitude &&
-                   this.Longitude == other.Longitude &&
+                   float.Equals((float)this.latitude, (float)other.latitude) &&
+                   float.Equals((float)this.Longitude, (float)other.Longitude) &&
                    this.Hourly == other.Hourly &&
                    this.Timezone == other.Timezone;
         }
