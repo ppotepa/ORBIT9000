@@ -70,6 +70,7 @@ namespace ORBIT9000.Plugins.Example
         {
             IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
             _logger.LogInformation("Fetched data from random number generator: Count : {D0}", data.Count());
+<<<<<<< HEAD
 =======
         public async Task OnLoad()
         {
@@ -87,6 +88,8 @@ namespace ORBIT9000.Plugins.Example
             IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
             _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count());
 >>>>>>> 56ba6c0 (Add Generic Message Channel)
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         }
 
         public Task OnUnload()

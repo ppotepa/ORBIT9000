@@ -131,6 +131,7 @@ using Orbit9000.EngineTerminal.EventArgs;
 using System.ComponentModel;
 =======
 ﻿using EngineTerminal.Contracts;
+using ORBIT9000.Core.Environment;
 using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
@@ -142,7 +143,7 @@ using static EngineTerminal.Managers.UIManager;
 
 namespace Orbit9000.EngineTerminal
 {
-    public class ApplicationController
+    public class ApplicationController : Disposable
     {
         #region Fields
 
@@ -153,10 +154,6 @@ namespace Orbit9000.EngineTerminal
         private readonly CancellationTokenSource _tokenSource = new();
         private readonly IUIManager _uiManager;
 
-        #endregion Fields
-
-        #region Constructors
-
         public ApplicationController(
             IDataManager dataManager,
             IUIManager uiManager,
@@ -164,6 +161,12 @@ namespace Orbit9000.EngineTerminal
             Channel<ExampleData> dataChannel,
             Channel<string> statusChannel)
         {
+            if (dataManager == null) throw new ArgumentNullException(nameof(dataManager));
+            if (uiManager == null) throw new ArgumentNullException(nameof(uiManager));
+            if (pipeManager == null) throw new ArgumentNullException(nameof(pipeManager));
+            if (dataChannel == null) throw new ArgumentNullException(nameof(dataChannel));
+            if (statusChannel == null) throw new ArgumentNullException(nameof(statusChannel));
+
             _dataManager = dataManager;
             _uiManager = uiManager;
             _pipeManager = pipeManager;
@@ -245,6 +248,16 @@ namespace Orbit9000.EngineTerminal
 >>>>>>> 80f2a0e (Split Responsibilities To Managers)
 =======
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
         #endregion Methods
 >>>>>>> dceb24b (Rework Translator into Property Grid View with event handling)
     }

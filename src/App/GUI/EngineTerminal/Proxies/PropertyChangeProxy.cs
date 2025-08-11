@@ -11,12 +11,17 @@ namespace EngineTerminal.Proxies
         #region Fields
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         private List<PropertyChangeRecord>? _changes;
         private TTargetType? _target;
 =======
         private List<PropertyChangeRecord> _changes;
         private TTargetType _target;
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+        private List<PropertyChangeRecord>? _changes;
+        private TTargetType? _target;
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         #endregion Fields
 
@@ -30,20 +35,30 @@ namespace EngineTerminal.Proxies
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
 =======
         protected override object Invoke(MethodInfo targetMethod, object[] args)
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         {
             if (targetMethod == null || _target == null)
                 throw new InvalidOperationException("Proxy not properly initialized");
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             if (args == null)
                 throw new ArgumentException("Arguments cannot be null or empty", nameof(args));
 
 =======
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+            if (args == null || args.Length == 0)
+                throw new ArgumentException("Arguments cannot be null or empty", nameof(args));
+
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
             string methodName = targetMethod.Name;
 
             try
@@ -69,14 +84,18 @@ namespace EngineTerminal.Proxies
 
                     if (propertyInfo != null)
                     {
-                        object oldValue = propertyInfo.GetValue(_target);
-                        object result = targetMethod.Invoke(_target, args);
-                        object newValue = args[0];
+                        object? oldValue = propertyInfo.GetValue(_target);
+                        object? result = targetMethod.Invoke(_target, args);
+                        object? newValue = args[0];
 
                         if (!Equals(oldValue, newValue))
                         {
+<<<<<<< HEAD
                             _changes.Add(new PropertyChangeRecord
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+                            _changes?.Add(new PropertyChangeRecord
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
                             {
                                 PropertyPath = propertyName,
                                 OldValue = oldValue,
@@ -84,6 +103,7 @@ namespace EngineTerminal.Proxies
                             });
                         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
                         return result!;
                     }
@@ -94,6 +114,12 @@ namespace EngineTerminal.Proxies
                     }
                 }
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+                        return result!;
+                    }
+                }
+
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
                 return targetMethod.Invoke(_target, args);
             }
             catch (TargetInvocationException ex)

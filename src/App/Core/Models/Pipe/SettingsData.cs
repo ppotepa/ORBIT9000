@@ -102,17 +102,17 @@ namespace ORBIT9000.Core.Models.Pipe
     public class SettingsData : ReactiveObject
     {
         private int _setting1;
-        private string _setting2;
-        private string _setting3;
-        private string _setting4;
-        private string _setting5;
-        private string _setting6;
-        private string _setting7;
-        private string _setting8;
-        private string _setting9;
-        private string _setting10;
-        private string _setting11;
-        private string _setting12;
+        private string _setting2 = string.Empty;
+        private string _setting3 = string.Empty;
+        private string _setting4 = string.Empty;
+        private string _setting5 = string.Empty;
+        private string _setting6 = string.Empty;
+        private string _setting7 = string.Empty;
+        private string _setting8 = string.Empty;
+        private string _setting9 = string.Empty;
+        private string _setting10 = string.Empty;
+        private string _setting11 = string.Empty;
+        private string _setting12 = string.Empty;
 
         public int Setting1
         {

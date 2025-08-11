@@ -57,10 +57,13 @@ namespace ORBIT9000.Engine.Strategies.Running
             ArgumentNullException.ThrowIfNull(_state);
             ArgumentNullException.ThrowIfNull(_state.Engine);
 
+<<<<<<< HEAD
 =======
         public async Task StartAsync()
         {
 >>>>>>> 914c644 (Add Pipe Handler)
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
             _state.Engine.LogInformation("Starting PipeThread.");
 
             try

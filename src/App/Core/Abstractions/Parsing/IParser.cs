@@ -22,8 +22,8 @@
 =======
     internal interface IParser<out TTarget> : IParser
     {
-        TTarget Parse(string input);
-        object IParser.Parse(string input) => Parse(input);
+        new TTarget Parse(string input);
+        object IParser.Parse(string input) => Parse(input)!;
     }
 }
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)

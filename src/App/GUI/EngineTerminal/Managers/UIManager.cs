@@ -10,16 +10,24 @@ namespace EngineTerminal.Managers
     public class UIManager : IUIManager
     {
         public delegate void BindingAction(Dictionary<string, ValueBinding> bindings);
+        
+        private readonly StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
+        private readonly StatusItem AdditionalStatusItem = new StatusItem(Key.Null, "...", null);
+        private readonly StatusItem CurrentMethod = new StatusItem(Key.Null, "[No Invocations just yet]", null);
 
+<<<<<<< HEAD
         private readonly StatusItem StatusItem = new(Key.Null, "Starting...", null);
         private readonly StatusItem AdditionalStatusItem = new(Key.Null, "...", null);
         private readonly StatusItem CurrentMethod = new(Key.Null, "[No Invocations just yet]", null);
 
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         public StatusBar? StatusBar { get; private set; }
         public Dictionary<string, ValueBinding> GridBindings
         {
             get
             {
+<<<<<<< HEAD
                 if (Grid == null)
                 {
                     throw new InvalidOperationException("Grid is not initialized.");
@@ -62,19 +70,27 @@ namespace EngineTerminal.Managers
         private StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
         private StatusItem AdditionalStatusItem = new StatusItem(Key.Null, "...", null);
         private StatusItem CurrentMethod = new StatusItem(Key.Null, "[No Invocations just yet]", null);
+=======
+                if(Grid == null)
+                {
+                    throw new InvalidOperationException("Grid is not initialized.");
+                }   
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
-        public StatusBar StatusBar { get; private set; }
-        public Dictionary<string, ValueBinding> GridBindings => Grid.Bindings;
-        public View MainView { get; private set; }
-        public PropertyGridView Grid { get; private set; }
-        public MenuBar MenuBar { get; private set; }
+                return Grid.Bindings ?? new Dictionary<string, ValueBinding>();
+            }
+        }
 
-        public void Initialize(object initialData)
+        public View? MainView { get; private set; }
+        public PropertyGridView? Grid { get; private set; }
+        public MenuBar? MenuBar { get; private set; }
+
+        public void Initialize(object data)
         {
             Application.Init();
 
             MainView = new View { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() - 1 };
-            Grid = new PropertyGridView(MainView, initialData);
+            Grid = new PropertyGridView(MainView, data);
             MenuBar = new MenuBar();
 
 <<<<<<< HEAD
@@ -99,6 +115,7 @@ namespace EngineTerminal.Managers
 
         public void Run() => Application.Run();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         public void UpdateStatusMessage(string? message, string? additionalInfo = default)
         {
@@ -146,6 +163,9 @@ namespace EngineTerminal.Managers
         public void UpdateStatusMessage(string message)
 =======
         public void UpdateStatusMessage(string message, string additionalInfo = null)
+=======
+        public void UpdateStatusMessage(string? message, string? additionalInfo = default)
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         {
             Application.MainLoop.Invoke(() =>
             {
@@ -162,8 +182,12 @@ namespace EngineTerminal.Managers
             });
         }
 
+<<<<<<< HEAD
         public void UpdateCurrentMethod(string message)
 >>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
+=======
+        public void UpdateCurrentMethod(string? message)
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         {
             Application.MainLoop.Invoke(() =>
             {
@@ -172,7 +196,7 @@ namespace EngineTerminal.Managers
             });
         }
 
-        public void UpdateUIFromData(object sender, IReadOnlyList<BindingAction> updates)
+        public void UpdateUIFromData(object? sender, IReadOnlyList<BindingAction> updates)
         {
             Application.MainLoop.Invoke(() =>
             {
@@ -190,7 +214,7 @@ namespace EngineTerminal.Managers
 =======
                 foreach (var update in updates)
                 {
-                    update(Grid.Bindings);
+                    update(Grid!.Bindings);
                 }
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 

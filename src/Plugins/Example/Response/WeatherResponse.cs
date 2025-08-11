@@ -4,26 +4,26 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 {
     public class Hourly
     {
-        public float[] temperature_2m { get; set; }
-        public string[] time { get; set; }
+        public required float[] temperature_2m { get; set; }
+        public required string[] time { get; set; }
     }
 
     public class Hourly_Units
     {
-        public string temperature_2m { get; set; }
-        public string time { get; set; }
+        public required string temperature_2m { get; set; }
+        public required string time { get; set; }
     }
 
     public class WeatherResponse : IResult
     {
         public float elevation { get; set; }
         public float generationtime_ms { get; set; }
-        public Hourly hourly { get; set; }
-        public Hourly_Units hourly_units { get; set; }
+        public Hourly? hourly { get; set; }
+        public Hourly_Units? hourly_units { get; set; }
         public float latitude { get; set; }
         public float longitude { get; set; }
-        public string timezone { get; set; }
-        public string timezone_abbreviation { get; set; }
+        public string? timezone { get; set; }
+        public string? timezone_abbreviation { get; set; }
         public int utc_offset_seconds { get; set; }
         public override string ToString()
         {

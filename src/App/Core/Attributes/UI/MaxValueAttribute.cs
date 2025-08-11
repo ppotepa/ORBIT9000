@@ -12,7 +12,7 @@ namespace ORBIT9000.Core.Attributes.UI
             MaxValue = maxValue;
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value == null)
                 return ValidationResult.Success;

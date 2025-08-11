@@ -190,7 +190,7 @@ namespace Terminal.Gui.CustomViews
         public readonly Dictionary<string, ValueBinding> Bindings = new Dictionary<string, ValueBinding>();
 
 
-        private View _main;
+        private readonly View _main;
 
 <<<<<<< HEAD
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
@@ -246,6 +246,7 @@ namespace Terminal.Gui.CustomViews
 <<<<<<< HEAD
 <<<<<<< HEAD
 
+<<<<<<< HEAD
         private readonly Dictionary<Type, PropertyInfo[]> _propertyInfoCache = [];
 
         /// <summary>
@@ -261,6 +262,9 @@ namespace Terminal.Gui.CustomViews
 
 >>>>>>> 5710a06 (Add Readme)
         private Dictionary<Type, PropertyInfo[]> _propertyInfoCache = new();
+=======
+        private readonly Dictionary<Type, PropertyInfo[]> _propertyInfoCache = new();
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         /// <summary>
         /// Creates the property grid view structure based on the provided data object.
@@ -269,8 +273,12 @@ namespace Terminal.Gui.CustomViews
         public Dictionary<string, ValueBinding> TranslateView()
         {
             Type dataType = _data.GetType();
+<<<<<<< HEAD
             if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[] properties))
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+            if (!_propertyInfoCache.TryGetValue(dataType, out PropertyInfo[]? properties))
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
             {
                 properties = dataType.GetProperties(NOT_INHERITED);
                 _propertyInfoCache[dataType] = properties;

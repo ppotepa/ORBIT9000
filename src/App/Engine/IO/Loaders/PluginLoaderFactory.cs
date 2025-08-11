@@ -32,10 +32,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
 
         public IPluginLoader Create()
         {
+<<<<<<< HEAD
             if (_rawConfig == null)
                 throw new ArgumentNullException(nameof(_rawConfig));
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
 
+=======
+            ArgumentNullException.ThrowIfNull(_rawConfig);
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
             return _rawConfig.Plugins.ActivePlugins.Length switch
             {

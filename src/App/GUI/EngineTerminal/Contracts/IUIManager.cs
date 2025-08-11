@@ -28,6 +28,7 @@ namespace EngineTerminal.Contracts
         void Run();
 
         void UpdateUIFromData(object? sender, IReadOnlyList<BindingAction> updates);
+<<<<<<< HEAD
 
         void UpdateStatusMessage(string? message, string? additionalInfo = null);
         void UpdateCurrentMethod(string? message);
@@ -50,5 +51,10 @@ namespace EngineTerminal.Contracts
         void UpdateStatusMessage(string message, string additionalInfo = null);
         void UpdateCurrentMethod(string message);
 >>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
+=======
+
+        void UpdateStatusMessage(string? message, string? additionalInfo = null);
+        void UpdateCurrentMethod(string? message);
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
     }
 }

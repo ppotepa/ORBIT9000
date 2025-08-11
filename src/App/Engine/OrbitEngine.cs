@@ -110,6 +110,7 @@ namespace ORBIT9000.Engine
 =======
         private IScheduler _scheduler;
 
+<<<<<<< HEAD
         public IScheduler Scheduler
         {
             get => _scheduler;
@@ -121,6 +122,9 @@ namespace ORBIT9000.Engine
             }
         }
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
+=======
+        public IScheduler Scheduler => _scheduler;
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         private RuntimeSettings _configuration;
 
@@ -129,7 +133,7 @@ namespace ORBIT9000.Engine
         #region Constructors
 
         public OrbitEngine(
-                    ILoggerFactory loggerFactory,
+            ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -239,7 +243,7 @@ namespace ORBIT9000.Engine
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 
-            Scheduler = scheduler;
+            _scheduler = scheduler;
 
             IsInitialized = true;
             IsRunning = true;

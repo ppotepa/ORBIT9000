@@ -217,7 +217,13 @@ namespace ORBIT9000.Engine.Scheduling
 ﻿using ORBIT9000.Core.Abstractions.Scheduling;
 using ORBIT9000.Core.Attributes.Engine;
 
+<<<<<<< HEAD
 namespace ORBIT9000.Engine.Scheduling
+=======
+namespace ORBIT9000.Engine.Scheduling;
+
+public class SimpleScheduler : IScheduler
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 {
     public class SimpleScheduler : IScheduler
        

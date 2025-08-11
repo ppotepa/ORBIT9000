@@ -4,6 +4,7 @@
 using MessagePack;
 using MessagePack.Resolvers;
 <<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Core.Environment;
 using ORBIT9000.Core.Models.Pipe;
 using System.Buffers;
@@ -82,6 +83,9 @@ using MessagePack;
 using MessagePack.Resolvers;
 using ORBIT9000.Core.Models.Pipe;
 =======
+=======
+using ORBIT9000.Core.Environment;
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 using System.Buffers;
@@ -90,12 +94,12 @@ using System.Threading.Channels;
 
 namespace EngineTerminal.Managers
 {
-    public class NamedPipeManager : IPipeManager, IDisposable
+    public class NamedPipeManager : Disposable, IPipeManager
     {
         private readonly ChannelWriter<ExampleData> _dataWriter;
         private readonly ChannelWriter<string> _statusWriter;
         private readonly string _serverName;
-        private readonly string _pipeName;
+        private readonly string _pipeName;        
 
         public NamedPipeManager(
             Channel<ExampleData> dataChannel,
@@ -145,8 +149,20 @@ namespace EngineTerminal.Managers
             }
         }
 
-        public void Dispose()
-        { }
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {                    
+                    _dataWriter.Complete();
+                    _statusWriter.Complete();
+                }
+                
+                base.Dispose(disposing);
+                disposed = true;
+            }
+        }
     }
 <<<<<<< HEAD
 }

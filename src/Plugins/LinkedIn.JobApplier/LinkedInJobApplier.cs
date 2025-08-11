@@ -7,7 +7,7 @@ namespace LinkedIn.JobApplier
     [SchedulableService("run every 10 seconds")]
     public class LinkedInJobApplier : IOrbitPlugin
     {
-        private ILogger<LinkedInJobApplier> logger;
+        private readonly ILogger<LinkedInJobApplier> logger;
 
         public LinkedInJobApplier(ILogger<LinkedInJobApplier> logger)
         {

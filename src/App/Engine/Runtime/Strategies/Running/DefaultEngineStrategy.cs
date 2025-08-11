@@ -59,7 +59,7 @@ using ORBIT9000.Core.Parsing;
 >>>>>>> a7c6658 (Add Very Basic Job Scheduling)
 =======
 ﻿using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Core.Parsing;
+using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Runtime.State;
 >>>>>>> fd5a59f (Code Cleanup)
 
@@ -69,12 +69,17 @@ namespace ORBIT9000.Engine.Strategies.Running
     {
         public static void EngineStartupStrategy(object? obj)
         {
+<<<<<<< HEAD
             if (obj is not EngineState state || state.Engine is null)
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+            if (obj is not EngineState { Engine: { } engine })
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -212,26 +217,37 @@ namespace ORBIT9000.Engine.Strategies.Running
 >>>>>>> 122b62b (Fix Engine Main Thread)
             if (state.Engine.Configuration.EnableTerminal)
 >>>>>>> ba7902f (CleanUp DefaultRunningStrategy)
+=======
+            var state = obj as EngineState;
+
+            engine.LogInformation("Starting EngineStartupStrategy.");
+
+            if (engine.Configuration.EnableTerminal)
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
             {
-                Task.Run(() => new PipeThreadHandler(state).StartAsync());
+                Task.Run(() => new PipeThreadHandler(state!).StartAsync());
             }
 
+<<<<<<< HEAD
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
             state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
+=======
+            engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
-            Initialize(state.Engine);
+            Initialize(engine);
 
-            while (state.Engine?.IsRunning == true)
+            while (engine.IsRunning)
             {
-                state.Engine.LogDebug("Engine loop iteration started.");
+                engine.LogDebug("Engine loop iteration started.");
 
-                Execute(state.Engine);
+                Execute(engine);
 
-                state.Engine.LogDebug("Engine loop iteration completed.");
+                engine.LogDebug("Engine loop iteration completed.");
                 Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             }
 
-            state.Engine.LogInformation("EngineStartupStrategy has completed.");
+            engine.LogInformation("EngineStartupStrategy has completed.");
         }
 
         private static void Execute(OrbitEngine engine)

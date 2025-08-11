@@ -18,6 +18,7 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
     {
         void Schedule(ISchedule schedule, Action job);
     }
+<<<<<<< HEAD
 
     public interface IScheduler<TPlugin> : IScheduler
 <<<<<<< HEAD
@@ -29,4 +30,6 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
     {
 >>>>>>> fd5a59f (Code Cleanup)
     }
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 }

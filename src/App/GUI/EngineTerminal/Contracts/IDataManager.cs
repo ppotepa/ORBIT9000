@@ -21,6 +21,7 @@ namespace EngineTerminal.Contracts
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         object? Data { get; }
 
         IReadOnlyList<BindingAction> GetUpdates<TData>(TData newData, Dictionary<string, ValueBinding> bindings);
@@ -35,6 +36,9 @@ namespace EngineTerminal.Contracts
 >>>>>>> 18f5855 (Replace Dictionary of Actions with more clean BindingAction Type)
 =======
         object Data { get; }
+=======
+        object? Data { get; }
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         IReadOnlyList<BindingAction> GetUpdates<TData>(TData newData, Dictionary<string, ValueBinding> bindings);
 >>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)

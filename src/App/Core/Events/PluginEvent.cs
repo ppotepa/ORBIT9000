@@ -11,7 +11,7 @@
 
     public class PluginEvent
     {
-        public Type PluginType { get; set; }
-        public PluginEventType Type { get; set; }
+        public required Type PluginType { get; set; }
+        public required PluginEventType Type { get; set; }
     }
 }

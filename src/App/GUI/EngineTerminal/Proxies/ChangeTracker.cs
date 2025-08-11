@@ -16,6 +16,7 @@ namespace EngineTerminal.Proxies
         #region Fields
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         private readonly List<PropertyChangeRecord> _changes = [];
         private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
         private TTargetType? _originalData;
@@ -23,9 +24,13 @@ namespace EngineTerminal.Proxies
 =======
         private TTargetType _originalData;
         private TTargetType _proxyData;
+=======
+        private TTargetType? _originalData;
+        private TTargetType? _proxyData;
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         private readonly List<PropertyChangeRecord> _changes = new();
-        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+        private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
 
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
         #endregion Fields
@@ -33,6 +38,9 @@ namespace EngineTerminal.Proxies
         #region Properties
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
         public TTargetType ProxyData
         {
             get
@@ -45,9 +53,12 @@ namespace EngineTerminal.Proxies
                 return _proxyData;
             }
         }
+<<<<<<< HEAD
 =======
         public TTargetType ProxyData => _proxyData;
 >>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
+=======
+>>>>>>> 86e317a (Refactor interfaces and improve null safety)
 
         #endregion Properties
 
@@ -193,9 +204,14 @@ namespace EngineTerminal.Proxies
 
         private TTargetType CreateProxy(TTargetType target)
         {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target), "Target cannot be null.");
+            }
+
             if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
             {
-                return proxy.SetTarget(target, _changes) as TTargetType;
+                return proxy.SetTarget(target, _changes) as TTargetType ?? throw new InvalidOperationException("Failed to create proxy.");
             }
             else
             {
