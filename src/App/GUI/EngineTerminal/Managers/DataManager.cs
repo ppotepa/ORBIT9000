@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Proxies;
 using ORBIT9000.Core.Models.Pipe;
@@ -60,9 +61,14 @@ namespace EngineTerminal.Managers
 =======
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Contracts;
+=======
+﻿using EngineTerminal.Contracts;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 using ORBIT9000.Core.Models.Pipe;
 using System.Reflection;
 using TempTools;
+using Terminal.Gui.CustomViews.Misc;
+using static EngineTerminal.Managers.UIManager;
 
 namespace EngineTerminal.Managers
 {

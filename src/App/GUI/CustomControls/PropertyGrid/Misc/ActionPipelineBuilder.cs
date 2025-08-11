@@ -7,6 +7,7 @@ using System.Reflection;
 
 namespace Terminal.Gui.CustomViews.Misc
 {
+<<<<<<< HEAD
     /// <summary>
     /// Builds a pipeline of actions to process input values and apply them to a target binding.
     /// </summary>
@@ -45,6 +46,16 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <param name="parent">The parent object containing the property.</param>
         /// <param name="propertyInfo">The property information of the target property.</param>
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
+=======
+    public class ActionPipelineBuilder
+    {
+        private readonly List<Action<ustring>> _pipeline = new();
+        private TextField? _valueField;
+        private ValueBinding? _targetBinding;
+        private object? _parent;
+        private PropertyInfo? _propertyInfo;
+
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         public ActionPipelineBuilder Create(TextField valueField, ValueBinding targetBinding, object parent, PropertyInfo propertyInfo)
         {
             _valueField = valueField;
@@ -56,12 +67,15 @@ namespace Terminal.Gui.CustomViews.Misc
             return this;
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Adds a conditional action to the pipeline.
         /// </summary>
         /// <param name="condition">The condition to evaluate.</param>
         /// <param name="action">The action to execute if the condition is true.</param>
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         public ActionPipelineBuilder AddIf(Func<bool> condition, Func<ValueBinding, int> action)
         {
             _pipeline.Add(_ =>
@@ -72,28 +86,35 @@ namespace Terminal.Gui.CustomViews.Misc
             return this;
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Adds an action to the beginning of the pipeline.
         /// </summary>
         /// <param name="action">The action to add.</param>
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         public ActionPipelineBuilder AddPre(Action<ustring> action)
         {
             _pipeline.Insert(0, action);
             return this;
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Adds an action to the end of the pipeline.
         /// </summary>
         /// <param name="action">The action to add.</param>
         /// <returns>The current instance of <see cref="ActionPipelineBuilder"/>.</returns>
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         public ActionPipelineBuilder AddPost(Action<ustring> action)
         {
             _pipeline.Add(action);
             return this;
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Builds the pipeline into a single executable action.
         /// </summary>
@@ -107,11 +128,20 @@ namespace Terminal.Gui.CustomViews.Misc
         /// <summary>
         /// Processes the input value and applies it to the target property.
         /// </summary>
+=======
+        public Action<ustring> Build() => input =>
+        {
+            foreach (var step in _pipeline)
+                step(input);
+        };
+
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         private void ProcessInputValue()
         {
             if (_valueField == null || _targetBinding == null || _parent == null || _propertyInfo == null)
                 return;
 
+<<<<<<< HEAD
             string? text = _valueField.Text.ToString();
             switch (Type.GetTypeCode(_propertyInfo.PropertyType))
             {
@@ -123,10 +153,24 @@ namespace Terminal.Gui.CustomViews.Misc
 
                 case TypeCode.Boolean:
                     if (bool.TryParse(text, out bool b)) ApplyValue(b);
+=======
+            var text = _valueField.Text.ToString();
+            switch (Type.GetTypeCode(_propertyInfo.PropertyType))
+            {
+                case TypeCode.String:
+                    ApplyValue(text, text); break;
+                case TypeCode.Int32:
+                    if (int.TryParse(text, out var i)) ApplyValue(i, text);
+                    break;
+
+                case TypeCode.Boolean:
+                    if (bool.TryParse(text, out var b)) ApplyValue(b, text);
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
                     break;
             }
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// TODO: THERE IS SOMETHING WRONG WITH THIS METHOD
         /// Applies the validated value to the target property and binding.
@@ -135,6 +179,11 @@ namespace Terminal.Gui.CustomViews.Misc
         private void ApplyValue(object value)
         {
             if (_propertyInfo == null || _parent == null || _targetBinding == null || value == null) return;
+=======
+        private void ApplyValue<T>(T value, string original)
+        {
+            if (_propertyInfo == null || _parent == null || _targetBinding == null) return;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
             if (Validate(_propertyInfo, _parent, value))
             {
                 _targetBinding.Value = value!;
@@ -142,6 +191,7 @@ namespace Terminal.Gui.CustomViews.Misc
             }
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Validates the value against the property's validation attributes.
         /// </summary>
@@ -152,15 +202,26 @@ namespace Terminal.Gui.CustomViews.Misc
         private static bool Validate(PropertyInfo prop, object parent, object value)
         {
             IEnumerable<ValidationAttribute> attributes = prop.GetCustomAttributes<ValidationAttribute>();
+=======
+        private bool Validate(PropertyInfo prop, object parent, object value)
+        {
+            var attributes = prop.GetCustomAttributes<ValidationAttribute>();
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 
             if (!attributes.Any())
             {
                 return true;
             }
 
+<<<<<<< HEAD
             ValidationContext context = new(parent) { MemberName = prop.Name };
 
             foreach (ValidationAttribute attr in attributes)
+=======
+            var context = new ValidationContext(parent) { MemberName = prop.Name };
+
+            foreach (var attr in attributes)
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
             {
                 ValidationResult? res = attr.GetValidationResult(value, context);
                 if (res != ValidationResult.Success)

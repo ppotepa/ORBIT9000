@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+<<<<<<< HEAD
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>    
@@ -30,3 +31,14 @@
     </Resource>
   </ItemGroup>
 </Project>
+=======
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Terminal.Gui.CustomViews</AssemblyName>
+    <RootNamespace>Terminal.Gui.CustomViews</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="1.18.1" />
+  </ItemGroup>
+</Project>
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)

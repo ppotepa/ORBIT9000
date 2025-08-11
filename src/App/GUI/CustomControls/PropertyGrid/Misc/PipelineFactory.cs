@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 namespace Terminal.Gui.CustomViews.Misc
 {
     /// <summary>
@@ -13,5 +14,16 @@ namespace Terminal.Gui.CustomViews.Misc
 
         // Private constructor to prevent instantiation from outside
         private PipelineFactory() { }
+=======
+using System;
+
+namespace Terminal.Gui.CustomViews.Misc
+{
+    public class PipelineFactory
+    {
+        private static readonly Lazy<PipelineFactory> _instance = new Lazy<PipelineFactory>(() => new PipelineFactory());
+        public static PipelineFactory Instance => _instance.Value;
+        public ActionPipelineBuilder Builder => new ActionPipelineBuilder();
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
     }
 }

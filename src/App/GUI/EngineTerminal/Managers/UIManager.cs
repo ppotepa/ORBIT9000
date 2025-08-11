@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using Terminal.Gui;
 using Terminal.Gui.CustomViews;
@@ -45,12 +46,19 @@ namespace EngineTerminal.Managers
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Contracts;
 using EngineTerminal.Processing;
+=======
+﻿using EngineTerminal.Contracts;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 using Terminal.Gui;
+using Terminal.Gui.CustomViews;
+using Terminal.Gui.CustomViews.Misc;
 
 namespace EngineTerminal.Managers
 {
     public class UIManager : IUIManager
     {
+        public delegate void BindingAction(Dictionary<string, ValueBinding> bindings);
+
         private StatusItem StatusItem = new StatusItem(Key.Null, "Starting...", null);
         private StatusItem AdditionalStatusItem = new StatusItem(Key.Null, "...", null);
         private StatusItem CurrentMethod = new StatusItem(Key.Null, "[No Invocations just yet]", null);
@@ -139,22 +147,19 @@ namespace EngineTerminal.Managers
 =======
         public void UpdateStatusMessage(string message, string additionalInfo = null)
         {
-            if (additionalInfo != null)
+            Application.MainLoop.Invoke(() =>
             {
-                Application.MainLoop.Invoke(() =>
+                if (additionalInfo != null)
                 {
                     AdditionalStatusItem.Title = additionalInfo;
-                    Application.Refresh();
-                });
-            }
-            else
-            {
-                Application.MainLoop.Invoke(() =>
+                }
+                else
                 {
                     StatusItem.Title = $"{DateTime.Now.TimeOfDay} {message}";
-                    Application.Refresh();
-                });
-            }
+                }
+
+                Application.Refresh();
+            });
         }
 
         public void UpdateCurrentMethod(string message)

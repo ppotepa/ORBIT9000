@@ -1,5 +1,6 @@
 namespace Terminal.Gui.CustomViews.Misc
 {
+<<<<<<< HEAD
     /// <summary>
     /// Provides a binding mechanism between Terminal.Gui view controls and object property values.
     /// Automatically updates the view when the bound value changes.
@@ -18,11 +19,22 @@ namespace Terminal.Gui.CustomViews.Misc
         /// When set, automatically updates the view content based on the value type.
         /// </summary>
         public object? Value
+=======
+    public class ValueBinding
+    {
+        public View View { get; }
+        private object _value;
+        public object Value
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         {
             get => _value;
             set
             {
+<<<<<<< HEAD
                 _value = value!;
+=======
+                _value = value;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
                 switch (View)
                 {
                     case Label label:
@@ -38,11 +50,14 @@ namespace Terminal.Gui.CustomViews.Misc
             }
         }
 
+<<<<<<< HEAD
         /// <summary>
         /// Initializes a new instance of the ValueBinding class.
         /// </summary>
         /// <param name="view">The view to bind to</param>
         /// <param name="value">Reference to the value being bound</param>
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
         public ValueBinding(View view, ref object value)
         {
             View = view;

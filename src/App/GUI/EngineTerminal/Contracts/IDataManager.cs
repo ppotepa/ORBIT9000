@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Terminal.Gui.CustomViews.Misc;
 using static EngineTerminal.Managers.UIManager;
 =======
@@ -9,6 +10,10 @@ using ORBIT9000.Core.Models.Pipe;
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 =======
 >>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
+=======
+﻿using Terminal.Gui.CustomViews.Misc;
+using static EngineTerminal.Managers.UIManager;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 
 namespace EngineTerminal.Contracts
 {

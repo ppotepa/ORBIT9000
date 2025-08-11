@@ -11,9 +11,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PoC", "PoC", "{D146F833-BABD-4128-9C25-FBBF7138BF46}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{975935B5-6DD2-4C05-9B8D-FFB4BB5B2CDE}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\App\Core\ORBIT9000.Core.csproj", "{D7CFC062-671D-9955-CD1A-4EEE26FDD709}"
 EndProject
+<<<<<<< HEAD
 >>>>>>> 56ba6c0 (Add Generic Message Channel)
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Core", "src\App\Core\ORBIT9000.Core.csproj", "{D7CFC062-671D-9955-CD1A-4EEE26FDD709}"
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{E54CDEBA-2015-4DF6-980E-F73A69FE7D93}"
 EndProject
@@ -84,7 +87,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GUI", "GUI", "{55DC8604-95D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTerminal", "src\App\GUI\EngineTerminal\EngineTerminal.csproj", "{F26D9D68-6E14-4030-914D-9B1D0DC84107}"
 EndProject
-
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CustomControls", "CustomControls", "{0C471927-5E4B-4073-AFAB-1EEF240A79FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Terminal.Gui.CustomViews", "src\App\GUI\CustomControls\PropertyGrid\Terminal.Gui.CustomViews.csproj", "{F304A796-1821-BA2F-9817-862F837AC00F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,7 +102,14 @@ Global
 		{F69CCC30-70F6-E8D1-9DB5-D935FD45F674}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F69CCC30-70F6-E8D1-9DB5-D935FD45F674}.Release|Any CPU.Build.0 = Release|Any CPU
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -115,10 +128,14 @@ Global
 		{F26D9D68-6E14-4030-914D-9B1D0DC84107}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F26D9D68-6E14-4030-914D-9B1D0DC84107}.Release|Any CPU.Build.0 = Release|Any CPU
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F304A796-1821-BA2F-9817-862F837AC00F}.Release|Any CPU.Build.0 = Release|Any CPU
+<<<<<<< HEAD
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -197,6 +214,8 @@ Global
 		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7CFC062-671D-9955-CD1A-4EEE26FDD709}.Release|Any CPU.Build.0 = Release|Any CPU
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
+=======
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,11 +223,15 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E54CDEBA-2015-4DF6-980E-F73A69FE7D93} = {2B00A3BC-7E61-4FC9-ABF2-7A93AAE2F1B5}
 		{F69CCC30-70F6-E8D1-9DB5-D935FD45F674} = {E54CDEBA-2015-4DF6-980E-F73A69FE7D93}
+<<<<<<< HEAD
 		{55DC8604-95D2-4A8C-A660-AB325BBA28B7} = {2B00A3BC-7E61-4FC9-ABF2-7A93AAE2F1B5}
 		{F26D9D68-6E14-4030-914D-9B1D0DC84107} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
 		{0C471927-5E4B-4073-AFAB-1EEF240A79FA} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
 		{F304A796-1821-BA2F-9817-862F837AC00F} = {0C471927-5E4B-4073-AFAB-1EEF240A79FA}
 		{D146F833-BABD-4128-9C25-FBBF7138BF46} = {2B00A3BC-7E61-4FC9-ABF2-7A93AAE2F1B5}
+=======
+		{D7CFC062-671D-9955-CD1A-4EEE26FDD709} = {975935B5-6DD2-4C05-9B8D-FFB4BB5B2CDE}
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 		{8B3E39D2-05C7-4E1C-843C-49E93C788910} = {D146F833-BABD-4128-9C25-FBBF7138BF46}
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -245,10 +268,15 @@ Global
 =======
 		{F26D9D68-6E14-4030-914D-9B1D0DC84107} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 =======
 		{D7CFC062-671D-9955-CD1A-4EEE26FDD709} = {975935B5-6DD2-4C05-9B8D-FFB4BB5B2CDE}
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
+=======
+		{0C471927-5E4B-4073-AFAB-1EEF240A79FA} = {55DC8604-95D2-4A8C-A660-AB325BBA28B7}
+		{F304A796-1821-BA2F-9817-862F837AC00F} = {0C471927-5E4B-4073-AFAB-1EEF240A79FA}
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B7C1FD45-B625-41CA-9EA3-8BC7CDA6B514}

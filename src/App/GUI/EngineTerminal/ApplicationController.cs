@@ -135,7 +135,11 @@ using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
+<<<<<<< HEAD
 >>>>>>> 5ae5b98 (Add Inversion of Control)
+=======
+using static EngineTerminal.Managers.UIManager;
+>>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
 
 namespace Orbit9000.EngineTerminal
 {
