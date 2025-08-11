@@ -1,10 +1,7 @@
-﻿using EngineTerminal.Attributes;
-using EngineTerminal.Bindings;
+﻿using EngineTerminal.Bindings;
 using NStack;
-using System;
-using System.Collections.Generic;
+using ORBIT9000.Core.Attributes.UI;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 

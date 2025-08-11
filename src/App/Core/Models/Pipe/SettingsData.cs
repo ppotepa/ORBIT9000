@@ -1,10 +1,7 @@
-﻿using EngineTerminal.Attributes;
-using Orbit9000.EngineTerminal;
+﻿using ORBIT9000.Core.Attributes.UI;
 using ReactiveUI;
-using System.Reactive.Linq;
-using System.Reflection;
 
-namespace EngineTerminal.Data
+namespace ORBIT9000.Core.Models.Pipe
 {
     public class EngineData : ReactiveObject
     {

@@ -1,4 +1,4 @@
-﻿namespace EngineTerminal.Data
+﻿namespace ORBIT9000.Core.Models.Pipe
 {
     public class ExampleData
     {

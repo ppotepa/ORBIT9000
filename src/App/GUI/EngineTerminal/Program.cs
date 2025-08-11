@@ -80,9 +80,9 @@ using Terminal.Gui;
 ﻿using System.ComponentModel;
 =======
 ﻿using EngineTerminal.Bindings;
-using EngineTerminal.Data;
 using EngineTerminal.Processors;
 using MessagePack;
+using ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Engine.Configuration;
 using System.Buffers;
 using System.ComponentModel;
