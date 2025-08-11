@@ -9,6 +9,9 @@ using System.Reflection;
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b07db7d (Slightly Clean Up The BoilerPlate)
     public interface IAssemblyLoader : IFileLoader<Assembly>
     {
 =======
