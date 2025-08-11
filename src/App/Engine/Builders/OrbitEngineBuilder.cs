@@ -328,7 +328,7 @@ namespace ORBIT9000.Engine.Builders
 
             _containerBuilder.RegisterType<AssemblyLoader>().As<IAssemblyLoader>().SingleInstance();
 
-            _containerBuilder.RegisterType<RuntimeConfiguration>().AsSelf().SingleInstance();
+            _containerBuilder.RegisterType<RuntimeSettings>().AsSelf().SingleInstance();
             _containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
             _containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
                                .As(typeof(GlobalMessageChannel<>))

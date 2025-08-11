@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Managers;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,6 +75,10 @@ using Terminal.Gui;
 =======
 ﻿using Terminal.Gui;
 >>>>>>> f9f63ea (Add Simple Html View Parsing to Terminal PoC)
+=======
+﻿using System.ComponentModel;
+using Terminal.Gui;
+>>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
 
 namespace Orbit9000.EngineTerminal
 {
@@ -108,6 +113,7 @@ namespace Orbit9000.EngineTerminal
                 }
             };
 
+            exampleData.Frame2.PropertyChanged += Notification;
             Application.Init();
 
             Application.Current.ColorScheme = new ColorScheme
@@ -120,9 +126,14 @@ namespace Orbit9000.EngineTerminal
 
             var translator = new Translator(Application.Top,  exampleData);
             IReadOnlyDictionary<string, ValueBinding> bindigs = translator.Translate();
-
+            
             Application.Init();
             Application.Run();
+        }
+
+        private static void Notification(object? sender, PropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #region PipeRegion
