@@ -8,6 +8,7 @@
 
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:src/App/Core/Abstractions/ORBIT9000.Abstractions.csproj
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
 =======
@@ -19,6 +20,9 @@
   <ItemGroup>
 =======
 >>>>>>> 56ba6c0 (Add Generic Message Channel)
+=======
+    <PackageReference Include="MessagePack" Version="3.1.3" />
+>>>>>>> 147c461 (Refactor Program.CS)
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />

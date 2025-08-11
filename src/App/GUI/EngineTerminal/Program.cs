@@ -82,33 +82,62 @@ using Terminal.Gui;
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Processors;
 using MessagePack;
+using MessagePack.Resolvers;
 using ORBIT9000.Core.Models.Pipe;
-using ORBIT9000.Engine.Configuration;
 using System.Buffers;
 using System.ComponentModel;
 <<<<<<< HEAD
 >>>>>>> 9942610 (Update Project Structure)
 =======
 using System.IO.Pipes;
+<<<<<<< HEAD
 >>>>>>> 122b62b (Fix Engine Main Thread)
+=======
+using System.Reflection;
+>>>>>>> 147c461 (Refactor Program.CS)
 using Terminal.Gui;
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
 
 namespace Orbit9000.EngineTerminal
 {
-    class Program
+    public class Program
     {
+        private static Dictionary<string, ValueBinding> _bindings;
+        private static CancellationTokenSource _cancellationTokenSource;
+        private static NamedPipeClientStream _client;
+        private static ExampleData _exampleData;
+        private static StatusItem _messageStatusItem;
+
         static void Main(string[] args)
         {
-            ExampleData exampleData = new ExampleData
+            _exampleData = CreateInitialData();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            InitializeUI();
+
+            try
+            {
+                StartBackgroundProcessing();
+                Application.Run();
+            }
+            finally
+            {
+                _cancellationTokenSource.Cancel();
+                _client?.Dispose();
+            }
+        }
+
+        #region Application Setup
+
+        private static ExampleData CreateInitialData()
+        {
+            var data = new ExampleData
             {
                 Frame1 = new SettingsData
                 {
-                    Setting1 = "Text1",
+                    Setting1 = 1,
                     Setting2 = "Text2"
-
                 },
-
                 Frame2 = new EngineData
                 {
                     Setting1 = 100,
@@ -117,11 +146,35 @@ namespace Orbit9000.EngineTerminal
                 }
             };
 
-            exampleData.Frame2.PropertyChanged += Notification;
-            exampleData.Frame1.PropertyChanged += Notification;
+            data.Frame1.PropertyChanged += OnPropertyChanged;
+            data.Frame2.PropertyChanged += OnPropertyChanged;
 
+            return data;
+        }
+
+        private static void InitializeUI()
+        {
             Application.Init();
 
+            SetupColorScheme();
+
+            var top = Application.Top;
+            var translator = new Translator(top, _exampleData);
+
+            _bindings = translator.Translate();
+            _messageStatusItem = new StatusItem(Key.Null, "Starting...", null);
+
+            StatusBar statusBar = new StatusBar(new[]
+            {
+                new StatusItem(Key.F1, "~F1~ Help", () => ShowHelp()),
+                _messageStatusItem
+            });
+
+            top.Add(statusBar);
+        }
+
+        private static void SetupColorScheme()
+        {
             Application.Current.ColorScheme = new ColorScheme
             {
                 Normal = Application.Driver.MakeAttribute(Color.White, Color.Blue),
@@ -129,86 +182,160 @@ namespace Orbit9000.EngineTerminal
                 HotNormal = Application.Driver.MakeAttribute(Color.BrightBlue, Color.Blue),
                 HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.DarkGray)
             };
+        }
 
-            var translator = new Translator(Application.Top, exampleData);
-            IReadOnlyDictionary<string, ValueBinding> bindings = translator.Translate();
+        private static void ShowHelp()
+        {
+            MessageBox.Query("Help", "Engine Terminal\n\nUse menus to navigate between views.\nValues update automatically.", "OK");
+        }
 
-            var messageItem = new StatusItem(Key.Null, "NO MESSAGES", null);
-            var statusBar = new StatusBar(new StatusItem[]
+        #endregion
+
+        #region Data Processing
+
+        private static async Task ProcessDataFromPipe(CancellationToken cancellationToken)
+        {
+            _client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
+
+            var options = MessagePackSerializerOptions.Standard.WithResolver(
+                CompositeResolver.Create(
+                    ContractlessStandardResolver.Instance,
+                    StandardResolver.Instance
+                )
+            );
+
+            try
             {
-                new StatusItem(Key.F1, "~F1~ Help", null),
-                messageItem
-            });
+                UpdateStatusMessage("Connecting to engine...");
 
-            Application.Top.Add(statusBar);
+                await _client.ConnectAsync(cancellationToken);
 
-            var backgroundThread = new Thread(() =>
-            {
-                var client = new NamedPipeClientStream(".", "OrbitEngine", PipeDirection.In);
+                UpdateStatusMessage("Connected to engine!");
 
-                try
+                byte[] buffer = new byte[4096];
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    client.Connect();
-                    Application.MainLoop.Invoke(() => messageItem.Title = "Connected to engine!");
-                    Application.Refresh();
-
-                    var buffer = new byte[4096];
-
-                    while (true)
+                    try
                     {
-                        try
+                        int bytesRead = await _client.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                        if (bytesRead == 0)
                         {
-                            int bytesRead = client.Read(buffer, 0, buffer.Length);
-                            if (bytesRead == 0)
-                            {
-                                Application.MainLoop.Invoke(() => messageItem.Title = "Server closed connection.");
-                                Application.Refresh();
-                                break;
-                            }
-
-                            List<PluginInfo> @object = MessagePackSerializer.Deserialize<List<PluginInfo>>(new ReadOnlySequence<byte>(buffer, 0, bytesRead));
-
-                            Application.MainLoop.Invoke(() =>
-                            {
-                                messageItem.Title = $"Received Engine state: {@object.Count}";
-
-                                foreach (var pluginInfo in @object)
-                                {
-                                    messageItem.Title = $"Plugin: {pluginInfo.PluginType}, Activated: {pluginInfo.Activated}";
-                                }
-
-                                Application.Refresh();
-                            });
-                        }
-                        catch (IOException ex)
-                        {
-                            Application.MainLoop.Invoke(() => messageItem.Title = $"Pipe broken: {ex.Message}");
-                            Application.Refresh();
+                            UpdateStatusMessage("Server closed connection.");
                             break;
                         }
-                        
-                        Thread.Sleep(50);
+                        var receivedData = MessagePackSerializer.Deserialize<ExampleData>(
+                            new ReadOnlySequence<byte>(buffer, 0, bytesRead),
+                            options
+                        );
+
+                        UpdateDataAndUI(receivedData, _exampleData);
+                        UpdateStatusMessage($"Received Engine state update {new Random().Next(1, 100)}");
                     }
+                    catch (IOException ex)
+                    {
+                        UpdateStatusMessage($"Pipe broken: {ex.Message}");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        UpdateStatusMessage($"Error processing data: {ex.Message}");
+                    }
+                    await Task.Delay(50, cancellationToken);
                 }
-                catch (Exception ex)
-                {
-                    Application.MainLoop.Invoke(() => messageItem.Title = $"Error connecting to pipe: {ex.Message}");
-                }
-
-            });
-
-            backgroundThread.Start();          
-            Application.Run();
+            }
+            catch (Exception ex)
+            {
+                UpdateStatusMessage($"Error connecting to pipe: {ex.Message}");
+            }
         }
 
-        private static void Notification(object? sender, PropertyChangedEventArgs e)
+        private static void StartBackgroundProcessing()
         {
-            
+            Task.Run(() => ProcessDataFromPipe(_cancellationTokenSource.Token));
         }
+        #endregion
+
+        #region UI Updates
+
+        private static void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            string GetPropertyPath(object obj, string propertyName)
+            {
+                if (obj == null) return propertyName;
+
+                var parentProperty = _exampleData.GetType().GetProperties()
+                    .FirstOrDefault(p => p.GetValue(_exampleData) == obj);
+
+                return parentProperty != null
+                    ? $"{parentProperty.Name}.{propertyName}"
+                    : propertyName;
+            }
+
+            string propertyPath = GetPropertyPath(sender, e.PropertyName);
+
+            if (_bindings.TryGetValue(propertyPath, out var binding))
+            {
+                var propertyValue = sender.GetType().GetProperty(e.PropertyName)?.GetValue(sender);
+
+                Application.MainLoop.Invoke(() =>
+                {
+                    _bindings[propertyPath].Value = "Test";
+                    _bindings[propertyPath].View.Text = "Test";
+
+                    binding.View.SetNeedsDisplay();
+                    Application.Refresh();
+                });
+            }
+        }
+
+        private static void UpdateDataAndUI(ExampleData source, ExampleData target)
+        {
+            Application.MainLoop.Invoke(() =>
+            {
+                UpdateObjectProperties(source.Frame1, target.Frame1, "SettingsData");
+                UpdateObjectProperties(source.Frame2, target.Frame2, "EngineData");
+
+                Application.Refresh();
+            });
+        }
+
+        private static void UpdateObjectProperties(object source, object target, string objectTypeName)
+        {
+            if (source == null || target == null) return;
+
+            var properties = source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var property in properties)
+            {
+                if (!property.CanRead || !property.CanWrite)
+                    continue;
+
+                var sourceValue = property.GetValue(source);
+
+                property.SetValue(target, sourceValue);
+
+                string propertyPath = $"{objectTypeName}.{property.Name}";
+
+                if (_bindings.TryGetValue(propertyPath, out var binding))
+                {
+                    binding.Value = sourceValue;
+                    binding.View.SetNeedsDisplay();
+                }
+            }
+        }
+
+        private static void UpdateStatusMessage(string message)
+        {
+            Application.MainLoop.Invoke(() => _messageStatusItem.Title = message);
+        }
+        #endregion
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 }
 >>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
 =======
 }
 >>>>>>> f9f63ea (Add Simple Html View Parsing to Terminal PoC)
+=======
+}
+>>>>>>> 147c461 (Refactor Program.CS)

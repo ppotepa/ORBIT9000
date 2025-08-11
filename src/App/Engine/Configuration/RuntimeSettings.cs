@@ -55,6 +55,7 @@ namespace ORBIT9000.Engine.Configuration
 
         public DirectoryInfo DefaultFolder { get; set; }
 <<<<<<< HEAD
+<<<<<<< HEAD
         public bool EnableTerminal { get; }
         public PluginInfo[] Plugins { get; set; }
         public bool SharePluginScopes { get; internal set; }
@@ -64,6 +65,11 @@ namespace ORBIT9000.Engine.Configuration
         public bool EnableTerminal { get; }
 
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
+=======
+        public bool EnableTerminal { get; }
+        public PluginInfo[] Plugins { get; set; }
+        public bool SharePluginScopes { get; internal set; }
+>>>>>>> 147c461 (Refactor Program.CS)
         private object PluginSource
         {
             get
