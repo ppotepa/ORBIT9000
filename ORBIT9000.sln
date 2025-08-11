@@ -3,7 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< HEAD
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{2B00A3BC-7E61-4FC9-ABF2-7A93AAE2F1B5}"
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Engine", "src\App\Engine\ORBIT9000.Engine.csproj", "{F69CCC30-70F6-E8D1-9DB5-D935FD45F674}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PoC", "PoC", "{D146F833-BABD-4128-9C25-FBBF7138BF46}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{975935B5-6DD2-4C05-9B8D-FFB4BB5B2CDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "src\App\Core\ORBIT9000.Core.csproj", "{D7CFC062-671D-9955-CD1A-4EEE26FDD709}"
+EndProject
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{E54CDEBA-2015-4DF6-980E-F73A69FE7D93}"
 EndProject
@@ -74,8 +84,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GUI", "GUI", "{55DC8604-95D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineTerminal", "src\App\GUI\EngineTerminal\EngineTerminal.csproj", "{F26D9D68-6E14-4030-914D-9B1D0DC84107}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORBIT9000.Core", "src\App\Core\ORBIT9000.Core.csproj", "{D7CFC062-671D-9955-CD1A-4EEE26FDD709}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

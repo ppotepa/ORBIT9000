@@ -11,9 +11,12 @@ using ORBIT9000.Abstractions.Scheduling;
 =======
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+<<<<<<< HEAD
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
+=======
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
 using Microsoft.Extensions.Logging;
 using ORBIT9000.Abstractions;
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
@@ -189,6 +192,8 @@ namespace ORBIT9000.Engine
                 ?? throw new InvalidOperationException("Logger could not be created.");
 
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
+            _mainThread.Name = "MainEngineThread";
+
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;
 

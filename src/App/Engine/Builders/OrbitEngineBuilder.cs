@@ -32,12 +32,14 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 =======
 ﻿using Autofac;
+using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 >>>>>>> 6b98999 (Add AutoFac)
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Abstractions.Runtime;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.Configuration.Raw;
 <<<<<<< HEAD
@@ -328,12 +330,16 @@ namespace ORBIT9000.Engine.Builders
 
             _containerBuilder.RegisterType<RuntimeConfiguration>().AsSelf().SingleInstance();
             _containerBuilder.RegisterType<PluginProvider>().As<IPluginProvider>().SingleInstance();
+            _containerBuilder.RegisterGeneric(typeof(GlobalMessageChannel<>))
+                               .As(typeof(GlobalMessageChannel<>))
+                               .As(typeof(IMessageChannel<>))
+                               .SingleInstance();
 
-            _containerBuilder.Register(c => _loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
+            _containerBuilder.Register(ctx => _loggerFactory.CreateLogger<OrbitEngineBuilder>()).As<ILogger>().SingleInstance();
 
-            _containerBuilder.Register(c =>
+            _containerBuilder.Register(ctx =>
             {
-                PluginLoaderFactory factory = c.Resolve<PluginLoaderFactory>();
+                PluginLoaderFactory factory = ctx.Resolve<PluginLoaderFactory>();
                 return factory.Create();
             })
             .As<IPluginLoader>()
@@ -351,13 +357,10 @@ namespace ORBIT9000.Engine.Builders
                 .As<IServiceProvider>()
                 .SingleInstance();
 
-            var built = _containerBuilder.Build();
+            var container = _containerBuilder.Build();
+            var engine = container.Resolve<OrbitEngine>();
 
-            var t = built.Resolve<OrbitEngine>();
-
-            var a = built.Resolve<EngineState>();
-
-            return t;
+            return engine;
         }
 
         public OrbitEngineBuilder Configure(IConfiguration configuration)

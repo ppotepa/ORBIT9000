@@ -4,14 +4,21 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
+<<<<<<< HEAD
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Providers;
 using ORBIT9000.Abstractions.Runtime;
+=======
+using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Abstractions.Runtime;
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
 using ORBIT9000.Core.Events;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Runtime.CompilerServices;
+<<<<<<< HEAD
 
 namespace ORBIT9000.Engine.Providers
 {
@@ -229,35 +236,39 @@ using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.Plugin;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
+=======
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
 
 namespace ORBIT9000.Engine.Providers
 {
-    internal class PluginProvider : ORBIT9000.Core.Environment.Disposable, IPluginProvider
+    internal class PluginProvider : Core.Environment.Disposable, IPluginProvider
     {
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
+        private readonly GlobalMessageChannel<string> _channel;
         private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
-        private readonly Channel<PluginEvent> _pluginEvents = Channel.CreateUnbounded<PluginEvent>();
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
         private readonly List<PluginInfo> _validPlugins;
         private Dictionary<Type, ILifetimeScope>? _individualPluginScopes;
         private ILifetimeScope? _pluginScope;
+
         public PluginProvider
         (
             ILogger<PluginProvider> logger,
             RuntimeConfiguration config,
             IPluginLoader pluginLoader,
-            ILifetimeScope rootScope)
+            ILifetimeScope rootScope,
+            GlobalMessageChannel<string> channel)
         {
             _logger = logger;
             _config = config;
             _pluginLoader = pluginLoader;
             _rootScope = rootScope;
             _validPlugins = _config.Plugins.Where(x => x.ContainsPlugins).ToList();
+            _channel = channel;
         }
 
-        public ChannelReader<PluginEvent> PluginEvents => _pluginEvents.Reader;
         private Dictionary<Type, ILifetimeScope> IndividualPluginScopes
         {
             get
@@ -388,13 +399,14 @@ namespace ORBIT9000.Engine.Providers
             }
 
             _logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
-
-            await _pluginEvents.Writer.WriteAsync(new PluginEvent
+            
+            var msg = JsonConvert.SerializeObject(new PluginEvent
             {
                 Type = PluginEventType.Activated,
                 PluginName = target.PluginType.Name
             });
 
+            await _channel.PublishAsync(msg);
             return instance!;
         }
 

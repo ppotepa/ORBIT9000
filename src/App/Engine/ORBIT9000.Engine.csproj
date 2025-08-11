@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
   </PropertyGroup>
+<<<<<<< HEAD
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DefineConstants>CONSOLE_GUI</DefineConstants>
@@ -27,6 +28,9 @@
   </ItemGroup>
 
 >>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
+=======
+  
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />

@@ -29,7 +29,6 @@ namespace ORBIT9000.Plugins.Example2
             this._logger = _logger;
 =======
 using ORBIT9000.Core.Abstractions;
-using ORBIT9000.Plugins.Example.DataProviders;
 using ORBIT9000.Plugins.Example.Services;
 
 namespace ORBIT9000.Plugins.Example
@@ -38,18 +37,21 @@ namespace ORBIT9000.Plugins.Example
     {
         private readonly ILogger<ExamplePlugin2> _logger;
         private readonly RandomNumberService _numbers;
-        private readonly ExampleDataProvider _provider;
+ 
 
         // we should not be able to get data from the ExampleDataProvider here
         // Accessing data from the ExampleDataProvider here is not allowed
         // because it does not have a shared scope
 
-        public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger, ExampleDataProvider provider)
+        public ExamplePlugin2(RandomNumberService numbers, ILogger<ExamplePlugin2> _logger)
         {
             this._numbers = numbers;
             this._logger = _logger;
+<<<<<<< HEAD
             this._provider = provider;
 >>>>>>> 53c6dc2 (Further Remove code smells.)
+=======
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
 
             _logger.LogInformation("ExamplePlugin2 created");
         }
@@ -71,6 +73,7 @@ namespace ORBIT9000.Plugins.Example
 =======
         public async Task OnLoad()
         {
+<<<<<<< HEAD
             IEnumerable<WeatherResponse> data = await _provider.GetData();
             IEnumerable<int> data2 = await _numbers.GenerateRandomNumbers();
 
@@ -80,6 +83,10 @@ namespace ORBIT9000.Plugins.Example
 =======
             _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count(), data2.Count());
 >>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
+=======
+            IEnumerable<int> data = await _numbers.GenerateRandomNumbers();
+            _logger.LogInformation("Fetched data from random number generator: Count : {D1}, Count : {D2}", data.Count());
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
         }
 
         public Task OnUnload()
