@@ -286,27 +286,21 @@ namespace ORBIT9000.Engine.Builders
             _services.AddTransient<StringArrayPluginLoader>();
             _services.AddTransient<DebugDirectoryPluginLoader>();
             _services.AddTransient<DirectoryPluginLoader>();
+            _services.AddTransient<PluginLoaderFactory>();
+
             _services.AddSingleton<IAssemblyLoader, AssemblyLoader>();
 
             _services.AddSingleton<RuntimeConfiguration>();
             _services.AddSingleton<IPluginProvider, PluginProvider>();
             _services.AddLogging();
 
-            _ = _services.AddSingleton(typeof(IPluginLoader), static provider =>
-            {
-                RawEngineConfiguration config = provider.GetService<RawEngineConfiguration>();
+            _services.AddSingleton<IPluginLoader>(provider 
+                => provider.GetRequiredService<PluginLoaderFactory>().Create());
 
-                return config.Plugins.ActivePlugins.Length switch
-                {
-                    > 0 => provider.GetService<StringArrayPluginLoader>(),
-                    _ when AppEnvironment.IsDebug => provider.GetService<DebugDirectoryPluginLoader>(),
-                    _ => provider.GetService<DirectoryPluginLoader>()
-                };
-            });
 
             _services.AddSingleton<OrbitEngine>();
 
-            return _services.BuildServiceProvider().GetService<OrbitEngine>();
+            return _services.BuildServiceProvider().GetRequiredService<OrbitEngine>();
         }
 
         public OrbitEngineBuilder Configure(IConfiguration configuration)

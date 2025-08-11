@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <ProjectReference Include="..\..\..\Plugins\Example\ORBIT9000.Plugins.Example.csproj" />
+    <ProjectReference Include="..\..\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
+>>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
     <ProjectReference Include="..\..\Engine\ORBIT9000.Engine.csproj" />
   </ItemGroup>
 
