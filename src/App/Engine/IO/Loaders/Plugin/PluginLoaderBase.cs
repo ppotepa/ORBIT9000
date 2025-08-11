@@ -49,7 +49,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
         private readonly Configuration.Raw.RawEngineConfiguration _config;
 >>>>>>> 0f347bd (Add Dirty Plugin Scope Resolution)
 
-        protected PluginLoaderBase(ILogger? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
+        protected PluginLoaderBase(ILogger logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader assemblyLoader)
         {
             ArgumentNullException.ThrowIfNull(logger);
             ArgumentNullException.ThrowIfNull(config);

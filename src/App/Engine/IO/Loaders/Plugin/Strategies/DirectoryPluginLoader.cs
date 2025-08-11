@@ -42,6 +42,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
 <<<<<<<< HEAD:src/App/Engine/Loaders/Plugin/Strategies/DirectoryPluginLoader.cs
@@ -50,6 +51,9 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
 =======
         public DirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
+=======
+        public DirectoryPluginLoader(ILogger<DirectoryPluginLoader> logger, RawEngineConfiguration config, IAssemblyLoader loader) : base(logger, config, loader)
+>>>>>>> 6b98999 (Add AutoFac)
         {
         }
 

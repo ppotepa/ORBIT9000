@@ -36,6 +36,7 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin
                 throw new ArgumentNullException(nameof(_rawConfig));
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)
 
+
             return _rawConfig.Plugins.ActivePlugins.Length switch
             {
                 > 0 => _serviceProvider.GetRequiredService<StringArrayPluginLoader>(),

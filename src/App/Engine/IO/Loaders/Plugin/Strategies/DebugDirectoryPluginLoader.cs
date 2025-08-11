@@ -69,6 +69,7 @@ using ORBIT9000.Core.Abstractions.Loaders;
 using ORBIT9000.Core.Extensions.IO.Files;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
+using ORBIT9000.Engine.Configuration.Raw;
 
 namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 {
@@ -76,15 +77,17 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
     {
         private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
-        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader>? logger, Configuration.Raw.RawEngineConfiguration config, IAssemblyLoader loader) 
+        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader>? logger, 
+            RawEngineConfiguration config, 
+            IAssemblyLoader loader) 
             : base(logger, config, loader)
         {
         }
 
         public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
         {
-            source = FindSrcFolder(source);
-
+            source = FindSrcFolder(source)!;
+            
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
                 this._logger.LogInformation("Source directory {Name} contains subdirectories. " +
