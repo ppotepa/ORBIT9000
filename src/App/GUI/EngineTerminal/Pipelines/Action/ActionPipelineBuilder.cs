@@ -1,5 +1,6 @@
-﻿using NStack;
-using Orbit9000.EngineTerminal;
+﻿using EngineTerminal.Attributes;
+using EngineTerminal.Bindings;
+using NStack;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Terminal.Gui;
 
-namespace EngineTerminal
+namespace EngineTerminal.Pipelines.Action
 {
     public class ActionPipelineBuilder
     {

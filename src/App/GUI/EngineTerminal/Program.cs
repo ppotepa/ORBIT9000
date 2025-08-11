@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Managers;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +78,11 @@ using Terminal.Gui;
 >>>>>>> f9f63ea (Add Simple Html View Parsing to Terminal PoC)
 =======
 ﻿using System.ComponentModel;
+=======
+﻿using EngineTerminal.Bindings;
+using EngineTerminal.Data;
+using System.ComponentModel;
+>>>>>>> 9942610 (Update Project Structure)
 using Terminal.Gui;
 >>>>>>> 72c40c3 (Add Basic Event Handling for Settings)
 

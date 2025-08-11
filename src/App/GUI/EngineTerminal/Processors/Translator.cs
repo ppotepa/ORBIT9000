@@ -1,8 +1,10 @@
-using EngineTerminal;
+using EngineTerminal.Bindings;
+using EngineTerminal.Data;
+using EngineTerminal.Pipelines.Action;
 using System.Reflection;
 using Terminal.Gui;
 
-namespace Orbit9000.EngineTerminal
+namespace EngineTerminal.Processors
 {
     public class Translator
     {

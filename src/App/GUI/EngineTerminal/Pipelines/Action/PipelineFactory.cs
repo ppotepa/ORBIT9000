@@ -1,4 +1,4 @@
-﻿namespace EngineTerminal
+﻿namespace EngineTerminal.Pipelines.Action
 {
     public class PipelineFactory
     {
