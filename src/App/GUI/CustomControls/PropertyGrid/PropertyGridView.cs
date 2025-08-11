@@ -404,9 +404,12 @@ namespace Terminal.Gui.CustomViews
                     frameItem.Add(label, text);
                     container.Add(frameItem);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> e5a837c (Move Property Grid  Viewto Separate Project)
+=======
+>>>>>>> da6de1c (Test)
                     index++;
                 }
             }
