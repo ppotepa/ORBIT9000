@@ -69,4 +69,8 @@
     <ProjectReference Include="..\Core\Coupled\ORBIT9000.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="IO\Loaders\PluginAssembly\Result\" />
+  </ItemGroup>
+
 </Project>

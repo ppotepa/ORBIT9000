@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿#nullable disable
 namespace ORBIT9000.Engine.IO.Loaders
 {
@@ -11,6 +12,10 @@ namespace ORBIT9000.Engine.IO.Loaders
         public Type Type { get; internal set; }
 =======
 ﻿namespace ORBIT9000.Engine.IO.Loaders
+=======
+﻿#nullable disable
+namespace ORBIT9000.Engine.IO.Loaders
+>>>>>>> 9e426ec (Add LifetimeScope Sharing Between Plugins)
 {
     public class PluginRegistrationInfo
     {

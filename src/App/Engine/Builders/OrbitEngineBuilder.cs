@@ -313,9 +313,7 @@ namespace ORBIT9000.Engine.Builders
                 var genericMethod = method.MakeGenericMethod(genericArguments[0]);
 
                 return genericMethod.Invoke(null, [loggerFactory])!;
-            })
-            .As(typeof(ILogger<>))
-            .InstancePerDependency();
+            }).As(typeof(ILogger<>)).InstancePerDependency();
 
             _containerBuilder.RegisterInstance(_configuration!).As<IConfiguration>();
             _containerBuilder.RegisterInstance(_rawConfiguration!).AsSelf();
