@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 ﻿using ORBIT9000.Abstractions.Scheduling;
+=======
+﻿using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Core.Attributes.Engine;
+>>>>>>> 0fcc8d3 (Improve Scheduler Logic)
 
 namespace ORBIT9000.Engine.Scheduling
 {
@@ -10,7 +15,11 @@ namespace ORBIT9000.Engine.Scheduling
                 return schedule.Start;
 
             DateTime next = after + schedule.Interval;
+<<<<<<< HEAD
             if (schedule.DaysOfWeek?.Count is 0)
+=======
+            if (schedule.DaysOfWeek != null && schedule.DaysOfWeek.Any())
+>>>>>>> 0fcc8d3 (Improve Scheduler Logic)
             {
                 int safety = 0;
 

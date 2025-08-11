@@ -16,7 +16,16 @@ namespace ORBIT9000.Core.Abstractions.Scheduling
 {
     public interface IScheduler
     {
+<<<<<<< HEAD
         void Schedule(ISchedule schedule, Action job);
+=======
+        #region Methods
+
+        void Schedule(IScheduleJob schedule);
+        Task StartAsync(CancellationToken cancellationToken = default);
+
+        #endregion Methods
+>>>>>>> 0fcc8d3 (Improve Scheduler Logic)
     }
 <<<<<<< HEAD
 

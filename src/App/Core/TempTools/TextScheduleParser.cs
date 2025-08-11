@@ -1,11 +1,10 @@
 ﻿using ORBIT9000.Core.Abstractions.Parsing;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Core.Parsing;
 using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.TempTools
 {
-    public class TextScheduleParser : IParser<ISchedule>
+    public class TextScheduleParser : IParser<IScheduleJob>
     {
         private const string IntervalPattern = @"run every\s+(?<i>\d*)\s*(?<iu>second|minute|hour|day)s?";
         private const string DurationPattern = @"(?:\s+for\s+(?<d>\d+)\s*(?<du>second|minute|hour|day)s?)?";
@@ -25,7 +24,7 @@ namespace ORBIT9000.Core.TempTools
 
         private static readonly Regex _rx = new Regex(FullPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public ISchedule Parse(string input)
+        public IScheduleJob Parse(string input)
         {
             var match = _rx.Match(input);
             if (!match.Success) throw new FormatException($"Cannot parse “{input}”");
@@ -61,7 +60,7 @@ namespace ORBIT9000.Core.TempTools
                            .ToArray();
             }
 
-            return new SimpleSchedule
+            return new Schedule(async (x) => { Console.Title = DateTime.Now.ToString(); await Task.CompletedTask; })
             {
                 Start = DateTime.UtcNow,
                 Interval = interval,

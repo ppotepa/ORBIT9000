@@ -281,7 +281,11 @@ namespace ORBIT9000.Engine.Strategies.Running
                     {
                         var job = parser.Parse(jobAttribute.ScheduleExpression);
                         engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
+<<<<<<< HEAD
                         engine.Scheduler.Schedule(job, () => { Console.WriteLine("THIS IS SCHEDULED JOB"); });
+=======
+                        engine.Scheduler.Schedule(job);
+>>>>>>> 0fcc8d3 (Improve Scheduler Logic)
                     }
                 }
 
