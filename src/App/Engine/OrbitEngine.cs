@@ -33,6 +33,7 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -55,6 +56,10 @@ namespace ORBIT9000.Engine
 
 =======
 >>>>>>> 15b0cd8 (Remove unused fields)
+=======
+        private readonly ExceptionFactory _exceptionFactory;
+
+>>>>>>> e1e815e (Add Plugin Activation Checks)
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;

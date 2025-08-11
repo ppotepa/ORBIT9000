@@ -252,15 +252,22 @@ namespace ORBIT9000.Engine.Providers
                 var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
                 if (target != null)
                 {
+                    if (target.Activated)
+                    {
+                        _logger.LogWarning("Plugin activation skipped. Plugin is already running: {Plugin}", pluginName);
+                        throw new InvalidOperationException($"Plugin '{pluginName}' is already running.");
+                    }
+
                     // Create a child scope for plugin
                     var scope = _rootScope.BeginLifetimeScope(builder =>
                     {
                         ServiceCollection collection = new ServiceCollection();
-                        IOrbitPlugin dummy = (IOrbitPlugin) RuntimeHelpers.GetUninitializedObject(target.PluginType);
+                        IOrbitPlugin dummy = (IOrbitPlugin)RuntimeHelpers.GetUninitializedObject(target.PluginType);
                         dummy.RegisterServices(collection);
                         builder.Populate(collection);
                     });
-                   
+
+                    target.Activated = true;
                     return (IOrbitPlugin)CreateInstanceFromScope(target.PluginType, scope);
                 }
             }
