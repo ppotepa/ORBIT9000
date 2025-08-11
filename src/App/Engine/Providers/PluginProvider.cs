@@ -232,7 +232,9 @@ namespace ORBIT9000.Engine.Providers
         // Stores single-instance plugins
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
 
+        #pragma warning disable S1450
         private readonly RuntimeConfiguration _config;
+        #pragma warning restore S1450 
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
         private readonly ILifetimeScope _rootScope;
@@ -275,15 +277,15 @@ namespace ORBIT9000.Engine.Providers
                         builder.Populate(services);
                     });
 
-                    var instance = (IOrbitPlugin)CreateInstanceFromScope(target.PluginType, scope);
+                    IOrbitPlugin? instance = CreateInstanceFromScope(target.PluginType, scope);
 
                     if (target.IsSingleton)
                     {
-                        _activePlugins[target.PluginType] = instance;
+                        _activePlugins[target.PluginType] = instance!;
                     }
 
                     _logger.LogInformation("Plugin activated: {Plugin}", pluginName);
-                    return instance;
+                    return instance!;
                 }
             }
 
@@ -318,10 +320,18 @@ namespace ORBIT9000.Engine.Providers
             _pluginLoader.Unload(plugin);
         }
 
-        private static object CreateInstanceFromScope(Type type, ILifetimeScope scope)
+        private IOrbitPlugin? CreateInstanceFromScope(Type type, ILifetimeScope scope)
         {
-            var serviceProvider = scope.Resolve<IServiceProvider>();
-            return ActivatorUtilities.CreateInstance(serviceProvider, type);
+            try
+            {
+                var serviceProvider = scope.Resolve<IServiceProvider>();
+                return (IOrbitPlugin?)ActivatorUtilities.CreateInstance(serviceProvider, type);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogInformation(ex, "Failed to create instance from scope for type {Type}", type);  
+                return null;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
 <<<<<<< HEAD
 using ORBIT9000.Abstractions.Data.Entities;
@@ -28,6 +29,9 @@ using ORBIT9000.Engine.Providers;
 using ORBIT9000.Core.Abstractions.Loaders;
 >>>>>>> 83dd439 (Remove Code Smells)
 using ORBIT9000.Engine.Runtime.State;
+=======
+﻿using ORBIT9000.Engine.Runtime.State;
+>>>>>>> 53c6dc2 (Further Remove code smells.)
 
 namespace ORBIT9000.Engine.Strategies.Running
 {
@@ -178,8 +182,17 @@ namespace ORBIT9000.Engine.Strategies.Running
 
         private static readonly Action<OrbitEngine> LoadPlugins = async (engine) =>
         {
-            var plugin = engine.PluginProvider.Activate("ExamplePlugin");
-            await plugin.OnLoad();
+            try
+            {
+                var plugin = engine.PluginProvider.Activate("ExamplePlugin");
+                var plugin2 = engine.PluginProvider.Activate("ExamplePlugin2");
+                await plugin.OnLoad();
+                await plugin2.OnLoad();
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
+            }
         };
 
         public Default()

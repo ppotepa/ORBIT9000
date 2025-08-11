@@ -25,7 +25,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\App\Core\ORBIT9000.Core\ORBIT9000.Core.csproj" />
+<<<<<<< HEAD
 >>>>>>> 83dd439 (Remove Code Smells)
+=======
+    <ProjectReference Include="..\Example\ORBIT9000.Plugins.Example.csproj" />
+>>>>>>> 53c6dc2 (Further Remove code smells.)
   </ItemGroup>
 
 </Project>

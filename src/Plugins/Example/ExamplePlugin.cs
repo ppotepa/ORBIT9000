@@ -50,11 +50,13 @@ namespace ORBIT9000.Plugins.Example
             this._logger = logger;
             this._dataProvider = dataProvider;
         }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Minor Code Smell", "S1481:Unused local variables should be removed", Justification = "<Pending>")]
+       
         public Task OnLoad()
         {
+            #pragma warning disable S1481 
             IEnumerable<WeatherResponse> data = this._dataProvider.GetData().GetAwaiter().GetResult();
+            #pragma warning restore S1481 
+
             _logger.LogInformation("Fetched data from weather API: {@Data}", this.GetHashCode());  
             return Task.CompletedTask;
 >>>>>>> 6edfcca (refactor: replace Twitter plugin with Example plugin)

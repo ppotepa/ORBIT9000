@@ -51,10 +51,14 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context
             }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             return null!;
 =======
             return null;
 >>>>>>> e2b2b5a (Reworked Naming)
+=======
+            return null!;
+>>>>>>> 53c6dc2 (Further Remove code smells.)
         }
 
         protected override nint LoadUnmanagedDll(string unmanagedDllName)

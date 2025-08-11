@@ -34,6 +34,7 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -53,6 +54,8 @@ namespace ORBIT9000.Engine
         private readonly RuntimeConfiguration _configuration;
 >>>>>>> ed8e1ec (Remove PreBuild Helper)
         private readonly ExceptionFactory _exceptionFactory;
+=======
+>>>>>>> 53c6dc2 (Further Remove code smells.)
 
 =======
 >>>>>>> 15b0cd8 (Remove unused fields)
@@ -157,7 +160,7 @@ namespace ORBIT9000.Engine
 >>>>>>> a1c6c63 (Refactor plugin architecture and configuration handling)
 
             _logger = loggerFactory.CreateLogger<OrbitEngine>() ?? throw new InvalidOperationException("Logger could not be created.");
-            _exceptionFactory = new ExceptionFactory(_logger, true);
+         
             _mainThread = new Thread(Strategies.Running.Default.EngineStartupStrategy);
             _pluginProvider = pluginProvider;
             _serviceProvider = serviceProvider;

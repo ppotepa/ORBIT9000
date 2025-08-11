@@ -12,11 +12,16 @@ namespace ORBIT9000.Plugins.Example.DataProviders
     [DefaultProject("Example")]    
     public class ExampleDataProvider : IDataProvider<WeatherResponse>, IAuthenticate
     {
+        #pragma warning disable S1075 // URIs should not be hardcoded
+        private const string ForecastURL = "https://api.open-meteo.com/v1/forecast";
+        #pragma warning restore S1075 // URIs should not be hardcoded
+
         private readonly ILogger<ExampleDataProvider> _logger;
 
         public ExampleDataProvider(ILogger<ExampleDataProvider> logger)
         {
             ArgumentNullException.ThrowIfNull(logger);
+
             this._logger = logger;
             this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());    
         }
@@ -32,6 +37,8 @@ namespace ORBIT9000.Plugins.Example.DataProviders
 
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
+            _logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
+
             var query = new 
             {
                 latitude = 52.52,
@@ -40,7 +47,7 @@ namespace ORBIT9000.Plugins.Example.DataProviders
                 imezone = "Europe/Warsaw"
             };
 
-            var url = "https://api.open-meteo.com/v1/forecast".SetQueryParams(query);
+            var url = ForecastURL.SetQueryParams(query);
 
             var result = url.GetJsonAsync<WeatherResponse>().GetAwaiter().GetResult();
 
