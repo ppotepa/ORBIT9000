@@ -64,7 +64,7 @@ namespace EngineTerminal.Managers
         private StatusItem CurrentMethod = new StatusItem(Key.Null, "[No Invocations just yet]", null);
 
         public StatusBar StatusBar { get; private set; }
-        public Dictionary<string, ValueBinding> Bindings { get; private set; }
+        public Dictionary<string, ValueBinding> GridBindings => Grid.Bindings;
         public View MainView { get; private set; }
         public PropertyGridView Grid { get; private set; }
         public MenuBar MenuBar { get; private set; }

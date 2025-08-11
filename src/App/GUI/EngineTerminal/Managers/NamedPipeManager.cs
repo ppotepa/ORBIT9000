@@ -3,6 +3,7 @@
 ﻿using EngineTerminal.Contracts;
 using MessagePack;
 using MessagePack.Resolvers;
+<<<<<<< HEAD
 using ORBIT9000.Core.Environment;
 using ORBIT9000.Core.Models.Pipe;
 using System.Buffers;
@@ -80,6 +81,9 @@ namespace EngineTerminal.Managers
 using MessagePack;
 using MessagePack.Resolvers;
 using ORBIT9000.Core.Models.Pipe;
+=======
+using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 using System.Buffers;
 using System.IO.Pipes;
 using System.Threading.Channels;

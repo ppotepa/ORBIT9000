@@ -133,6 +133,7 @@ using System.ComponentModel;
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 using System.Diagnostics;
 using System.Threading.Channels;
 <<<<<<< HEAD
@@ -219,7 +220,7 @@ namespace Orbit9000.EngineTerminal
                 {
                     stopwatch.Start();
                     
-                    var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
+                    var updates = _dataManager.GetUpdates(newData, _uiManager.GridBindings ?? new Dictionary<string, Terminal.Gui.CustomViews.Misc.ValueBinding>());
 
                     if (updates.Any())
                     {

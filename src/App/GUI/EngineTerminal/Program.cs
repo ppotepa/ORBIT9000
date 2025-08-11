@@ -12,6 +12,7 @@
 using EngineTerminal.Managers;
 using Microsoft.Extensions.DependencyInjection;
 using ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
 using ORBIT9000.Engine;
 using System.Threading.Channels;
 <<<<<<< HEAD

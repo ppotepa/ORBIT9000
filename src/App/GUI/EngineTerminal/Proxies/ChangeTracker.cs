@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿using ORBIT9000.Core.Models.Pipe;
+=======
+﻿using ORBIT9000.Core.Models.Pipe.ORBIT9000.Core.Models.Pipe;
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 using System.Reflection;
 
 namespace EngineTerminal.Proxies
@@ -11,14 +15,23 @@ namespace EngineTerminal.Proxies
     {
         #region Fields
 
+<<<<<<< HEAD
         private readonly List<PropertyChangeRecord> _changes = [];
         private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = [];
         private TTargetType? _originalData;
         private TTargetType? _proxyData;
+=======
+        private TTargetType _originalData;
+        private TTargetType _proxyData;
+        private readonly List<PropertyChangeRecord> _changes = new();
+        private static readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
         #endregion Fields
 
         #region Properties
 
+<<<<<<< HEAD
         public TTargetType ProxyData
         {
             get
@@ -31,13 +44,19 @@ namespace EngineTerminal.Proxies
                 return _proxyData;
             }
         }
+=======
+        public TTargetType ProxyData => _proxyData;
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 
         #endregion Properties
 
         #region Methods
 
+<<<<<<< HEAD
         public IReadOnlyList<PropertyChangeRecord> GetChanges() => _changes;
 
+=======
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
         public void Initialize(TTargetType data)
         {
             _originalData = data;
@@ -72,6 +91,7 @@ namespace EngineTerminal.Proxies
                 }
             }
         }
+<<<<<<< HEAD
         private static bool IsComplexType(Type type)
         {
             return !type.IsPrimitive &&
@@ -109,6 +129,13 @@ namespace EngineTerminal.Proxies
 
         private void UpdateProperties<TProperty>(
                                     TProperty source,
+=======
+
+        public IReadOnlyList<PropertyChangeRecord> GetChanges() => _changes;
+
+        private void UpdateProperties<TProperty>(
+            TProperty source,
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
             TProperty target,
             string parentPath,
             List<PropertyChangeRecord> changes) where TProperty : class
@@ -116,15 +143,26 @@ namespace EngineTerminal.Proxies
             if (source == null || target == null)
                 return;
 
+<<<<<<< HEAD
             PropertyInfo[] properties = GetCachedProperties(source.GetType());
 
             foreach (PropertyInfo property in properties)
+=======
+            var properties = GetCachedProperties(source.GetType());
+
+            foreach (var property in properties)
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
             {
                 if (!property.CanRead || !property.CanWrite)
                     continue;
 
+<<<<<<< HEAD
                 object? sourceValue = property.GetValue(source);
                 object? targetValue = property.GetValue(target);
+=======
+                var sourceValue = property.GetValue(source);
+                var targetValue = property.GetValue(target);
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 
                 string propertyPath = string.IsNullOrEmpty(parentPath)
                     ? property.Name
@@ -149,6 +187,40 @@ namespace EngineTerminal.Proxies
                 }
             }
         }
+<<<<<<< HEAD
+=======
+
+        private TTargetType CreateProxy(TTargetType target)
+        {
+            if (DispatchProxy.Create<TTargetType, PropertyChangeProxy<TTargetType>>() is PropertyChangeProxy<TTargetType> proxy)
+            {
+                return proxy.SetTarget(target, _changes) as TTargetType;
+            }
+            else
+            {
+                return target;
+            }
+        }
+
+        private bool IsComplexType(Type type)
+        {
+            return !type.IsPrimitive &&
+                   type != typeof(string) &&
+                   !type.IsEnum &&
+                   !type.IsValueType;
+        }
+
+        private PropertyInfo[] GetCachedProperties(Type type)
+        {
+            if (!_propertyCache.TryGetValue(type, out var properties))
+            {
+                properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                _propertyCache[type] = properties;
+            }
+            return properties;
+        }
+
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
         #endregion Methods
     }
 }

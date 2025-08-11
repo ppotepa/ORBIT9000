@@ -20,6 +20,7 @@ namespace EngineTerminal.Contracts
     public interface IUIManager
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         Dictionary<string, ValueBinding> GridBindings { get; }
 
         void Initialize(object data);
@@ -32,6 +33,9 @@ namespace EngineTerminal.Contracts
         void UpdateCurrentMethod(string? message);
 =======
         Dictionary<string, ValueBinding> Bindings { get; }
+=======
+        Dictionary<string, ValueBinding> GridBindings { get; }
+>>>>>>> 13f95f8 (Add Dynamic Proxy instead of Object Traversal)
 
         void Initialize(object data);
 
