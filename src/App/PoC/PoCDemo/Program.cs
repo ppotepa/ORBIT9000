@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine;
 using ORBIT9000.Engine.Builders;
 using Serilog;
 using System.Globalization;
+=======
+﻿using ORBIT9000.Engine;
+using ORBIT9000.Engine.Builders;
+using ORBIT9000.Plugins.Twitter;
+>>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
 
 namespace ORBIT9000.PoCDemo
 {
@@ -31,8 +37,12 @@ namespace ORBIT9000.PoCDemo
 <<<<<<< HEAD
 =======
                 .UseSerilogLogging()
+<<<<<<< HEAD
                 .RegisterPlugins()
 >>>>>>> 7611f11 (Refactor plugin loading and configuration handling)
+=======
+                .RegisterPlugins(typeof(TwitterPlugin))
+>>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
                 .Build();
 
             engine.Start();

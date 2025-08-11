@@ -8,8 +8,8 @@ using System.Text.Json;
 namespace ORBIT9000.Plugins.Twitter.DataProviders
 {
     [DataProvider]
-    [DefaultProject("Tesla")]
-    internal class TwitterDataProvider : IDataProvider<TwitterResult>, IAuthenticate
+    [DefaultProject("Twitter")]
+    public class TwitterDataProvider : IDataProvider<TwitterResult>, IAuthenticate
     {
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly ILogger<TwitterDataProvider> _logger;

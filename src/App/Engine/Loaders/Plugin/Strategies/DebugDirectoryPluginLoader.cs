@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Core.Extensions.IO.Files;
+using ORBIT9000.Engine.Configuration.Raw;
 using ORBIT9000.Engine.Loaders.Plugin.Results;
 
 namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
@@ -8,17 +9,13 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
     {
         private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
 
-        public DebugDirectoryPluginLoader(ILogger? logger) : base(logger)
+        public DebugDirectoryPluginLoader(ILogger? logger, OrbitEngineConfiguration config) : base(logger, config)
         {
         }
 
         public override IEnumerable<PluginLoadResult> LoadPlugins(DirectoryInfo source)
         {
-            if (!source.Exists)
-            {
-                this._logger?.LogWarning("Source directory {Name} does not exist.", source.FullName);
-                yield break;
-            }
+            source = FindSrcFolder(source);
 
             if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
             {
@@ -40,6 +37,20 @@ namespace ORBIT9000.Engine.Loaders.Plugin.Strategies
                     }
                 }
             }
+        }
+        private DirectoryInfo? FindSrcFolder(DirectoryInfo currentDirectory)
+        {
+            if (currentDirectory == null || !currentDirectory.Exists)
+            {
+                return null;
+            }
+
+            if (currentDirectory.Name.Equals("src", StringComparison.OrdinalIgnoreCase))
+            {
+                return currentDirectory;
+            }
+
+            return FindSrcFolder(currentDirectory.Parent!);
         }
     }
 }

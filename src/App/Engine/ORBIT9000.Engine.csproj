@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Remove="IO\Loaders\PluginAssembly\Result\**" />
     <EmbeddedResource Remove="IO\Loaders\PluginAssembly\Result\**" />
     <None Remove="IO\Loaders\PluginAssembly\Result\**" />
@@ -17,6 +18,10 @@
   <ItemGroup>
     <None Include="OrbitEngine.Logging.cs" />
     <None Include="Runtime\Strategies\Running\DefaultEngineStrategy.cs" />
+=======
+    <None Include="OrbitEngine.Logging.cs" />
+    <None Include="Strategies\Running\DefaultEngineStrategy.cs" />
+>>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
   </ItemGroup>
 
   <ItemGroup>

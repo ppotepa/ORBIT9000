@@ -9,25 +9,29 @@ namespace ORBIT9000.Engine.Configuration
     /// <summary>
     /// Represents the configuration for the Orbit Engine, including plugin information and default folder settings.
     /// </summary>
-    public class OrbitEngineConfig
+    public class InternalOrbitEngineConfig
     {
         public required DirectoryInfo DefaultFolder { get; set; }
         public required PluginLoadResult[] PluginInfo { get; set; }
-        internal static OrbitEngineConfig? FromRaw(RawOrbitEngineConfig? rawConfig, ILogger? logger = default, IServiceCollection? services = null)
+        internal static InternalOrbitEngineConfig? FromRaw(OrbitEngineConfiguration? config, ILogger? logger = default, IServiceCollection? services = null)
         {
-            ArgumentNullException.ThrowIfNull(rawConfig);
+            ArgumentNullException.ThrowIfNull(config);
 
             logger?.LogInformation("Creating OrbitEngineConfig from raw configuration.");
 
             try
             {
-                string[] plugins = rawConfig.OrbitEngine.Plugins.ActivePlugins;
+                string[] plugins = config.OrbitEngine.Plugins.ActivePlugins;
                 DirectoryInfo defaultFolder = new DirectoryInfo("./plugins");
 
-                return new OrbitEngineConfig
+                PluginLoadResult[] loader = PluginLoaderFactory.Create(config, logger)
+                    .Where(result => result.ContainsPlugins)
+                    .ToArray(); 
+
+                return new InternalOrbitEngineConfig
                 {
                     DefaultFolder = defaultFolder,
-                    PluginInfo = PluginLoaderFactory.Load(rawConfig.OrbitEngine.Plugins, logger)
+                    PluginInfo = PluginLoaderFactory.Create(config, logger)
                                 .Where(result => result.ContainsPlugins)
                                 .ToArray()
                 };

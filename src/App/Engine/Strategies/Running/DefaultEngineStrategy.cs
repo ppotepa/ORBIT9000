@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ORBIT9000.Core.Abstractions.Plugin;
+using ORBIT9000.Engine.Loaders;
 using ORBIT9000.Engine.State;
 
 namespace ORBIT9000.Engine.Strategies.Running
@@ -22,11 +23,11 @@ namespace ORBIT9000.Engine.Strategies.Running
             }
         };
 
-        private static readonly Action<OrbitEngine> ProcessPlugins = (engine) =>
+        private static readonly Action<OrbitEngine> ProcessPlugins = async (engine) =>
         {
-            foreach ((Type type, PluginActivationInfo pluginInfo) in engine.Plugins)
+            foreach ((Type type, PluginRegistrationInfo pluginInfo) in engine.PluginRegistrations)
             {
-                if (pluginInfo.Instances.Any() && !pluginInfo.AllowMultiple)
+                if (pluginInfo.Tasks.Any() && !pluginInfo.AllowMultiple)
                 {
                     engine.LogError("Plugin is already running. {Name}", type.Name);
                     continue;
@@ -48,12 +49,12 @@ namespace ORBIT9000.Engine.Strategies.Running
                     await instance.OnLoad();
                 });
 
-                pluginInfo.Instances.Add(task);
+                pluginInfo.Tasks.Add(task);
 
-                task.ContinueWith(completed =>
+                await task.ContinueWith(completed =>
                 {
                     engine.LogInformation("Plugin {Name} has finished running.", type.Name);
-                    pluginInfo.Instances.Remove(completed);
+                    pluginInfo.Tasks.Remove(completed);
                 });
             }
         };
