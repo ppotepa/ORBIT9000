@@ -32,6 +32,7 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
         private readonly ILogger<OrbitEngine> _logger;
@@ -52,6 +53,8 @@ namespace ORBIT9000.Engine
 >>>>>>> ed8e1ec (Remove PreBuild Helper)
         private readonly ExceptionFactory _exceptionFactory;
 
+=======
+>>>>>>> 15b0cd8 (Remove unused fields)
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
