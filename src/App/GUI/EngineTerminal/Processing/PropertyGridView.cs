@@ -32,7 +32,7 @@ namespace EngineTerminal.Processing
         private const BindingFlags NOT_INHERITED = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
 
         private readonly int _cols, _rows;
-        private readonly ExampleData _data;        
+        private readonly object _data;        
         private readonly View _top;
 
      
@@ -71,7 +71,7 @@ namespace EngineTerminal.Processing
       
         private View _main;
 
-        public PropertyGridView(View top, ExampleData data, int rows = 5, int cols = 5)
+        public PropertyGridView(View top, object data, int rows = 5, int cols = 5)
         {
             _top = top;
             _data = data;

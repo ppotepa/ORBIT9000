@@ -4,8 +4,11 @@ using static EngineTerminal.Managers.UIManager;
 =======
 ﻿using EngineTerminal.Bindings;
 using EngineTerminal.Managers;
+<<<<<<< HEAD
 using ORBIT9000.Core.Models.Pipe;
 >>>>>>> 5ae5b98 (Add Inversion of Control)
+=======
+>>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
 
 namespace EngineTerminal.Contracts
 {
@@ -25,13 +28,18 @@ namespace EngineTerminal.Contracts
 =======
         Dictionary<string, ValueBinding> Bindings { get; }
 
-        void Initialize(ExampleData initialData);
+        void Initialize(object data);
 
         void Run();
 
         void UpdateUIFromData(object sender, IReadOnlyList<BindingAction> updates);
 
+<<<<<<< HEAD
         void UpdateStatusMessage(string message);
 >>>>>>> 5ae5b98 (Add Inversion of Control)
+=======
+        void UpdateStatusMessage(string message, string additionalInfo = null);
+        void UpdateCurrentMethod(string message);
+>>>>>>> d246613 (Remove Tight Coupling Between Data Manager and Target Data Type)
     }
 }

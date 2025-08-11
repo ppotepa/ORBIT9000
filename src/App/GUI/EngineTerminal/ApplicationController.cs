@@ -133,6 +133,7 @@ using System.ComponentModel;
 ﻿using EngineTerminal.Contracts;
 using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
+using System.Diagnostics;
 using System.Threading.Channels;
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 
@@ -183,7 +184,7 @@ namespace Orbit9000.EngineTerminal
         public async Task RunAsync()
         {
             _dataManager.Initialize();
-            _uiManager.Initialize(_dataManager.ExampleData);
+            _uiManager.Initialize(_dataManager.Data);
 
             var pipeTask = _pipeManager.StartProcessingAsync(_tokenSource.Token);
 
@@ -192,25 +193,41 @@ namespace Orbit9000.EngineTerminal
 
             _uiManager.Run();
 
+            _uiManager.UpdateStatusMessage("Initializing UI");
             await Task.WhenAll(pipeTask, dataTask, statusTask);
             await _tokenSource.CancelAsync();
         }
 
         protected virtual void OnDataReceived(IReadOnlyList<BindingAction> actions)
         {
-            PipeDataReceived?.Invoke(this, actions);
+            _uiManager.UpdateCurrentMethod($"Data Received. {actions.Count} update actions.");
+
+           PipeDataReceived?.Invoke(this, actions);
         }
 
         private async Task GetData()
         {
             await foreach (var newData in _dataReader.ReadAllAsync(_tokenSource.Token))
             {
-                var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
+                _uiManager.UpdateCurrentMethod("Obtaining data");
 
-                if (updates.Any())
+                var stopwatch = new Stopwatch();
                 {
-                    _uiManager.UpdateUIFromData(this, updates);
-                    OnDataReceived(updates); 
+                    stopwatch.Start();
+                    
+                    var updates = _dataManager.GetUpdates(newData, _uiManager.Bindings);
+
+                    if (updates.Any())
+                    {
+                        _uiManager.UpdateCurrentMethod($"Processing updates {updates.Count}.");
+                        _uiManager.UpdateUIFromData(this, updates);
+                        OnDataReceived(updates);
+                    }
+
+                    stopwatch.Stop();
+
+                    _uiManager.UpdateStatusMessage(null, $"Last Update took : { stopwatch.ElapsedMilliseconds}ms");
+                    await Task.Delay(100);
                 }
             }
         }
