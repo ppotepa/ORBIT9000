@@ -202,7 +202,7 @@ namespace ORBIT9000.Engine.Strategies.Running
             if (state.Engine.Configuration.EnableTerminal)
 >>>>>>> ba7902f (CleanUp DefaultRunningStrategy)
             {
-                Task.Run(() => PipeThread(state));
+                Task.Run(() => new PipeThreadHandler(state).StartAsync());
             }
 
 >>>>>>> 37a87d9 (Add Terminal AppSettings)
@@ -264,63 +264,6 @@ namespace ORBIT9000.Engine.Strategies.Running
             engine.LogInformation("Initializing engine.");
             // Any initialization logic here
             engine.LogInformation("Engine initialization completed.");
-        }
-
-        private static async Task PipeThread(EngineState? state)
-        {
-            if (state is null || state.Engine is null)
-            {
-                throw new InvalidOperationException("Engine state is null.");
-            }
-
-            state.Engine.LogInformation("Starting PipeThread.");
-
-            using var server = new NamedPipeServerStream("OrbitEngine", PipeDirection.Out);
-
-            await server.WaitForConnectionAsync();
-            state.Engine.LogInformation($"GUI Connected");
-
-            var random = new Random();
-
-            while (state.Engine.IsRunning)
-            {
-                var options = MessagePackSerializerOptions.Standard.WithResolver(CompositeResolver.Create(
-                    ContractlessStandardResolver.Instance,
-                    StandardResolver.Instance
-                ));
-
-                var exampleData = new ExampleData
-                {
-                    Frame1 = new SettingsData
-                    {
-                        Setting1 = random.Next(1, 100),
-                        Setting2 = "Text2",
-                    },
-
-                    Frame2 = new EngineData
-                    {
-                        Setting1 = random.Next(1, 100),
-                        Setting2 = random.Next(1, 100)
-                    }
-                };
-
-                byte[] buffer = MessagePack.MessagePackSerializer.Serialize(exampleData, options);
-
-                
-                if (random.NextDouble() > 0.97) 
-                {
-                    await server.WriteAsync(buffer, 0, buffer.Length);
-                    state.Engine.LogDebug("Message sent to GUI.");
-                }
-                else
-                {
-                    state.Engine.LogDebug("Message skipped for this interval.");
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(random.Next(50, 200))); 
-            }
-
-            state.Engine.LogInformation("PipeThread has completed.");
         }
     }
 }
