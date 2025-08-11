@@ -4,7 +4,6 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using ORBIT9000.Abstractions;
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -297,6 +296,7 @@ namespace ORBIT9000.Engine.Providers
             if (plugin is string pluginName)
             {
                 var target = _validPlugins.FirstOrDefault(x => x.PluginType.Name.Contains(pluginName));
+
                 if (target != null)
                 {
                     return await ActivatePlugin(target);

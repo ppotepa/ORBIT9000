@@ -3,6 +3,7 @@
 using static EngineTerminal.Managers.UIManager;
 =======
 ﻿using EngineTerminal.Bindings;
+using EngineTerminal.Managers;
 using ORBIT9000.Core.Models.Pipe;
 >>>>>>> 5ae5b98 (Add Inversion of Control)
 
@@ -28,7 +29,7 @@ namespace EngineTerminal.Contracts
 
         void Run();
 
-        void UpdateUIFromData(IReadOnlyList<Action<Dictionary<string, ValueBinding>>> updates);
+        void UpdateUIFromData(IReadOnlyList<BindingAction> updates);
 
         void UpdateStatusMessage(string message);
 >>>>>>> 5ae5b98 (Add Inversion of Control)

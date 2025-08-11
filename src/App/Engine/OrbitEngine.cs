@@ -55,6 +55,7 @@ namespace ORBIT9000.Engine
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         #region Fields
 
 =======
@@ -85,6 +86,10 @@ namespace ORBIT9000.Engine
         private readonly ExceptionFactory _exceptionFactory;
 
 >>>>>>> e1e815e (Add Plugin Activation Checks)
+=======
+        #region Fields
+
+>>>>>>> 18f5855 (Replace Dictionary of Actions with more clean BindingAction Type)
         private readonly ILogger<OrbitEngine> _logger;
         private readonly Thread _mainThread;
         private readonly IPluginProvider _pluginProvider;
@@ -98,8 +103,14 @@ namespace ORBIT9000.Engine
 =======
 >>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
 
+        private RuntimeSettings _configuration;
+
+        #endregion Fields
+
+        #region Constructors
+
         public OrbitEngine(
-            ILoggerFactory loggerFactory,
+                    ILoggerFactory loggerFactory,
             IServiceProvider serviceProvider,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -207,17 +218,22 @@ namespace ORBIT9000.Engine
             IsRunning = true;
             _configuration = configuration;
             _logger.LogInformation("Engine initialized with configuration: {Configuration}", configuration);
-
         }
 
+        #endregion Constructors
+
+        #region Properties
+
         public bool IsInitialized { get; }
-
-        private RuntimeSettings _configuration;
-
         public bool IsRunning { get; private set; }
         public IPluginProvider PluginProvider { get => _pluginProvider; }
         public IServiceProvider ServiceProvider { get => _serviceProvider; }
         internal RuntimeSettings Configuration { get => _configuration; set => _configuration = value; }
+
+        #endregion Properties
+
+        #region Methods
+
         public void Start()
         {
             if (!IsInitialized)
@@ -226,11 +242,16 @@ namespace ORBIT9000.Engine
             _logger.LogInformation("Starting engine thread...");
             _mainThread.Start(_serviceProvider.GetAutofacRoot().Resolve<EngineState>());
 
-            while(IsRunning)
+            while (IsRunning)
             {
                 Thread.Sleep(100);
-            }   
+            }
         }
+<<<<<<< HEAD
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+
+        #endregion Methods
+>>>>>>> 18f5855 (Replace Dictionary of Actions with more clean BindingAction Type)
     }
 }
