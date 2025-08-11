@@ -244,7 +244,7 @@ namespace ORBIT9000.Engine.Providers
     internal class PluginProvider : Core.Environment.Disposable, IPluginProvider
     {
         private readonly Dictionary<Type, IOrbitPlugin> _activePlugins = new();
-        private readonly GlobalMessageChannel<string> _channel;
+        private readonly GlobalMessageChannel<PluginEvent> _channel;
         private readonly RuntimeConfiguration _config;
         private readonly ILogger<PluginProvider> _logger;
         private readonly IPluginLoader _pluginLoader;
@@ -259,7 +259,7 @@ namespace ORBIT9000.Engine.Providers
             RuntimeConfiguration config,
             IPluginLoader pluginLoader,
             ILifetimeScope rootScope,
-            GlobalMessageChannel<string> channel)
+            GlobalMessageChannel<PluginEvent> channel)
         {
             _logger = logger;
             _config = config;
@@ -391,22 +391,23 @@ namespace ORBIT9000.Engine.Providers
                 return existingInstance;
             }
 
-            var instance = CreateInstanceFromScope(target.PluginType);
+            IOrbitPlugin? instance = CreateInstanceFromScope(target.PluginType);
 
             if (instance != null && target.IsSingleton)
             {
                 _activePlugins[target.PluginType] = instance;
+
+                PluginEvent @event = new PluginEvent
+                {
+                    Type = PluginEventType.Activated,
+                    PluginType = target.PluginType
+                };
+
+                await _channel.PublishAsync(@event);
             }
 
             _logger.LogInformation("Plugin activated: {Plugin}", target.PluginType.Name);
             
-            var msg = JsonConvert.SerializeObject(new PluginEvent
-            {
-                Type = PluginEventType.Activated,
-                PluginName = target.PluginType.Name
-            });
-
-            await _channel.PublishAsync(msg);
             return instance!;
         }
 

@@ -13,6 +13,7 @@ using ORBIT9000.Core.Abstractions.Loaders;
 =======
 using ORBIT9000.Core.Abstractions;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 83dd439 (Remove Code Smells)
 =======
 using ORBIT9000.Core.Attributes.Engine;
@@ -20,10 +21,14 @@ using ORBIT9000.Core.Attributes.Engine;
 =======
 using ORBIT9000.Core.Abstractions;
 >>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
+=======
+using ORBIT9000.Core.Attributes.Engine;
+>>>>>>> 1aafd5a (Add Basic Messaging)
 using ORBIT9000.Plugins.Example.DataProviders;
 
 namespace ORBIT9000.Plugins.Example
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -56,6 +61,9 @@ namespace ORBIT9000.Plugins.Example
 =======
     //[Singleton(typeof(ExamplePlugin))]
 >>>>>>> 53879fa (Add AutoInitialization to PluginProvider)
+=======
+    [Singleton(typeof(ExamplePlugin))]
+>>>>>>> 1aafd5a (Add Basic Messaging)
     public class ExamplePlugin : IOrbitPlugin
     {
         private readonly ExampleDataProvider _dataProvider;
