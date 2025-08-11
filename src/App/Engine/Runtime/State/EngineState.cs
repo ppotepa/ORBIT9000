@@ -1,6 +1,10 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using MessagePack;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Runtime;
+using ORBIT9000.Abstractions.Runtime;
 using ORBIT9000.Core.Events;
 using ORBIT9000.Engine.Configuration;
 
@@ -25,11 +29,11 @@ namespace ORBIT9000.Engine.Runtime.State
             ILogger<EngineState> logger
             )
         {
-            this.Engine = engine;
-            this._channel = channel;
-            this._logger = logger;
+            Engine = engine;
+            _channel = channel;
+            _logger = logger;
 
-            this.ListenToPluginEvents();
+            ListenToPluginEvents();
         }
 
         [Key(0)]
@@ -40,33 +44,33 @@ namespace ORBIT9000.Engine.Runtime.State
 
         private void HandlePluginEvent(PluginEvent pluginEvent)
         {
-            if (this.Engine?.Configuration?.Plugins == null)
+            if (Engine?.Configuration?.Plugins == null)
             {
-                this.Engine?.LogWarning("Engine configuration or plugins are not properly initialized.");
+                Engine?.LogWarning("Engine configuration or plugins are not properly initialized.");
                 return;
             }
 
-            PluginInfo? info = this.Engine.Configuration.Plugins
+            PluginInfo? info = Engine.Configuration.Plugins
                 .Where(x => x.ContainsPlugins)
                 .FirstOrDefault(x => x.PluginType == pluginEvent.PluginType);
 
             if (info == null)
             {
-                this.Engine.LogWarning("Plugin with name {PluginName} not found in configuration.", pluginEvent.PluginType);
+                Engine.LogWarning("Plugin with name {PluginName} not found in configuration.", pluginEvent.PluginType);
                 return;
             }
 
             switch (pluginEvent.Type)
             {
                 case PluginEventType.Activated:
-                    if (!this.ActivatedPlugins.Contains(info))
+                    if (!ActivatedPlugins.Contains(info))
                     {
-                        this.ActivatedPlugins.Add(info);
+                        ActivatedPlugins.Add(info);
                     }
                     break;
 
                 case PluginEventType.Deactivated:
-                    this.ActivatedPlugins.Remove(info);
+                    ActivatedPlugins.Remove(info);
                     break;
             }
         }
@@ -75,36 +79,163 @@ namespace ORBIT9000.Engine.Runtime.State
         {
             _ = Task.Run(async () =>
             {
-                this._logger.LogInformation("Listening to plugin events...");
-                while (this.Engine?.IsRunning == true)
+                _logger.LogInformation("Listening to plugin events...");
+                while (Engine?.IsRunning == true)
                 {
                     IAsyncEnumerable<PluginEvent> events;
 
-                    lock (this._channelLock)
+                    lock (_channelLock)
                     {
-                        events = this._channel.ReadAllAsync();
+                        events = _channel.ReadAllAsync();
                     }
 
                     try
                     {
                         await foreach (PluginEvent pluginEvent in events.WithCancellation(CancellationToken.None))
                         {
-                            this.HandlePluginEvent(pluginEvent);
+                            HandlePluginEvent(pluginEvent);
                         }
                     }
                     catch (OperationCanceledException ex)
                     {
-                        this._logger.LogWarning(ex, "Plugin event reading was canceled.");
+                        _logger.LogWarning(ex, "Plugin event reading was canceled.");
                         break;
                     }
                     catch (Exception ex)
                     {
-                        this._logger.LogError(ex, "An error occurred while processing plugin events.");
+                        _logger.LogError(ex, "An error occurred while processing plugin events.");
                     }
 
                     await Task.Delay(1000);
                 }
             });
         }
+=======
+﻿namespace ORBIT9000.Engine.Runtime.State
+{
+    public class EngineState
+    {
+        public OrbitEngine? Engine { get; internal set; }
+>>>>>>> e2b2b5a (Reworked Naming)
+=======
+﻿using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Events;
+=======
+﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Abstractions.Runtime;
+>>>>>>> 56ba6c0 (Add Generic Message Channel)
+=======
+﻿using MessagePack;
+using Microsoft.Extensions.Logging;
+using ORBIT9000.Abstractions;
+using ORBIT9000.Core.Abstractions.Runtime;
+using ORBIT9000.Core.Events;
+using ORBIT9000.Engine.Configuration;
+using System.Linq;
+>>>>>>> 1aafd5a (Add Basic Messaging)
+
+namespace ORBIT9000.Engine.Runtime.State
+{
+    [MessagePackObject]
+    public class EngineState
+    {
+        private readonly GlobalMessageChannel<PluginEvent> _channel;
+        private readonly object _channelLock = new object();
+        private readonly OrbitEngine _engine;
+        private readonly ILogger<EngineState> _logger;
+
+        public EngineState()
+        {
+        }
+
+        public EngineState(IPluginProvider pluginProvider,
+            OrbitEngine engine,
+            GlobalMessageChannel<PluginEvent> channel,
+            ILogger<EngineState> logger
+            )
+        {
+            _engine = engine;
+            _channel = channel;
+            _logger = logger;
+
+            ListenToPluginEvents();
+        }
+
+        [Key(0)]
+        public List<PluginInfo> ActivatedPlugins { get; internal set; } = [];
+
+        [IgnoreMember]
+        public OrbitEngine? Engine { get => _engine; }
+
+        private void HandlePluginEvent(PluginEvent pluginEvent)
+        {
+
+            if (Engine?.Configuration?.Plugins == null)
+            {
+                _engine.LogWarning("Engine configuration or plugins are not properly initialized.");
+                return;
+            }
+
+            var info = Engine.Configuration.Plugins
+                .Where(x => x.ContainsPlugins)
+                .FirstOrDefault(x => x.PluginType == pluginEvent.PluginType);
+
+            if (info == null)
+            {
+                _engine.LogWarning("Plugin with name {PluginName} not found in configuration.", pluginEvent.PluginType);
+                return;
+            }
+
+            switch (pluginEvent.Type)
+            {
+                case PluginEventType.Activated:
+                    if (!ActivatedPlugins.Contains(info))
+                    {
+                        ActivatedPlugins.Add(info);
+                    }
+                    break;
+
+                case PluginEventType.Deactivated:
+                    ActivatedPlugins.Remove(info);
+                    break;
+            }
+        }
+        private void ListenToPluginEvents()
+        {
+            _ = Task.Run(async () =>
+            {
+                _logger.LogInformation("Listening to plugin events...");
+                while (this.Engine?.IsRunning == true)
+                {
+                    IAsyncEnumerable<PluginEvent> events;
+
+                    lock (_channelLock)
+                    {
+                        events = _channel.ReadAllAsync();
+                    }
+
+                    try
+                    {
+                        await foreach (PluginEvent pluginEvent in events.WithCancellation(CancellationToken.None))
+                        {
+                            HandlePluginEvent(pluginEvent);
+                        }
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        _logger.LogWarning(ex, "Plugin event reading was canceled.");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "An error occurred while processing plugin events.");
+                    }
+
+                    await Task.Delay(1000);
+                }
+            });
+        }
+>>>>>>> 2e9d040 (Add Basic Plugin Channel Handling)
     }
 }

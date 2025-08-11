@@ -1,13 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
-using ORBIT9000.Core.Abstractions.Scheduling;
+using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Core.Environment;
-using ORBIT9000.Core.Models;
 using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Scheduling;
 
 namespace ORBIT9000.Engine.Tests
 {
+    // This test class currently uses Task.Delay or threaded calls to wait for asynchronous or scheduled operations.
+    // These delays make the tests slower and potentially flaky, especially as the test suite grows.
+    // TODO: Replace Task.Delay and threaded calls with controlled time simulation, mocks, or manual triggering
+    // of scheduled behavior to improve reliability and speed of tests.
+
     [TestFixture]
     public partial class Scheduler : Disposable
     {
@@ -24,9 +28,9 @@ namespace ORBIT9000.Engine.Tests
         [SetUp]
         public void Setup()
         {
-            this._scheduleCalculatorMock = new Mock<IScheduleCalculator>();
-            this._loggerMock = new Mock<ILogger<SimpleScheduler>>();
-            this._simpleScheduler = new SimpleScheduler(this._scheduleCalculatorMock.Object, this._loggerMock.Object);
+            _scheduleCalculatorMock = new Mock<IScheduleCalculator>();
+            _loggerMock = new Mock<ILogger<SimpleScheduler>>();
+            _simpleScheduler = new SimpleScheduler(_scheduleCalculatorMock.Object, _loggerMock.Object);
         }
 
         [Test]
@@ -35,7 +39,7 @@ namespace ORBIT9000.Engine.Tests
             bool jobExecuted = false;
             MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddSeconds(-10));
 
-            this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
+            _simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
             using CancellationTokenSource cancellationTokenSource = new();
 
@@ -43,7 +47,7 @@ namespace ORBIT9000.Engine.Tests
 
             try
             {
-                await this._simpleScheduler.StartAsync(cancellationTokenSource.Token);
+                await _simpleScheduler.StartAsync(cancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -64,12 +68,12 @@ namespace ORBIT9000.Engine.Tests
             MockScheduleJob job1 = CreateMockJob(currentTime.AddMilliseconds(100));
             MockScheduleJob job2 = CreateMockJob(currentTime.AddMilliseconds(100));
 
-            this.SetupScheduleCalculator(currentTime.AddMilliseconds(100));
+            SetupScheduleCalculator(currentTime.AddMilliseconds(100));
 
-            this._simpleScheduler.Schedule(job1, () => Interlocked.Increment(ref job1ExecutionCount));
-            this._simpleScheduler.Schedule(job2, () => Interlocked.Increment(ref job2ExecutionCount));
+            _simpleScheduler.Schedule(job1, () => Interlocked.Increment(ref job1ExecutionCount));
+            _simpleScheduler.Schedule(job2, () => Interlocked.Increment(ref job2ExecutionCount));
 
-            await this.RunSchedulerAndCancelAfterDelay(1000);
+            await RunSchedulerAndCancelAfterDelay(1000);
 
             Assert.Multiple(() =>
             {
@@ -88,10 +92,10 @@ namespace ORBIT9000.Engine.Tests
 
             scheduleJob.NextRun = DateTime.UtcNow.AddMilliseconds(-10);
 
-            this.SetupScheduleCalculator(DateTime.UtcNow.AddSeconds(1));
-            this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
+            SetupScheduleCalculator(DateTime.UtcNow.AddSeconds(1));
+            _simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
-            await this.RunSchedulerAndCancelAfterDelay(100);
+            await RunSchedulerAndCancelAfterDelay(100);
 
             Assert.That(jobExecuted, Is.True, "Job from text schedule was not executed");
         }
@@ -101,13 +105,13 @@ namespace ORBIT9000.Engine.Tests
         {
             MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
 
-            this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
+            SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
 
-            this._simpleScheduler.Schedule(scheduleJob, () => throw new Exception("Test exception"));
+            _simpleScheduler.Schedule(scheduleJob, () => throw new Exception("Test exception"));
 
-            await this.RunSchedulerAndCancelAfterDelay(100);
+            await RunSchedulerAndCancelAfterDelay(100);
 
-            this._loggerMock.Verify(
+            _loggerMock.Verify(
                 logger => logger.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -136,8 +140,8 @@ namespace ORBIT9000.Engine.Tests
 
             if (scheduleJob != null)
             {
-                this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
-                await this.RunSchedulerAndCancelAfterDelay(100);
+                _simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
+                await RunSchedulerAndCancelAfterDelay(100);
             }
 
             Assert.That(jobExecuted, Is.False, "Job was executed despite parsing error.");
@@ -152,12 +156,12 @@ namespace ORBIT9000.Engine.Tests
             MockScheduleJob firstJob = CreateMockJob(currentTime.AddMilliseconds(50));
             MockScheduleJob secondJob = CreateMockJob(currentTime.AddMilliseconds(10));
 
-            this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
+            SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
 
-            this._simpleScheduler.Schedule(firstJob, () => executionOrder.Add(1));
-            this._simpleScheduler.Schedule(secondJob, () => executionOrder.Add(2));
+            _simpleScheduler.Schedule(firstJob, () => executionOrder.Add(1));
+            _simpleScheduler.Schedule(secondJob, () => executionOrder.Add(2));
 
-            await this.RunSchedulerAndCancelAfterDelay(200);
+            await RunSchedulerAndCancelAfterDelay(200);
 
             Assert.Multiple(() =>
             {
@@ -173,10 +177,10 @@ namespace ORBIT9000.Engine.Tests
             bool jobExecuted = false;
             MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
 
-            this.SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
-            this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
+            SetupScheduleCalculator(DateTime.UtcNow.AddHours(1));
+            _simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
-            await this.RunSchedulerAndCancelAfterDelay(100);
+            await RunSchedulerAndCancelAfterDelay(100);
 
             // Assert
             Assert.That(jobExecuted, Is.True, "Overdue job was not executed");
@@ -191,29 +195,31 @@ namespace ORBIT9000.Engine.Tests
             MockScheduleJob firstOverdueJob = CreateMockJob(currentTime.AddMilliseconds(-20));
             MockScheduleJob secondOverdueJob = CreateMockJob(currentTime.AddMilliseconds(-10));
 
-            this.SetupScheduleCalculator(currentTime.AddHours(1));
+            SetupScheduleCalculator(currentTime.AddHours(1));
 
-            this._simpleScheduler.Schedule(firstOverdueJob, () => Interlocked.Increment(ref executedJobCount));
-            this._simpleScheduler.Schedule(secondOverdueJob, () => Interlocked.Increment(ref executedJobCount));
+            _simpleScheduler.Schedule(firstOverdueJob, () => Interlocked.Increment(ref executedJobCount));
+            _simpleScheduler.Schedule(secondOverdueJob, () => Interlocked.Increment(ref executedJobCount));
 
-            await this.RunSchedulerAndCancelAfterDelay(100);
+            await RunSchedulerAndCancelAfterDelay(100);
 
             Assert.That(executedJobCount, Is.EqualTo(2), "Not all overdue jobs were executed");
         }
+
         [Test]
         public async Task StartAsync_UpdatesNextRunTime()
         {
             MockScheduleJob scheduleJob = CreateMockJob(DateTime.UtcNow.AddMilliseconds(-10));
             DateTime nextRunTime = DateTime.UtcNow.AddHours(1);
 
-            this.SetupScheduleCalculator(nextRunTime);
+            SetupScheduleCalculator(nextRunTime);
 
-            this._simpleScheduler.Schedule(scheduleJob, () => { });
+            _simpleScheduler.Schedule(scheduleJob, () => { });
 
-            await this.RunSchedulerAndCancelAfterDelay(100);
+            await RunSchedulerAndCancelAfterDelay(100);
 
             Assert.That(nextRunTime, Is.EqualTo(scheduleJob.NextRun));
         }
+
         [Test]
         public async Task StartAsync_WaitsUntilNextJob()
         {
@@ -221,13 +227,13 @@ namespace ORBIT9000.Engine.Tests
             DateTime currentTime = DateTime.UtcNow;
             MockScheduleJob scheduleJob = CreateMockJob(currentTime.AddMilliseconds(100));
 
-            this.SetupScheduleCalculator(currentTime.AddHours(1));
+            SetupScheduleCalculator(currentTime.AddHours(1));
 
-            this._simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
+            _simpleScheduler.Schedule(scheduleJob, () => jobExecuted = true);
 
             Assert.That(jobExecuted, Is.False);
 
-            await this.RunSchedulerAndCancelAfterDelay(150);
+            await RunSchedulerAndCancelAfterDelay(150);
 
             Assert.That(jobExecuted, Is.True);
         }

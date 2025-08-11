@@ -1,5 +1,5 @@
-﻿using ORBIT9000.Core.Abstractions.Parsing;
-using ORBIT9000.Core.Models;
+﻿using ORBIT9000.Abstractions.Parsing;
+using ORBIT9000.Abstractions.Scheduling;
 using System.Text.RegularExpressions;
 
 namespace ORBIT9000.Core.TempTools
@@ -73,12 +73,12 @@ namespace ORBIT9000.Core.TempTools
 
         IScheduleJob ITextScheduleParser.Parse(string input, string jobName)
         {
-            return this.Parse(input, jobName);
+            return Parse(input, jobName);
         }
 
         IScheduleJob IParser<IScheduleJob>.Parse(string input)
         {
-            return this.Parse(input, string.Empty);
+            return Parse(input, string.Empty);
         }
     }
 }

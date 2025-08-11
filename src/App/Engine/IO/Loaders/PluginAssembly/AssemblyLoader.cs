@@ -1,9 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
+<<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
+=======
+using ORBIT9000.Core.Abstractions.Loaders;
+=======
+>>>>>>> 83dd439 (Remove Code Smells)
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly.Context;
+<<<<<<< HEAD
+using ORBIT9000.Engine.Loaders.Plugin.Results;
+>>>>>>> e2b2b5a (Reworked Naming)
+=======
+>>>>>>> 254394d (Remove OverLogging)
 using System.Reflection;
 
 namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
 {
+<<<<<<< HEAD
     internal sealed class AssemblyLoader(ILogger<AssemblyLoader> logger) : IAssemblyLoader
     {
         private static readonly Dictionary<string, PluginLoadContext> _loadContexts
@@ -16,11 +29,32 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             try
             {
                 PluginLoadContext loadContext = new(info.FullName);
+=======
+    internal sealed class AssemblyLoader : IAssemblyLoader
+    {
+        private static readonly Dictionary<string, PluginLoadContext> _loadContexts
+            = new Dictionary<string, PluginLoadContext>();
+
+        private readonly ILogger<AssemblyLoader> _logger;
+
+        public AssemblyLoader(ILogger<AssemblyLoader> logger)
+        {
+            this._logger = logger;
+        }
+
+        public Assembly Load(FileInfo info, bool loadAsBinary = false)
+        {
+            try
+            {
+                PluginLoadContext loadContext = new PluginLoadContext(info.FullName);
+>>>>>>> e2b2b5a (Reworked Naming)
                 _loadContexts[info.FullName] = loadContext;
 
                 if (loadAsBinary)
                 {
                     byte[] bytes = File.ReadAllBytes(info.FullName);
+<<<<<<< HEAD
+<<<<<<< HEAD
                     return loadContext.LoadFromAssemblyBytes(bytes);
                 }
                 else
@@ -31,22 +65,66 @@ namespace ORBIT9000.Engine.IO.Loaders.PluginAssembly
             catch (Exception ex)
             {
                 string contextualMessage = $"Failed to load assembly from {info.FullName}.";
-                this._logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
+                _logger.LogError(ex, "Failed to load assembly from {A}", info.FullName);
                 throw new InvalidOperationException(contextualMessage, ex);
             }
+=======
+                    assembly = loadContext.LoadFromAssemblyBytes(bytes);
+=======
+                    return loadContext.LoadFromAssemblyBytes(bytes);
+>>>>>>> 83dd439 (Remove Code Smells)
+                }
+                else
+                {
+                    return loadContext.LoadFromAssemblyPath(info.FullName);
+                }
+            }
+            catch (Exception ex)
+            {
+                var contextualMessage = $"Failed to load assembly from {info.FullName}.";
+                _logger.LogError(ex, contextualMessage);
+                throw new InvalidOperationException(contextualMessage, ex); 
+            }
+<<<<<<< HEAD
+
+<<<<<<< HEAD
+            return new TryLoadAssemblyResult(assembly, pluginTypes, exceptions);
+>>>>>>> e2b2b5a (Reworked Naming)
+=======
+            return assembly;
+>>>>>>> 254394d (Remove OverLogging)
+=======
+>>>>>>> 83dd439 (Remove Code Smells)
         }
 
         public void UnloadAssembly(string assemblyPath)
         {
+<<<<<<< HEAD
             if (_loadContexts.TryGetValue(assemblyPath, out PluginLoadContext? loadContext))
             {
                 loadContext.Unload();
                 _loadContexts.Remove(assemblyPath);
-                this._logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
+                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
             }
         }
 
         public void UnloadAssembly(FileInfo info)
-            => this.UnloadAssembly(info.FullName);
+            => UnloadAssembly(info.FullName);
+=======
+            if (_loadContexts.TryGetValue(assemblyPath, out var loadContext))
+            {
+                loadContext.Unload();
+                _loadContexts.Remove(assemblyPath);
+                _logger.LogDebug("Unloaded assembly: {Path}", assemblyPath);
+            }
+        }
+
+        public void UnloadAssembly(FileInfo info)
+            => UnloadAssembly(info.FullName);
+<<<<<<< HEAD
+
+>>>>>>> e2b2b5a (Reworked Naming)
+=======
+>>>>>>> 254394d (Remove OverLogging)
     }
 }

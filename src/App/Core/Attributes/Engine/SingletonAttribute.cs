@@ -3,8 +3,8 @@
 namespace ORBIT9000.Core.Attributes.Engine
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-
-    public class SingletonAttribute : Attribute, IEngineAttribute
+    
+    public class SingletonAttribute : Attribute
     {
         public SingletonAttribute(Type targetType)
         {
@@ -12,10 +12,6 @@ namespace ORBIT9000.Core.Attributes.Engine
             {
                 throw new InvalidOperationException("SingletonAttribute can only be used with the IOrbit implementations.");
             }
-        }
-
-        public SingletonAttribute()
-        {
         }
     }
 }

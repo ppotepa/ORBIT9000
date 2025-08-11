@@ -3,7 +3,7 @@ name: Build
 
 on:
   push:
-    branches: [ master, 0.91.1-alpha ]
+    branches: [ master, 0.91.2-alpha ]
 
 jobs:
   build:

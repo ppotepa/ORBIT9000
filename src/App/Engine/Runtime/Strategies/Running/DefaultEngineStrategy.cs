@@ -1,7 +1,14 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.DependencyInjection;
-using ORBIT9000.Core.Abstractions.Data.Entities;
+<<<<<<< HEAD
+using ORBIT9000.Abstractions.Data.Entities;
+using ORBIT9000.Abstractions.Scheduling;
 using ORBIT9000.Core.Attributes.Engine;
-using ORBIT9000.Core.Models;
 using ORBIT9000.Core.TempTools;
 using ORBIT9000.Engine.Runtime.Pipe;
 using ORBIT9000.Engine.Runtime.State;
@@ -14,10 +21,58 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
         public static void EngineStartupStrategy(object? obj)
         {
             if (obj is not EngineState { Engine: { } engine })
+=======
+using ORBIT9000.Core.Abstractions.Loaders;
+using ORBIT9000.Engine.Providers;
+=======
+﻿using ORBIT9000.Core.Abstractions.Loaders;
+>>>>>>> ed8e1ec (Remove PreBuild Helper)
+=======
+﻿using ORBIT9000.Core.Abstractions;
+using ORBIT9000.Core.Abstractions.Loaders;
+>>>>>>> 83dd439 (Remove Code Smells)
+using ORBIT9000.Engine.Runtime.State;
+=======
+﻿using ORBIT9000.Engine.Runtime.State;
+>>>>>>> 53c6dc2 (Further Remove code smells.)
+=======
+﻿using Newtonsoft.Json;
+using ORBIT9000.Engine.Runtime.State;
+using System.IO.Pipes;
+using System.Text;
+>>>>>>> 590e002 (Add Temporary NamedPipe and Receiving Console App)
+=======
+﻿using ORBIT9000.Engine.Runtime.State;
+=======
+﻿using MessagePack.Resolvers;
+using MessagePack;
+using ORBIT9000.Core.Models.Pipe;
+using ORBIT9000.Engine.Runtime.State;
+>>>>>>> 147c461 (Refactor Program.CS)
+using System.IO.Pipes;
+<<<<<<< HEAD
+>>>>>>> 122b62b (Fix Engine Main Thread)
+=======
+using ORBIT9000.Core.Attributes.Engine;
+using ORBIT9000.Core.Parsing;
+>>>>>>> a7c6658 (Add Very Basic Job Scheduling)
+
+namespace ORBIT9000.Engine.Strategies.Running
+{
+    internal static class Default
+    {
+        public static void EngineStartupStrategy(object? obj)
+        {
+            if (obj is not EngineState state || state.Engine is null)
+>>>>>>> e2b2b5a (Reworked Naming)
             {
                 throw new InvalidOperationException("Engine state is null.");
             }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
             EngineState? state = obj as EngineState;
 
             engine.LogInformation("Starting EngineStartupStrategy.");
@@ -141,3 +196,80 @@ namespace ORBIT9000.Engine.Runtime.Strategies.Running
         }
     }
 }
+=======
+=======
+            if(state.Engine.Configuration.EnableTerminal is true)
+=======
+=======
+            state.Engine.LogInformation("Starting EngineStartupStrategy.");
+
+>>>>>>> 122b62b (Fix Engine Main Thread)
+            if (state.Engine.Configuration.EnableTerminal)
+>>>>>>> ba7902f (CleanUp DefaultRunningStrategy)
+            {
+                Task.Run(() => new PipeThreadHandler(state).StartAsync());
+            }
+
+>>>>>>> 37a87d9 (Add Terminal AppSettings)
+            state.Engine.LogInformation("Engine is running. Strategy {Strategy}", nameof(EngineStartupStrategy));
+
+            Initialize(state.Engine);
+
+            while (state.Engine?.IsRunning == true)
+            {
+                state.Engine.LogDebug("Engine loop iteration started.");
+
+                Execute(state.Engine);
+
+                state.Engine.LogDebug("Engine loop iteration completed.");
+                Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+            }
+
+            state.Engine.LogInformation("EngineStartupStrategy has completed.");
+        }
+
+        private static void Execute(OrbitEngine engine)
+        {
+            try
+            {
+                foreach(var plugin in engine.PluginProvider.Plugins)
+                {
+                    engine.PluginProvider.Activate(plugin);
+                }
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred while loading plugins: {Message}", ex.Message);
+            }
+        }
+
+        private static void Initialize(OrbitEngine engine)
+        {
+            var parser = new TextScheduleParser();
+
+            try
+            {
+                engine.LogInformation("Initializing plugins with scheduled jobs.");
+
+                foreach (var pluginType in engine.PluginProvider.Plugins)
+                {
+                    var scheduleJobAttribute = pluginType.GetCustomAttributes(typeof(SchedulableService), inherit: true).FirstOrDefault();
+                    
+                    if (scheduleJobAttribute is SchedulableService jobAttribute)
+                    {
+                        var job = parser.Parse(jobAttribute.ScheduleExpression);
+                        engine.LogInformation("Found scheduled job in plugin: {PluginType}, Schedule: {Schedule}", pluginType.Name, jobAttribute.ScheduleExpression);
+                        engine.Scheduler.Schedule(job, () => { Console.WriteLine("THIS IS SCHEDULED JOB"); });
+                    }
+                }
+
+                engine.LogInformation("Plugin initialization completed.");
+            }
+            catch (Exception ex)
+            {
+                engine.LogError("An error occurred during plugin initialization: {Message}", ex.Message);
+            }
+        }
+    }
+}
+>>>>>>> e2b2b5a (Reworked Naming)

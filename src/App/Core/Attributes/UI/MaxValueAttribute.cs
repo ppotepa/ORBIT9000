@@ -3,11 +3,16 @@
 namespace ORBIT9000.Core.Attributes.UI
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class MaxValueAttribute(int maxValue) : ValidationAttribute
+    public class MaxValueAttribute : ValidationAttribute
     {
-        public int MaxValue { get; } = maxValue;
+        public int MaxValue { get; private set; }
 
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        public MaxValueAttribute(int maxValue)
+        {
+            MaxValue = maxValue;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (value == null)
                 return ValidationResult.Success;
@@ -17,10 +22,10 @@ namespace ORBIT9000.Core.Attributes.UI
                 throw new ArgumentNullException(nameof(validationContext), "ValidationContext cannot be null.");
             }
 
-            if (value is int intValue && intValue > this.MaxValue)
+            if (value is int intValue && intValue > MaxValue)
             {
                 return new ValidationResult(
-                    this.ErrorMessage ?? $"{validationContext.DisplayName} must be less than or equal to {this.MaxValue}.");
+                    ErrorMessage ?? $"{validationContext.DisplayName} must be less than or equal to {MaxValue}.");
             }
 
             return ValidationResult.Success;

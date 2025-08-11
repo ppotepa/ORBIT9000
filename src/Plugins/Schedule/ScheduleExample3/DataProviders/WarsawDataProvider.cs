@@ -1,7 +1,7 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using ORBIT9000.Core.Abstractions.Authentication;
+using ORBIT9000.Abstractions.Authentication;
 using ORBIT9000.Core.Attributes;
 using ORBIT9000.Core.Attributes.Engine;
 using ORBIT9000.Plugins.Example.Common;
@@ -22,8 +22,8 @@ namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
         {
             ArgumentNullException.ThrowIfNull(logger);
 
-            this._logger = logger;
-            this._logger.LogInformation("ExampleDataProvider initialized. {Data}", this.GetHashCode());
+            _logger = logger;
+            _logger.LogInformation("ExampleDataProvider initialized. {Data}", GetHashCode());
         }
 
         public bool AllowAnonymous => true;
@@ -37,7 +37,7 @@ namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
 
         public Task<IEnumerable<WeatherResponse>> GetData()
         {
-            this._logger.LogInformation("Fetching data from weather API: {@Data}", this.GetHashCode());
+            _logger.LogInformation("Fetched data from weather API WarsawDataProvider.");
 
             var query = new
             {
@@ -55,7 +55,7 @@ namespace ORBIT9000.Plugins.ScheduleExample3.DataProviders
         }
         public Task<IEnumerable<WeatherResponse>> GetAlternativeData()
         {
-            this._logger.LogInformation("Fetching alternative data from weather API: {@Data}", this.GetHashCode());
+            _logger.LogInformation("Fetching alternative data from weather API: {@Data}", GetHashCode());
 
             var query = new
             {

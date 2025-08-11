@@ -9,11 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\App\Core\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\..\App\Core\Coupled\ORBIT9000.Core.csproj" />
+    <ProjectReference Include="..\..\..\Domain\ORBIT9000.Domain\ORBIT9000.ExampleDomain.csproj" />
     <ProjectReference Include="..\..\Common\ORBIT9000.Plugins.Example.Common.csproj" />
   </ItemGroup>
 

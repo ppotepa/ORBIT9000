@@ -15,9 +15,9 @@ namespace ORBIT9000.Engine.Tests.TestHelpers.Logging
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
                                 Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            this._entries.Add(new LogEntry
+            _entries.Add(new LogEntry
             {
-                Category = this._category,
+                Category = _category,
                 Level = logLevel!,
                 Message = formatter(state, exception)
             });
@@ -29,14 +29,14 @@ namespace ORBIT9000.Engine.Tests.TestHelpers.Logging
 
             protected override void Dispose(bool disposing)
             {
-                if (!this.disposed)
+                if (!disposed)
                 {
                     if (disposing)
                     {
                         Instance.Dispose();
                     }
 
-                    this.disposed = true;
+                    disposed = true;
                 }
 
                 base.Dispose(disposing);

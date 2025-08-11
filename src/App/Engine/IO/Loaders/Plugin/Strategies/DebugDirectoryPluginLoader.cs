@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+<<<<<<< HEAD
+<<<<<<< HEAD
 using ORBIT9000.Core.Extensions.IO;
 using ORBIT9000.Engine.Configuration;
 using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
@@ -18,14 +20,14 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (source is null)
             {
-                this._logger.LogWarning("No 'src' folder found starting from {Name}", source?.FullName ?? "unknown");
+                _logger.LogWarning("No 'src' folder found starting from {Name}", source?.FullName ?? "unknown");
                 yield break;
             }
 
             IEnumerable<DirectoryInfo> subdirs = source.EnumerateDirectories();
             if (!subdirs.Any(d => d.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase)))
             {
-                this._logger.LogWarning("No 'Plugins' directory found under {Name}", source.FullName);
+                _logger.LogWarning("No 'Plugins' directory found under {Name}", source.FullName);
                 yield break;
             }
 
@@ -34,13 +36,13 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
 
             if (!files.Any())
             {
-                this._logger.LogWarning("No plugins found in {Name}", pluginDir.FullName);
+                _logger.LogWarning("No plugins found in {Name}", pluginDir.FullName);
                 yield break;
             }
 
             foreach (FileInfo file in files)
             {
-                yield return this.LoadSingle(file.FullName);
+                yield return LoadSingle(file.FullName);
             }
         }
 
@@ -60,6 +62,68 @@ namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
             }
 
             return null;
+=======
+using ORBIT9000.Core.Abstractions.Loaders;
+=======
+>>>>>>> 254394d (Remove OverLogging)
+using ORBIT9000.Core.Extensions.IO.Files;
+using ORBIT9000.Engine.Configuration;
+using ORBIT9000.Engine.IO.Loaders.PluginAssembly;
+using ORBIT9000.Engine.Configuration.Raw;
+
+namespace ORBIT9000.Engine.IO.Loaders.Plugin.Strategies
+{
+    internal class DebugDirectoryPluginLoader : PluginLoaderBase<DirectoryInfo>
+    {
+        private static readonly string[] SKIP_FOLDERS = { "obj", "ref", "Release" };
+
+        public DebugDirectoryPluginLoader(ILogger<DebugDirectoryPluginLoader> logger, 
+            RawEngineConfiguration config, 
+            IAssemblyLoader loader) 
+            : base(logger, loader)
+        {
+        }
+
+        public override IEnumerable<PluginInfo> LoadPlugins(DirectoryInfo source)
+        {
+            source = FindSrcFolder(source)!;
+            
+            if (source.EnumerateDirectories() is var subdirs && subdirs.Any(info => info.Name == "Plugins"))
+            {
+                this._logger.LogInformation("Source directory {Name} contains subdirectories. " +
+                    $"Only the top-level directory will be used.", source.FullName);
+
+                DirectoryInfo newSource = new DirectoryInfo(Path.Combine(source.FullName, "Plugins"));
+                FileInfo[] files = [.. newSource.GetFilesExcept("*.dll", SKIP_FOLDERS)];
+                  
+                if (files.Length == 0)
+                {
+                    this._logger.LogWarning("No plugins found in {Name}", newSource.FullName);
+                }
+                else
+                {
+                    foreach (FileInfo file in files)
+                    {
+                        yield return LoadSingle(file.FullName);
+                    }
+                }
+            }
+        }
+
+        private DirectoryInfo? FindSrcFolder(DirectoryInfo currentDirectory)
+        {
+            if (currentDirectory == null || !currentDirectory.Exists)
+            {
+                return null;
+            }
+
+            if (currentDirectory.Name.Equals("src", StringComparison.OrdinalIgnoreCase))
+            {
+                return currentDirectory;
+            }
+
+            return FindSrcFolder(currentDirectory.Parent!);
+>>>>>>> e2b2b5a (Reworked Naming)
         }
     }
 }

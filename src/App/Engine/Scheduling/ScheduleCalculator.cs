@@ -1,5 +1,4 @@
-﻿using ORBIT9000.Core.Abstractions.Scheduling;
-using ORBIT9000.Core.Models;
+﻿using ORBIT9000.Abstractions.Scheduling;
 
 namespace ORBIT9000.Engine.Scheduling
 {
