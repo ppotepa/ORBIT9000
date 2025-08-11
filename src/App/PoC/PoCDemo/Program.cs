@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿using Microsoft.Extensions.Logging;
 using ORBIT9000.Engine;
 using ORBIT9000.Engine.Builders;
@@ -9,6 +10,13 @@ using System.Globalization;
 using ORBIT9000.Engine.Builders;
 using ORBIT9000.Plugins.Twitter;
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
+=======
+﻿using Microsoft.Extensions.Logging;
+using ORBIT9000.Engine;
+using ORBIT9000.Engine.Builders;
+using ORBIT9000.Plugins.Twitter;
+using Serilog;
+>>>>>>> 9aa9371 (Replace Serilog with Microsoft.Extensions.Logging)
 
 namespace ORBIT9000.PoCDemo
 {
@@ -19,6 +27,7 @@ namespace ORBIT9000.PoCDemo
 
         private static void Main(string[] args)
         {
+<<<<<<< HEAD
             ArgumentNullException.ThrowIfNull(args);
 
             Log.Logger = new LoggerConfiguration()
@@ -27,6 +36,14 @@ namespace ORBIT9000.PoCDemo
                 .CreateLogger();
 
             using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+=======
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(outputTemplate: _outputTemplate)
+                .CreateLogger();
+
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+>>>>>>> 9aa9371 (Replace Serilog with Microsoft.Extensions.Logging)
             {
                 builder.ClearProviders();
                 builder.AddSerilog(Log.Logger);
@@ -35,12 +52,15 @@ namespace ORBIT9000.PoCDemo
             OrbitEngine engine = new OrbitEngineBuilder(loggerFactory)
                 .UseConfiguration()
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                 .UseSerilogLogging()
 <<<<<<< HEAD
                 .RegisterPlugins()
 >>>>>>> 7611f11 (Refactor plugin loading and configuration handling)
 =======
+=======
+>>>>>>> 9aa9371 (Replace Serilog with Microsoft.Extensions.Logging)
                 .RegisterPlugins(typeof(TwitterPlugin))
 >>>>>>> e3e4b59 (Refactor Orbit Engine configuration and plugin loading)
                 .Build();
