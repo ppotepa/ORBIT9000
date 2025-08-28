@@ -1,6 +1,3 @@
-Here’s a polished and slightly cleaned-up version of your README with formatting fixes, better readability, and consistent code block usage:
-
-```markdown
 # ORBIT9000
 
 **ORBIT9000** is an experimental, modular **.NET 8** application built with a dynamic plugin-based architecture.  
@@ -25,7 +22,6 @@ It provides a flexible framework to develop, discover, and execute loosely coupl
 ## 🗂️ Structure Overview
 
 ```
-
 src/
 ├── App/
 │   ├── Core/                  # Interfaces, abstractions, attributes
@@ -37,8 +33,7 @@ src/
 │   └── Example2/              # Plugin returning random numbers
 │
 └── PoC/PoCDemo/               # Minimal demo app for engine execution
-
-````
+```
 
 ---
 
@@ -47,24 +42,21 @@ src/
 1. **Clone and Build**
    ```sh
    dotnet build ORBIT9000.sln
-````
+   ```
 
 2. **Run the Engine Terminal**
-
    ```sh
    dotnet run --project src/App/GUI/EngineTerminal
    ```
 
 3. **Run the PoC Demo (engine only)**
-
    ```sh
    dotnet run --project src/App/PoC/PoCDemo
    ```
 
 4. **Add Plugins**
-
-   * Drop compiled plugin DLLs into the designated plugin directory.
-   * Use attributes and interfaces to define behaviour.
+   - Drop compiled plugin DLLs into the designated plugin directory.
+   - Use attributes and interfaces to define behaviour.
 
 ---
 
@@ -82,35 +74,28 @@ public class WeatherQuery : IOrbitPlugin
 
 ## 🔧 Tech Stack
 
-* **.NET 8**
-* **Terminal.Gui** – TUI frontend
-* **Autofac** – Dependency Injection
-* **MessagePack / Newtonsoft.Json** – Serialization
-* **Plugin LoadContext** – Isolated plugin loading
+- **.NET 8**
+- **Terminal.Gui** – TUI frontend
+- **Autofac** – Dependency Injection
+- **MessagePack / Newtonsoft.Json** – Serialization
+- **Plugin LoadContext** – Isolated plugin loading
 
 ---
 
 ## 📦 Projects
 
-* **ORBIT9000.Core** – Contracts and definitions
-* **ORBIT9000.Engine** – Core engine (loading strategies, DI container)
-* **EngineTerminal** – Console interface for plugin execution
-* **PoCDemo** – Example consumer app
-* **Plugins** – Example/test plugins
+- **ORBIT9000.Core** – Contracts and definitions  
+- **ORBIT9000.Engine** – Core engine (loading strategies, DI container)  
+- **EngineTerminal** – Console interface for plugin execution  
+- **PoCDemo** – Example consumer app  
+- **Plugins** – Example/test plugins  
 
-[![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)
+[![Build](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/build.yml)  
 [![Publish NuGet Package](https://github.com/ppotepa/ORBIT9000/actions/workflows/nuget-publish.yml/badge.svg)](https://github.com/ppotepa/ORBIT9000/actions/workflows/nuget-publish.yml)
 
 ---
 
 ## 📜 License & Status
 
-This is an **experimental project under active development**.
+This is an **experimental project under active development**.  
 Use at your own discretion.
-
-```
-
----
-
-Would you like me to also **add contribution guidelines and usage examples** (like writing a plugin step-by-step), or do you prefer to keep it minimal for now?
-```
